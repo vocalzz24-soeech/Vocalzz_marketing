@@ -40,7 +40,8 @@ def main():
         if row.upper().startswith("TODO"):
             continue
         parts = [p.strip() for p in row.split("|")]
-        competitors.append((parts[0], parts[1] if len(parts) > 1 else ""))
+        name = re.sub(r"\s*\(.*?\)", "", parts[0]).strip()  # search without "(owner)" notes
+        competitors.append((name, parts[1] if len(parts) > 1 else ""))
 
     print("# Keyword searches\n")
     for k in keywords:
