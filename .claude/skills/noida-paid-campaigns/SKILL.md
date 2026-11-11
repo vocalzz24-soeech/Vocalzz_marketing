@@ -85,7 +85,11 @@ Then summarise:
 - Common offers and price points, and gaps nobody covers.
 - Keywords/localities with heavy vs. no competition.
 - Creative patterns worth testing, and claims to avoid copying.
-- 3–5 concrete recommendations for Vocalzz campaigns in Noida.
+- 3–5 concrete recommendations for Vocalzz campaigns in Noida, consistent with
+  `CLAUDE.md`: Meta Click-to-WhatsApp + Google search within the stated budget,
+  WhatsApp CTA, one problem per ad, Hinglish where it fits, and no cure/timeline
+  promises (also against Meta and Google healthcare ad policies). If a competitor wins with
+  claims like "guaranteed results", point that out but do not suggest copying it.
 
 ## Step 5: Report
 

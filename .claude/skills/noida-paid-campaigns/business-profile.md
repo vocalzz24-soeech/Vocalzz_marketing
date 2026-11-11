@@ -1,45 +1,59 @@
 # Business profile (edit this file)
 
-The skill reads this before every run. Fill in or correct anything marked TODO.
-The more specific the keywords, the more useful the results.
+The skill reads this before every run. The full brand context is in the repo-root
+`CLAUDE.md`; this file keeps only what the ad search needs.
 
 ## Business
 - **Name**: Vocalzz
-- **Business type**: TODO (assumed: voice / speech / communication training,
-  e.g. vocal coaching, public speaking, spoken English, speech therapy; please confirm)
-- **Website**: TODO
-- **Facebook / Instagram page**: TODO
-- **Customers**: TODO (e.g. students, working professionals, kids, corporates)
-- **Delivery**: TODO (in-centre in Noida / online / both)
+- **Business type**: Multi-therapy clinic: speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy for children, adults and seniors
+- **Location**: E-004, Logix Blossom County, Sector 137, Noida
+- **Website**: vocalzz.com
+- **Instagram**: @vocalzz_4u
+- **Customers**: mainly parents (25–44) of children aged 2–8 with speech delay, autism or ADHD; also teens/adults who stammer, and families of elderly people with hearing loss or post-stroke speech problems
+- **Delivery**: in-clinic in Noida, plus online therapy across India
+- **Own ad plan**: Meta Click-to-WhatsApp ads within ~10 km of Sector 137 + Google search ads, ₹6k test then ~₹10k/month
 
 ## Services to track
-- TODO: replace or confirm
-- vocal training / singing classes
-- public speaking course
-- spoken English / communication skills classes
-- speech therapy
-- voice-over training
+- speech therapy (speech/language delay, autism, stammering, misarticulation, apraxia, voice, aphasia, swallowing)
+- occupational therapy (sensory integration, fine motor, handwriting)
+- behavioural therapy / ABA (ADHD, autism behaviour, tantrums)
+- special education (learning difficulties, dyslexia)
+- audiology (hearing tests, hearing aids)
+- paediatric physiotherapy
+- online speech therapy
 
 ## Keywords
 English:
-- singing classes noida
-- vocal coach noida
-- public speaking classes noida
-- spoken english classes noida
-- communication skills course noida
+- speech therapy noida
 - speech therapist noida
-- voice over course noida
+- speech therapy sector 137 noida
+- child speech delay noida
+- autism therapy noida
+- autism centre noida
+- occupational therapy noida
+- sensory integration therapy noida
+- ABA therapy noida
+- ADHD therapy for child noida
+- stammering treatment noida
+- special educator noida
+- child development centre noida
+- hearing test noida
+- audiologist noida
+- speech therapy greater noida west
+- online speech therapy india
 
 Hindi / Hinglish:
-- singing sikhne ki class noida
-- english bolna sikhe noida
-- आवाज़ प्रशिक्षण नोएडा
+- bachha bolta nahi hai
+- bacche ki speech therapy noida
+- haklana ka ilaj noida
+- autism ka ilaj noida
+- बच्चा देर से बोलना
 
 ## Geography
-- Primary: Noida (all sectors), Greater Noida, Noida Extension (Greater Noida West)
-- Secondary: Ghaziabad, East Delhi, Delhi NCR
-- Pin codes of interest (optional): 201301, 201303, 201304, 201307, 201309, 201310
+- Primary (~10 km of Sector 137): Noida Expressway sectors (93–168), Sector 18/50/62/76/78, Greater Noida West (Noida Extension), Greater Noida
+- Secondary: East Delhi (Mayur Vihar, Patparganj), Ghaziabad (Indirapuram), Delhi NCR
+- Pin codes of interest: 201301, 201303, 201304, 201305, 201306, 201307, 201309, 201310, 201318
 
 ## Known competitors
 Add one per line: Name | website domain | Facebook page URL
-- TODO
+- TODO: add clinics you know of; the skill will also discover them
