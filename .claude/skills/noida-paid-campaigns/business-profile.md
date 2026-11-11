@@ -56,4 +56,30 @@ Hindi / Hinglish:
 
 ## Known competitors
 Add one per line: Name | website domain | Facebook page URL
-- TODO: add clinics you know of; the skill will also discover them
+- Sunshine by Lissun | lissun.app |
+- The Learning Hub (Mr Shishu Pal) | |
+- Dr. Samrat Jain Speech and Occupational Therapy Clinic | |
+- Essential For Kids | |
+- BRAIN-O-BITS NEURO CARE | |
+- The Wings Learning Center (Dr Rishi Pal) | |
+- TWLC | |
+
+## Competitor notes
+Details from public directory listings (Nov 2026); check before relying on them.
+Not read by the script.
+
+* **Sunshine by Lissun**: offline child-development centres run by LISSUN (Mindeye Solutions Pvt Ltd).
+  Team covers developmental paediatrics, psychology, speech, OT, special education and ABA. The first
+  centre is in East Patel Nagar, Delhi, with more planned across Delhi NCR; Noida location not confirmed.
+  Website lissun.app. Funded startup, so likely the biggest ad spender.
+* **The Learning Hub (Mr Shishu Pal)**: **Sector 137, Noida, same sector as Vocalzz.** Speech
+  therapy, behavioural therapy/ABA, special education, group classes. May also have a branch in
+  Vikaspuri, Delhi. No website found. Closest direct competitor.
+* **Dr. Samrat Jain**: occupational therapist with about 15 years' experience. Listed clinic "Essential For Kids",
+  D-182 basement, Sector 51, Noida (since 2014); another listing says Sector 31. Offers speech, OT, ABA
+  and sensory integration. Fee about ₹650. No website found.
+* **BRAIN-O-BITS NEURO CARE**: no web presence found under this name. Check its Google Maps listing
+  for the exact page name and website. ("NEURO CARE" also appears as an OT listing in Noida.)
+* **The Wings Learning Center (Dr Rishi Pal)**: speech therapist and audiologist (BASLP). D-27 basement,
+  Sector 36, Noida; also listed at Metro Hospital, Sector 11. Offers speech, autism and hearing
+  services. Fee about ₹1,500. The name is shared with unrelated centres in Ghaziabad and Delhi.
