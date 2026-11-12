@@ -6,7 +6,7 @@
   "description": "Appointment booking with WhatsApp confirmations and reminders for Vocalzz",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler d1 migrations apply vocalzz-appointments --remote && wrangler deploy",
+    "deploy": "wrangler deploy && wrangler d1 migrations apply vocalzz-appointments --remote",
     "test": "node --test test/*.test.ts",
     "db:migrate:local": "wrangler d1 migrations apply vocalzz-appointments --local",
     "db:migrate:remote": "wrangler d1 migrations apply vocalzz-appointments --remote"

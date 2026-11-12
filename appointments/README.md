@@ -57,13 +57,19 @@ To run the reminder check by hand: open http://localhost:8787/__scheduled.
 
 ## Put it online (one time)
 
-1. Create a free Cloudflare account and log in: `npx wrangler login`.
-2. Create the database: `npx wrangler d1 create vocalzz-appointments`, then copy the `database_id` it prints into
-   `wrangler.toml`.
-3. Create the tables: `npm run db:migrate:remote`.
-4. Deploy: `npm run deploy`. Cloudflare prints the web address.
-5. Optional: in the Cloudflare dashboard, add the custom domain `book.vocalzz.com`.
-6. Open the site and create the admin login straight away. The first person to open it becomes the admin.
+Easiest (no computer needed): in the Cloudflare dashboard, go to **Compute → Workers & Pages → Create →
+Import a repository**, pick this GitHub repository and set:
+
+- **Root directory:** `appointments`
+- **Deploy command:** `npm run deploy`
+
+`npm run deploy` publishes the app, creates the `vocalzz-appointments` database on the first run, and sets up
+its tables. Cloudflare redeploys automatically on every push to the chosen branch.
+
+From a computer instead: `npx wrangler login`, then `npm run deploy`.
+
+Then open the site and **create the admin login straight away**: the first person to open it becomes the
+admin. Optional: add the custom domain `book.vocalzz.com` in the dashboard.
 
 ## Connect WhatsApp
 

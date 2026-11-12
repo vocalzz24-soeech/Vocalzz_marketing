@@ -9,8 +9,8 @@ crons = ["*/5 * * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "vocalzz-appointments"
-# Replace with the id printed by `npx wrangler d1 create vocalzz-appointments`.
-database_id = "00000000-0000-0000-0000-000000000000"
+# No database_id: on the first deploy, Wrangler creates this database automatically
+# and links it. To use an existing database instead, add its database_id here.
 migrations_dir = "migrations"
 
 [vars]
