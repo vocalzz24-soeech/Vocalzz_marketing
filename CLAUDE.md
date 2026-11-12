@@ -57,3 +57,6 @@ You are working for **Vocalzz**, a speech, occupational and behavioural therapy 
 ## Hashtags and keywords
 - Use 5 correctly spelled hashtags, e.g. #SpeechTherapyNoida #SpeechDelay #AutismSupportIndia #OccupationalTherapy #Vocalzz
 - One natural local keyword line per caption, e.g. "Speech therapy in Sector 137, Noida"
+
+## Service-specific context
+- **Audiology** (hearing tests, hearing aids): see `audiology/CLAUDE.md` before writing any audiology content.
