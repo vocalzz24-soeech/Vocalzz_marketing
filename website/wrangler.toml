@@ -1,0 +1,7 @@
+name = "vocalzz-website"
+compatibility_date = "2025-10-01"
+
+# Static site: every file in public/ is served as-is.
+[assets]
+directory = "./public"
+not_found_handling = "404-page"
