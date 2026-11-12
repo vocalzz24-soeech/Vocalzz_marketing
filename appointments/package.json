@@ -1,0 +1,20 @@
+{
+  "name": "vocalzz-appointments",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Appointment booking with WhatsApp confirmations and reminders for Vocalzz",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.ts",
+    "db:migrate:local": "wrangler d1 migrations apply vocalzz-appointments --local",
+    "db:migrate:remote": "wrangler d1 migrations apply vocalzz-appointments --remote"
+  },
+  "dependencies": {
+    "hono": "4.13.18"
+  },
+  "devDependencies": {
+    "wrangler": "4.161.0"
+  }
+}

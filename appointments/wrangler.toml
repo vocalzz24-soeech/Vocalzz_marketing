@@ -1,0 +1,27 @@
+name = "vocalzz-appointments"
+main = "src/index.ts"
+compatibility_date = "2025-10-01"
+
+# Reminder check runs every 5 minutes.
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "vocalzz-appointments"
+# Replace with the id printed by `npx wrangler d1 create vocalzz-appointments`.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[vars]
+CLINIC_NAME = "Vocalzz"
+CLINIC_ADDRESS = "E-004, Logix Blossom County, Sector 137, Noida"
+CLINIC_WHATSAPP = "918800230240"
+DEFAULT_DURATION_MIN = "45"
+OPEN_HOUR = "10"
+CLOSE_HOUR = "21"
+WHATSAPP_TEMPLATE_LANG = "en"
+# Secrets (set with `npx wrangler secret put NAME`, never commit them):
+#   WHATSAPP_TOKEN            Meta permanent access token
+#   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id for +91 88002 30240
+# Without them, messages are recorded as "dry_run" and not sent.

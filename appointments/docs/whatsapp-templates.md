@@ -1,0 +1,115 @@
+# WhatsApp message templates
+
+Create each template in **WhatsApp Manager → Message templates → Create template** with:
+
+- **Category:** Utility
+- **Language:** English
+- **Name:** exactly as shown, because the code refers to these names
+- **Body:** copy the text exactly, including the {{1}}, {{2}}… placeholders
+- **Sample values:** Meta asks for an example of each placeholder. Use the samples below.
+
+This file is generated from `src/whatsapp.ts`. If you change wording there, update the template in WhatsApp
+Manager too, and wait for it to be approved again.
+
+## vocalzz_appt_confirmed
+
+```
+Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz is confirmed for {{5}}.
+
+Address: E-004, Logix Blossom County, Sector 137, Noida.
+To cancel or change the time, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Dr. Samriddhi
+- {{5}}: Fri, 20 Nov 2026, 5:00 PM
+
+## vocalzz_appt_reminder
+
+```
+Hello {{1}}, a reminder that the {{2}} session for {{3}} with {{4}} at Vocalzz is {{5}}.
+
+To cancel or change the time, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Dr. Samriddhi
+- {{5}}: tomorrow, Fri, 20 Nov 2026, 5:00 PM
+
+## vocalzz_appt_rescheduled
+
+```
+Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz has been moved to {{5}}.
+
+To cancel or change the time, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Dr. Samriddhi
+- {{5}}: Sat, 21 Nov 2026, 4:00 PM
+
+## vocalzz_appt_cancelled
+
+```
+Hello {{1}}, the {{2}} session for {{3}} on {{4}} at Vocalzz has been cancelled.
+
+To book a new time, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Fri, 20 Nov 2026, 5:00 PM
+
+## vocalzz_therapist_new
+
+```
+New appointment for you: {{1}} ({{2}}) on {{3}}, for {{4}} minutes. Please check the schedule for details.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Speech therapy
+- {{3}}: Fri, 20 Nov 2026, 5:00 PM
+- {{4}}: 45
+
+## vocalzz_therapist_moved
+
+```
+Appointment moved: {{1}} ({{2}}) is now on {{3}}, for {{4}} minutes. It was on {{5}} before. Please check the schedule.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Speech therapy
+- {{3}}: Sat, 21 Nov 2026, 4:00 PM
+- {{4}}: 45
+- {{5}}: Fri, 20 Nov 2026, 5:00 PM
+
+## vocalzz_therapist_cancelled
+
+```
+Appointment cancelled: {{1}} ({{2}}) on {{3}} will not take place. Please check the schedule.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Speech therapy
+- {{3}}: Fri, 20 Nov 2026, 5:00 PM
