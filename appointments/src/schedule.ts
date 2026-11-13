@@ -114,3 +114,13 @@ export function weekWindow(today: string, dayParam?: string, startParam?: string
 /** 0 = Sunday … 6 = Saturday for a "YYYY-MM-DD" calendar day. */
 export const weekday = (day: string) => new Date(`${day}T00:00:00Z`).getUTCDay();
 export const isWeekend = (day: string) => weekday(day) === 0 || weekday(day) === 6;
+
+/** Start times offered in the booking form: every 5 minutes from opening until 5 minutes before closing. */
+export function timeSlots(openHour: number, closeHour: number): { value: string; label: string }[] {
+  const out: { value: string; label: string }[] = [];
+  for (let m = openHour * 60; m < closeHour * 60; m += 5) {
+    const h = Math.floor(m / 60), mm = String(m % 60).padStart(2, "0");
+    out.push({ value: `${String(h).padStart(2, "0")}:${mm}`, label: `${h % 12 === 0 ? 12 : h % 12}:${mm} ${h < 12 ? "AM" : "PM"}` });
+  }
+  return out;
+}

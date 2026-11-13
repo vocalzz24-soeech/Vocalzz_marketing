@@ -3,7 +3,10 @@ import { html, raw } from "hono/html";
 import type { User } from "./auth.ts";
 import type { ApptRow } from "./notify.ts";
 import { dateToIstLocal, formatDateTime, formatTime } from "./time.ts";
-import { endOf } from "./schedule.ts";
+import { endOf, timeSlots } from "./schedule.ts";
+
+// Clinic hours 10:00–21:00 (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
+const TIME_SLOTS = timeSlots(10, 21);
 
 type H = ReturnType<typeof html>;
 
@@ -190,7 +193,10 @@ ${therapists.filter((t) => t.active).map((t) => html`<option value="${t.id}" ${S
 ${SERVICES.map((s) => html`<option ${s === form.service ? "selected" : ""}>${s}</option>`)}
 </select>
 <div class="row">
-<div><label for="start">Date and time</label><input id="start" name="start" type="datetime-local" step="300" value="${form.start ?? ""}" required></div>
+<div><label for="date">Date</label><input id="date" name="date" type="date" value="${(form.start ?? "").slice(0, 10)}" required></div>
+<div><label for="time">Time</label><select id="time" name="time" required><option value="">Choose time…</option>
+${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === (form.start ?? "").slice(11, 16) ? "selected" : ""}>${t.label}</option>`)}
+</select></div>
 <div><label for="duration">Length (minutes)</label><input id="duration" name="duration" type="number" min="15" max="180" step="5" value="${form.duration ?? String(defaultDuration)}" required></div>
 </div>
 <label>Extra time</label>

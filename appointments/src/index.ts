@@ -146,7 +146,8 @@ async function validateSlot(env: Env, f: ApptForm, excludeId?: number) {
   const durationMin = Number(f.duration);
   const extraMin = Number(f.extra ?? 0);
   const therapistId = Number(f.therapist_id);
-  if (!start) return { error: "Choose a date and time." };
+  if (!start) return { error: "Choose a date and a time." };
+  if (start.getUTCMinutes() % 5 !== 0) return { error: "Choose a time in 5-minute steps, like 11:00, 11:05 or 11:10." };
   if (!Number.isInteger(durationMin) || durationMin < 15 || durationMin > 180) return { error: "Length must be 15 to 180 minutes." };
   if (![0, 10, 15].includes(extraMin)) return { error: "Extra time must be none, +10 or +15 minutes." };
   if (!SERVICES.includes(f.service ?? "")) return { error: "Choose a therapy." };
@@ -177,7 +178,7 @@ async function validateSlot(env: Env, f: ApptForm, excludeId?: number) {
 
 const formFrom = (f: Record<string, unknown>): ApptForm => ({
   patient_id: str(f.patient_id), therapist_id: str(f.therapist_id), service: str(f.service),
-  start: str(f.start), duration: str(f.duration), extra: str(f.extra) || "0", notes: str(f.notes),
+  start: str(f.start) || (str(f.date) && str(f.time) ? `${str(f.date)}T${str(f.time)}` : ""), duration: str(f.duration), extra: str(f.extra) || "0", notes: str(f.notes),
 });
 
 app.get("/appointments/new", adminOnly, async (c) => {

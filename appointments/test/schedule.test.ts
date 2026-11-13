@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, weekWindow } from "../src/schedule.ts";
+import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, timeSlots, weekWindow } from "../src/schedule.ts";
 import { formatDateTime, istDay, istLocalToDate, dateToIstLocal } from "../src/time.ts";
 import { reminderWhen } from "../src/notify.ts";
 import { renderTemplate, TEMPLATES } from "../src/whatsapp.ts";
@@ -95,4 +95,14 @@ test("7-day schedule strip", () => {
   assert.equal(weekWindow(today, "2026-13-45").selected, today, "impossible dates fall back to today");
   assert.equal(weekWindow(today, "2026-02-30").selected, today);
   assert.deepEqual(w.days.filter(isWeekend), ["2026-11-14", "2026-11-15"]);
+});
+
+test("booking times come in 5-minute steps within clinic hours", () => {
+  const t = timeSlots(10, 21);
+  assert.equal(t[0].value, "10:00"); assert.equal(t[0].label, "10:00 AM");
+  assert.equal(t[1].value, "10:05");
+  assert.equal(t[24].label, "12:00 PM");
+  assert.equal(t.at(-1)!.value, "20:55"); assert.equal(t.at(-1)!.label, "8:55 PM");
+  assert.equal(t.length, 132);
+  assert.ok(t.every((x) => Number(x.value.slice(3)) % 5 === 0));
 });
