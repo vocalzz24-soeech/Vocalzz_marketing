@@ -90,7 +90,7 @@ const isDay = (v?: string): v is string => {
   const t = Date.parse(`${v}T00:00:00Z`);
   return !Number.isNaN(t) && new Date(t).toISOString().startsWith(v); // rejects 2026-02-30 etc.
 };
-const addDays = (day: string, n: number) => {
+export const addDays = (day: string, n: number) => {
   const d = new Date(`${day}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
@@ -157,3 +157,33 @@ export function shortDay(day: string): string {
   const d = new Date(`${day}T00:00:00Z`);
   return `${SHORT_WD[d.getUTCDay()]} ${d.getUTCDate()} ${SHORT_MON[d.getUTCMonth()]}`;
 }
+
+/** All days in the calendar month after the one containing `day`, on the given weekdays. */
+export function nextMonthDays(day: string, weekdays: number[]): string[] {
+  const d = new Date(`${day}T00:00:00Z`);
+  const first = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 2, 0)).toISOString().slice(0, 10);
+  const set = new Set(weekdays);
+  const out: string[] = [];
+  for (let x = first; x <= last && out.length < MAX_SERIES; x = addDays(x, 1)) if (set.has(weekday(x))) out.push(x);
+  return out;
+}
+
+const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+/** "December 2026" for the month after the one containing `day`, or for `day`'s own month with offset 0. */
+export function monthLabel(day: string, offset = 0): string {
+  const d = new Date(`${day}T00:00:00Z`);
+  const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + offset, 1));
+  return `${MONTHS_LONG[m.getUTCMonth()]} ${m.getUTCFullYear()}`;
+}
+
+/**
+ * Consecutive missed sessions, newest first. `history` is the patient's past sessions that were
+ * marked, newest first ("completed" | "no_show"). Stops at the first attended session.
+ */
+export function missedStreak(history: string[]): number {
+  let n = 0;
+  for (const st of history) { if (st === "no_show") n++; else break; }
+  return n;
+}
+export const FOLLOW_UP_AFTER = 2;

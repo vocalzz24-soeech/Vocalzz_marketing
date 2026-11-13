@@ -171,3 +171,31 @@ Sample values:
 - {{1}}: Aarav
 - {{2}}: Speech therapy
 - {{3}}: Mon 23 Nov, Thu 26 Nov
+
+## vocalzz_series_moved
+
+```
+Hello {{1}}, the weekly {{2}} sessions for {{3}} at Vocalzz have new times. They are now with {{4}} on: {{5}}.
+
+To cancel or change a session, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Dr. Samriddhi
+- {{5}}: Mon 7 Dec 4:00 PM, Mon 14 Dec 4:00 PM, Mon 21 Dec 4:00 PM
+
+## vocalzz_therapist_series_moved
+
+```
+Weekly sessions updated: {{1}} ({{2}}) is now with you on {{3}}. Please check the schedule.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Speech therapy
+- {{3}}: Mon 7 Dec 4:00 PM, Mon 14 Dec 4:00 PM

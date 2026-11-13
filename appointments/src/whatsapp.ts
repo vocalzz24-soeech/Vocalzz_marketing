@@ -36,6 +36,11 @@ export const TEMPLATES = {
     "To book new times, just reply to this message.",
   vocalzz_therapist_series_cancelled:
     "Sessions cancelled: {{1}} ({{2}}) on {{3}}. Please check the schedule.",
+  vocalzz_series_moved:
+    "Hello {{1}}, the weekly {{2}} sessions for {{3}} at Vocalzz have new times. They are now with {{4}} on: {{5}}.\n\n" +
+    "To cancel or change a session, just reply to this message.",
+  vocalzz_therapist_series_moved:
+    "Weekly sessions updated: {{1}} ({{2}}) is now with you on {{3}}. Please check the schedule.",
 } as const;
 
 export type TemplateName = keyof typeof TEMPLATES;

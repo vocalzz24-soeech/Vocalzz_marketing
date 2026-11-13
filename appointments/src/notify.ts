@@ -113,6 +113,29 @@ export async function notifySeriesBooked(env: Env, appts: ApptRow[], opts: { ski
   });
 }
 
+const dayTimeList = (appts: ApptRow[]) =>
+  appts.map((a) => `${shortDay(istDay(new Date(a.start_utc)))} ${formatTime(new Date(a.start_utc))}`).join(", ");
+
+/** After moving several sessions of a series: one message to the patient and the (new) therapist; the old therapist hears they are off. */
+export async function notifySeriesMoved(env: Env, moved: ApptRow[], previous: ApptRow[], oldTherapistPhone: string | null) {
+  const a = moved[0];
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "series_moved",
+    template: "vocalzz_series_moved", allowed: !!a.whatsapp_consent,
+    params: [greet(a), a.service, a.patient_name, a.therapist_name, dayTimeList(moved)],
+  });
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "series_moved",
+    template: "vocalzz_therapist_series_moved", params: [a.patient_name, a.service, dayTimeList(moved)],
+  });
+  if (oldTherapistPhone && oldTherapistPhone !== a.therapist_phone) {
+    await sendWhatsApp(env, {
+      appointmentId: a.id, recipient: "therapist", to: oldTherapistPhone, kind: "series_cancelled",
+      template: "vocalzz_therapist_series_cancelled", params: [a.patient_name, a.service, dayList(previous)],
+    });
+  }
+}
+
 /** One message per person when several sessions of a series are cancelled together. */
 export async function notifySeriesCancelled(env: Env, appts: ApptRow[]) {
   const a = appts[0];

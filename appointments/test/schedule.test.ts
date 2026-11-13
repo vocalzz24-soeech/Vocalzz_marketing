@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, seriesDays, seriesEnd, shortDay, timeSlots, weekWindow } from "../src/schedule.ts";
+import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, missedStreak, monthLabel, nextMonthDays, seriesDays, seriesEnd, shortDay, timeSlots, weekWindow } from "../src/schedule.ts";
 import { formatDateTime, istDay, istLocalToDate, dateToIstLocal } from "../src/time.ts";
 import { reminderWhen } from "../src/notify.ts";
 import { renderTemplate, TEMPLATES } from "../src/whatsapp.ts";
@@ -119,4 +119,15 @@ test("weekly series dates", () => {
   assert.equal(seriesEnd("2026-12-30", "month_end"), "2026-12-31");
   assert.equal(seriesDays("2026-11-16", [0, 1, 2, 3, 4, 5, 6], "2027-05-01").length, 26, "capped");
   assert.equal(seriesDays("2026-11-16", [3], "2026-11-30")[0], "2026-11-16", "first day always included");
+});
+
+test("continue next month, month labels and missed streaks", () => {
+  assert.deepEqual(nextMonthDays("2026-11-30", [1, 4]).map(shortDay),
+    ["Thu 3 Dec", "Mon 7 Dec", "Thu 10 Dec", "Mon 14 Dec", "Thu 17 Dec", "Mon 21 Dec", "Thu 24 Dec", "Mon 28 Dec", "Thu 31 Dec"]);
+  assert.equal(nextMonthDays("2026-12-15", [5])[0], "2027-01-01", "rolls over the year");
+  assert.equal(monthLabel("2026-11-30", 1), "December 2026");
+  assert.equal(monthLabel("2026-12-03"), "December 2026");
+  assert.equal(missedStreak(["no_show", "no_show", "completed"]), 2);
+  assert.equal(missedStreak(["completed", "no_show", "no_show"]), 0);
+  assert.equal(missedStreak([]), 0);
 });

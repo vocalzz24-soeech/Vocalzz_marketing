@@ -43,6 +43,12 @@ input[type=checkbox],input[type=radio]{width:auto}
 .pill.ok{color:var(--ok);border-color:var(--ok)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.wait{color:#fff;background:#d97706;border-color:#d97706}.pill.muted-pill{color:var(--muted);border-color:var(--line)}
 .msg-main{min-width:0}
 .repeat-box{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.repeat-toggle{display:flex!important;gap:8px;align-items:center;margin:0!important;font-size:16px}.chips label.wk{background:var(--wk-bg);border-color:var(--wk-line)}
+.day-chip.holiday{background:repeating-linear-gradient(45deg,var(--card),var(--card) 6px,var(--line) 6px,var(--line) 8px);border-style:dashed}.day-chip.holiday .dn{text-decoration:line-through;color:var(--muted)}
+.sw.holiday{background:repeating-linear-gradient(45deg,var(--card),var(--card) 3px,var(--line) 3px,var(--line) 5px);border:1px dashed var(--muted)}
+.holiday-badge{color:var(--bad);border-color:var(--bad)}
+.followup-banner{border:2px solid var(--warn)}.followup-banner a{font-weight:700}
+.continue-card{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;border:2px dashed var(--brand)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.stat{background:var(--bg);border-radius:10px;padding:10px;text-align:center}.stat b{display:block;font-size:26px}
 .locked{padding:10px;border:1px dashed var(--line);border-radius:8px;background:var(--bg);font-weight:600}
 .comment{padding:10px 0;border-bottom:1px solid var(--line)}.comment-body{white-space:pre-wrap;margin-top:2px}
 textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
@@ -70,7 +76,7 @@ textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);borde
 .day-chip.today{border-width:2px;border-color:var(--brand)}
 .day-chip.selected{background:var(--brand);border-color:var(--brand)}.day-chip.selected *{color:var(--brand-ink)!important}
 .day-chip .cnt b{font-weight:800;color:var(--ink)}.day-chip.weekend .cnt b{color:var(--wk-ink)}@media (max-width:560px){.cnt-word{display:none}}
-.legend{display:flex;align-items:center;gap:6px;margin:8px 0 0}.sw{display:inline-block;width:14px;height:14px;border-radius:4px}.sw.weekend{background:var(--wk-bg);border:1px solid var(--wk-line)}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:8px 0 0}.legend>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.legend a{margin-left:auto}.sw{display:inline-block;width:14px;height:14px;border-radius:4px}.sw.weekend{background:var(--wk-bg);border:1px solid var(--wk-line)}
 .weekend-badge{color:var(--wk-ink);border-color:var(--wk-line);background:var(--wk-bg);vertical-align:middle}
 .daynav{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:end}.daynav .btn{margin:0}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 160px}
@@ -142,9 +148,10 @@ export function setupPage(error?: string) {
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null }
 
-export interface DayChip { day: string; booked: number }
+export interface DayChip { day: string; booked: number; holiday?: string }
+export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
 
-export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false) {
+export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false, followUps: FollowUp[] = []) {
   const day = win.selected;
   const groups = therapists
     .map((t) => ({ t, list: appts.filter((a) => a.therapist_id === t.id) }))
@@ -156,15 +163,18 @@ export function schedulePage(user: User, win: { selected: string; start: string;
   const chip = (c: DayChip) => {
     const d = new Date(`${c.day}T00:00:00Z`);
     const wd = d.getUTCDay();
-    const cls = ["day-chip", wd === 0 || wd === 6 ? "weekend" : "", c.day === day ? "selected" : "", c.day === today ? "today" : ""].join(" ");
+    const cls = ["day-chip", wd === 0 || wd === 6 ? "weekend" : "", c.holiday ? "holiday" : "", c.day === day ? "selected" : "", c.day === today ? "today" : ""].join(" ");
     return html`<a class="${cls}" href="${q(`day=${c.day}&start=${win.start}`)}" aria-current="${c.day === day ? "date" : "false"}">
 <span class="wd">${c.day === today ? "Today" : WD[wd]}</span><span class="dn">${d.getUTCDate()}</span><span class="mo">${MON[d.getUTCMonth()]}</span>
-<span class="cnt">${c.booked ? html`<b>${c.booked}</b><span class="cnt-word"> booked</span>` : "free"}</span></a>`;
+<span class="cnt">${c.holiday ? html`<b>Closed</b>` : c.booked ? html`<b>${c.booked}</b><span class="cnt-word"> booked</span>` : "free"}</span></a>`;
   };
   const sel = new Date(`${day}T00:00:00Z`);
+  const selHoliday = chips.find((c) => c.day === day)?.holiday;
   return layout("Schedule", user, html`
 <h1>Schedule</h1>
 ${user.role === "admin" ? pendingBanner(pendingCount) : ""}
+${followUps.length ? html`<div class="card followup-banner"><strong>⚠ Follow up: ${followUps.length} patient${followUps.length === 1 ? "" : "s"} missed ${FOLLOW_UP}+ sessions in a row</strong>
+<div>${followUps.slice(0, 5).map((f) => html`<a href="/patients/${f.id}/summary">${f.name}</a> <span class="muted">(${f.missed} missed)</span> `)}</div></div>` : ""}
 <div class="weeknav">
 <a class="btn secondary small" href="${q(`day=${win.prevStart}&start=${win.prevStart}`)}">‹ Prev week</a>
 <a class="btn secondary small" href="${q(`day=${win.nextStart}&start=${win.nextStart}`)}">Next week ›</a>
@@ -173,9 +183,9 @@ ${user.role === "admin" ? pendingBanner(pendingCount) : ""}
 ${user.role === "therapist" ? html`<span class="seg"><a class="${mineOnly ? "" : "on"}" href="/?day=${day}&start=${win.start}">Everyone</a><a class="${mineOnly ? "on" : ""}" href="/?day=${day}&start=${win.start}&mine=1">Only my sessions</a></span>` : ""}
 </div>
 <div class="week">${chips.map(chip)}</div>
-<p class="muted legend"><span class="sw weekend"></span> Saturday &amp; Sunday</p>
+<p class="muted legend"><span><span class="sw weekend"></span> Sat &amp; Sun</span><span><span class="sw holiday"></span> Closed</span>${user.role === "admin" ? html`<a href="/holidays">Clinic holidays →</a>` : ""}</p>
 <h2 style="margin-top:8px">${WD[sel.getUTCDay()]}, ${sel.getUTCDate()} ${MON[sel.getUTCMonth()]} ${sel.getUTCFullYear()}${
-  sel.getUTCDay() === 0 || sel.getUTCDay() === 6 ? html` <span class="badge weekend-badge">Weekend</span>` : ""}</h2>
+  sel.getUTCDay() === 0 || sel.getUTCDay() === 6 ? html` <span class="badge weekend-badge">Weekend</span>` : ""}${selHoliday ? html` <span class="badge holiday-badge">Closed: ${selHoliday}</span>` : ""}</h2>
 ${groups.length === 0 ? html`<div class="card muted">No therapists yet. ${user.role === "admin" ? html`<a href="/therapists">Add one</a>.` : ""}</div>` : ""}
 ${groups.map((g) => html`
 <h2>${g.t.name} <span class="muted">${g.list.filter((a) => a.status === "booked").length} booked</span></h2>
@@ -315,7 +325,7 @@ export const needsManualSend = (m: MessageRow) => (m.status === "dry_run" || m.s
 const KIND_LABEL: Record<string, string> = {
   confirmation: "booking confirmation", reminder_24h: "day-before reminder", reminder_2h: "2-hour reminder",
   rescheduled: "new time", cancelled: "cancellation",
-  series_confirmation: "weekly sessions booked", series_cancelled: "weekly sessions cancelled",
+  series_confirmation: "weekly sessions booked", series_cancelled: "weekly sessions cancelled", series_moved: "weekly sessions moved",
 };
 const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
 
@@ -335,7 +345,7 @@ export function sendButton(m: MessageRow, who: string) {
 
 export interface CommentRow { id: number; body: string; created_at: string; author: string; role: string }
 
-export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, comments: CommentRow[], bookedBy: string | null, series: { total: number; later: number } | null, flash?: { type: "ok" | "error"; text: string }) {
+export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, comments: CommentRow[], bookedBy: string | null, series: { total: number; later: number; nextMonth: string } | null, flash?: { type: "ok" | "error"; text: string }) {
   const start = new Date(a.start_utc);
   const end = endOf({ start, durationMin: a.duration_min, extraMin: a.extra_min });
   const isAdmin = user.role === "admin";
@@ -354,6 +364,10 @@ ${!isAdmin ? html`<div class="muted" style="margin-top:6px">Only the clinic admi
 ${!a.whatsapp_consent ? html`<div class="flash error" style="margin-top:10px">No WhatsApp consent recorded, so this patient gets no messages. Update it on the Patients page.</div>` : ""}
 </div>
 ${isAdmin ? sendPanel(a, messages) : ""}
+${series && (isAdmin || isOwn) ? html`
+<form class="card continue-card" method="post" action="/appointments/${a.id}/continue">
+<div><strong>🔁 Continue this weekly series</strong><div class="muted">Books the same days and time for ${series.nextMonth}. Clashes and clinic holidays are skipped.</div></div>
+<button class="secondary" style="margin:0">Continue for ${series.nextMonth}</button></form>` : ""}
 ${a.status === "booked" && (isAdmin || isOwn) ? html`
 <div class="card"><h2 style="margin-top:0">After the session</h2>
 <form method="post" action="/appointments/${a.id}/status" class="row">
@@ -367,6 +381,10 @@ ${apptFields(therapists, defaultDuration, {
   therapist_id: String(a.therapist_id), service: a.service, start: dateToIstLocal(start),
   duration: String(a.duration_min), extra: String(a.extra_min), notes: a.notes ?? "",
 })}
+${series && series.later ? html`<label>Apply to</label>
+<div class="chips"><label><input type="radio" name="scope" value="one" checked> Only this session</label>
+<label><input type="radio" name="scope" value="following"> This and the ${series.later} later session${series.later === 1 ? "" : "s"}</label></div>
+<p class="muted" style="margin:4px 0 0">For the whole series, later sessions move by the same amount (e.g. 1 hour later, or Monday → Tuesday) and take the new therapist and length.</p>` : ""}
 <button>Save and notify both</button></form></details>
 <details class="card"><summary><strong>Cancel appointment</strong></summary>
 <form method="post" action="/appointments/${a.id}/cancel">
@@ -445,7 +463,7 @@ export function messageTable(messages: MessageRow[]) {
   })}</div>`;
 }
 
-export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }) {
+export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set()) {
   return layout("Patients", user, html`
 <h1>Patients</h1>
 <details class="card" ${flash?.type === "error" ? "open" : ""}><summary><strong>+ Add patient</strong></summary>
@@ -459,9 +477,9 @@ They agreed to get appointment messages on WhatsApp</label>
 <button>Add patient</button></form></details>
 <form method="get" action="/patients" class="row" style="align-items:end"><div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div><button class="secondary">Search</button></form>
 <div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th></th></tr>
-${patients.map((p) => html`<tr><td>${p.name}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
+${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
-<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">Book</a></td></tr>`)}
+<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">Book</a></td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
 `, flash);
 }
@@ -590,4 +608,65 @@ export function shiftDay(day: string, delta: number): string {
   const d = new Date(`${day}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + delta);
   return d.toISOString().slice(0, 10);
+}
+
+const FOLLOW_UP = 2;
+
+export function holidaysPage(user: User, rows: { day: string; name: string; booked: number }[], today: string, flash?: { type: "ok" | "error"; text: string }) {
+  return layout("Clinic holidays", user, html`
+<p><a href="/">← Schedule</a></p>
+<h1>Clinic holidays</h1>
+<p class="muted">On these days new bookings are blocked and weekly repeats skip them. Existing sessions are not cancelled automatically.</p>
+<form class="card" method="post" action="/holidays">
+<div class="row"><div><label for="day">Date</label><input type="date" id="day" name="day" min="${today}" required></div>
+<div><label for="name">Name</label><input id="name" name="name" maxlength="60" placeholder="e.g. Diwali"></div></div>
+<button>Mark clinic closed</button></form>
+<div class="card" style="overflow-x:auto">
+${rows.length === 0 ? html`<p class="muted" style="margin:0">No upcoming holidays.</p>` : html`<table><tr><th>Date</th><th>Name</th><th>Booked that day</th><th></th></tr>
+${rows.map((h) => html`<tr><td>${formatDateTime(new Date(`${h.day}T06:30:00Z`)).replace(/, \d+:\d+ [AP]M$/, "")}</td><td>${h.name}</td>
+<td>${h.booked ? html`<a href="/?day=${h.day}" style="color:var(--bad);font-weight:700">${h.booked} session${h.booked === 1 ? "" : "s"} to move</a>` : html`<span class="muted">none</span>`}</td>
+<td><form method="post" action="/holidays/${h.day}/delete" style="margin:0"><button class="secondary small" style="margin:0">Remove</button></form></td></tr>`)}</table>`}
+</div>`, flash);
+}
+
+export function patientSummaryPage(user: User, p: PatientRow, month: string, appts: ApptRow[], flag: FollowUp | null, flash?: { type: "ok" | "error"; text: string }) {
+  const now = Date.now();
+  const count = (st: string) => appts.filter((a) => a.status === st).length;
+  const attended = count("completed"), missed = count("no_show"), cancelled = count("cancelled");
+  const upcoming = appts.filter((a) => a.status === "booked" && Date.parse(a.start_utc) > now).length;
+  const unmarked = appts.filter((a) => a.status === "booked" && Date.parse(a.start_utc) <= now).length;
+  const [y, m] = month.split("-").map(Number);
+  const label = new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  const shift = (d: number) => { const x = new Date(Date.UTC(y, m - 1 + d, 1)); return `${x.getUTCFullYear()}-${String(x.getUTCMonth() + 1).padStart(2, "0")}`; };
+  const shortMonth = (d: number) => new Date(Date.UTC(y, m - 1 + d, 1)).toLocaleString("en-GB", { month: "short", timeZone: "UTC" });
+  const greetName = p.guardian_name || p.name;
+  const parts = [`${attended} attended`, `${missed} missed`, `${cancelled} cancelled`].concat(upcoming ? [`${upcoming} still to come`] : []);
+  const share = `Hello ${greetName}, here is ${p.name}'s session summary at Vocalzz for ${label}: ${parts.join(", ")}. Thank you for being part of the therapy journey. For any questions, just reply to this message.`;
+  return layout("Patient summary", user, html`
+<p><a href="/patients">← Patients</a></p>
+<h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
+${flag ? html`<div class="card followup-banner"><strong>⚠ Missed ${flag.missed} sessions in a row</strong> <span class="muted">(last on ${formatDateTime(new Date(flag.lastMissed))})</span>
+<p style="margin:6px 0 0">A friendly check-in call or message can help. Every family's situation is different.</p>
+<div class="row" style="flex:0 0 auto;gap:8px">
+${p.whatsapp_consent ? html`<a class="btn wa-send" style="flex:0 0 auto" target="_blank" rel="noopener" href="https://wa.me/${p.phone}?text=${encodeURIComponent(`Hello ${greetName}, we missed ${p.name} at the last couple of sessions at Vocalzz. We hope everything is okay. Would you like us to find a time that suits you better? Just reply to this message.`)}">Message ${greetName} on WhatsApp</a>` : ""}
+<a class="btn secondary" style="flex:0 0 auto" href="tel:+${p.phone}">Call ${greetName}</a>
+<form method="post" action="/patients/${p.id}/followed-up" style="margin:0;flex:0 0 auto"><button class="secondary">Mark as followed up</button></form></div></div>` : ""}
+<div class="weeknav"><a class="btn secondary small" href="/patients/${p.id}/summary?month=${shift(-1)}">‹ ${shortMonth(-1)}</a>
+<strong style="padding:0 6px">${label}</strong>
+<a class="btn secondary small" href="/patients/${p.id}/summary?month=${shift(1)}">${shortMonth(1)} ›</a></div>
+<div class="stat-grid card">
+<div class="stat"><b style="color:var(--ok)">${attended}</b>attended</div>
+<div class="stat"><b style="color:var(--warn)">${missed}</b>missed</div>
+<div class="stat"><b style="color:var(--bad)">${cancelled}</b>cancelled</div>
+<div class="stat"><b>${upcoming}</b>upcoming</div>
+${unmarked ? html`<div class="stat"><b class="muted">${unmarked}</b>not marked yet</div>` : ""}
+</div>
+${unmarked ? html`<p class="muted">${unmarked} past session${unmarked === 1 ? " is" : "s are"} still "booked". Open ${unmarked === 1 ? "it" : "them"} and mark completed or no-show so the summary is accurate.</p>` : ""}
+${p.whatsapp_consent ? html`<a class="btn wa-send" target="_blank" rel="noopener" href="https://wa.me/${p.phone}?text=${encodeURIComponent(share)}">Share this summary with ${greetName} on WhatsApp</a>` : html`<p class="muted">No WhatsApp consent recorded, so sharing is off.</p>`}
+<h2>Sessions</h2>
+${appts.length === 0 ? html`<div class="card muted">No sessions this month.</div>` : ""}
+${appts.map((a) => html`<a class="card appt" href="/appointments/${a.id}">
+<div class="time" style="min-width:110px">${formatDateTime(new Date(a.start_utc)).replace(/ \d{4},/, ",")}</div>
+<div><div><strong>${a.service}</strong> · ${a.therapist_name}</div><span class="badge ${a.status}">${statusLabel(a.status)}</span></div></a>`)}
+`, flash);
 }

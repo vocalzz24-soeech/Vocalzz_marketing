@@ -5,15 +5,15 @@ import {
   SESSION_COOKIE, SESSION_MAX_AGE, createSession, deleteSession, hashPassword, userForSession,
   verifyPassword, type User,
 } from "./auth.ts";
-import { checkClinicHours, findClashes, MAX_SERIES, normalisePhone, seriesDays, seriesEnd, shortDay, weekWindow, type RepeatUntil, type Slot } from "./schedule.ts";
-import { istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
+import { addDays, checkClinicHours, findClashes, FOLLOW_UP_AFTER, MAX_SERIES, missedStreak, monthLabel, nextMonthDays, normalisePhone, seriesDays, seriesEnd, shortDay, weekday, weekWindow, type RepeatUntil, type Slot } from "./schedule.ts";
+import { dateToIstLocal, istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
 import {
-  APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, notifySeriesBooked, notifySeriesCancelled, runReminders,
+  APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, notifySeriesBooked, notifySeriesCancelled, notifySeriesMoved, runReminders,
   type ApptRow,
 } from "./notify.ts";
 import {
   appointmentPage, loginPage, messagesPage, newAppointmentPage, patientsPage, schedulePage,
-  setupPage, therapistsPage, patientEditPage, therapistEditPage, SERVICES, type ApptForm, type CommentRow, type MessageRow, type PatientRow, type TherapistRow,
+  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, type ApptForm, type CommentRow, type MessageRow, type PatientRow, type TherapistRow,
 } from "./views.ts";
 
 type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -126,10 +126,12 @@ app.get("/", async (c) => {
     .bind(from.toISOString(), to.toISOString()).all<ApptRow>();
   const mineOnly = user.role === "therapist" && c.req.query("mine") === "1";
   const mine = mineOnly ? results.filter((a) => a.therapist_id === user.therapist_id) : results;
-  const chips = win.days.map((d) => ({ day: d, booked: mine.filter((a) => a.status === "booked" && istDay(new Date(a.start_utc)) === d).length }));
+  const { results: hols } = await c.env.DB.prepare("SELECT day, name FROM holidays WHERE day >= ? AND day <= ?").bind(win.days[0], win.days[6]).all<{ day: string; name: string }>();
+  const holidayOf = new Map(hols.map((h) => [h.day, h.name]));
+  const chips = win.days.map((d) => ({ day: d, booked: mine.filter((a) => a.status === "booked" && istDay(new Date(a.start_utc)) === d).length, holiday: holidayOf.get(d) }));
   const dayAppts = results.filter((a) => istDay(new Date(a.start_utc)) === win.selected);
   const therapists = (await therapistList(c.env)).filter((t) => t.active || dayAppts.some((a) => a.therapist_id === t.id));
-  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly));
+  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly, user.role === "admin" ? await followUps(c.env) : []));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -155,6 +157,8 @@ async function validateSlot(env: Env, f: ApptForm, excludeId?: number) {
   const therapist = await env.DB.prepare("SELECT id, active FROM therapists WHERE id = ?").bind(therapistId).first<{ id: number; active: number }>();
   if (!therapist?.active) return { error: "Choose an active therapist." };
   if (start.getTime() < Date.now() - 5 * 60_000) return { error: "That time is in the past." };
+  const holiday = await env.DB.prepare("SELECT name FROM holidays WHERE day = ?").bind(istDay(start)).first<{ name: string }>();
+  if (holiday) return { error: `The clinic is closed on ${shortDay(istDay(start))} (${holiday.name}).` };
 
   const slot: Slot = { id: excludeId, start, durationMin, extraMin };
   const hoursError = checkClinicHours(slot, Number(env.OPEN_HOUR), Number(env.CLOSE_HOUR));
@@ -214,6 +218,29 @@ app.post("/appointments", async (c) => {
 type SlotOk = { slot: Slot; therapistId: number; service: string; notes: string };
 
 /** Books the first session plus weekly repeats; dates that fail validation are skipped and reported. */
+/** Creates one session per day (same time and details), skipping days that fail validation. */
+async function createSessions(c: C, form: ApptForm, days: string[], time: string, seriesId: string, first?: { day: string; v: SlotOk }) {
+  const user = c.get("user");
+  const ids: number[] = [];
+  const skipped: string[] = [];
+  for (const day of days) {
+    const v = first && day === first.day ? first.v : await validateSlot(c.env, { ...form, start: `${day}T${time}` });
+    if ("error" in v) { skipped.push(`${shortDay(day)} (${v.error!.replace(/\.$/, "")})`); continue; }
+    const ok = v as SlotOk;
+    const res = await c.env.DB.prepare(
+      `INSERT INTO appointments (patient_id, therapist_id, service, start_utc, duration_min, extra_min, notes, created_by, series_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).bind(Number(form.patient_id), ok.therapistId, ok.service, ok.slot.start.toISOString(), ok.slot.durationMin, ok.slot.extraMin, ok.notes || null, user.id, seriesId).run();
+    ids.push(Number(res.meta.last_row_id));
+  }
+  const appts = (await Promise.all(ids.map((id) => loadAppointment(c.env, id)))).filter((a): a is ApptRow => !!a);
+  return { appts, skipped };
+}
+
+const skippedNote = (skipped: string[]) =>
+  skipped.length ? ` Skipped ${skipped.length}: ${skipped.slice(0, 3).join("; ")}${skipped.length > 3 ? "; …" : ""}.` : "";
+
+/** Books the first session plus weekly repeats; dates that fail validation are skipped and reported. */
 async function bookSeries(c: C, form: ApptForm, first: SlotOk, fail: (msg: string) => Promise<Response>) {
   const user = c.get("user");
   const firstDay = (form.start ?? "").slice(0, 10), time = (form.start ?? "").slice(11, 16);
@@ -224,38 +251,30 @@ async function bookSeries(c: C, form: ApptForm, first: SlotOk, fail: (msg: strin
   if (weekdays.length === 0) return fail("Tick at least one day to repeat on.");
   const days = seriesDays(firstDay, weekdays, lastDay);
 
-  const seriesId = crypto.randomUUID();
-  const insert = (v: SlotOk) => c.env.DB.prepare(
-    `INSERT INTO appointments (patient_id, therapist_id, service, start_utc, duration_min, extra_min, notes, created_by, series_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).bind(Number(form.patient_id), v.therapistId, v.service, v.slot.start.toISOString(), v.slot.durationMin, v.slot.extraMin, v.notes || null, user.id, seriesId).run();
-
-  const ids: number[] = [];
-  const skipped: string[] = [];
-  for (const day of days) {
-    const v = day === firstDay ? first : await validateSlot(c.env, { ...form, start: `${day}T${time}` });
-    if ("error" in v) { skipped.push(`${shortDay(day)} (${v.error!.replace(/\.$/, "")})`); continue; }
-    ids.push(Number((await insert(v as SlotOk)).meta.last_row_id));
-  }
-  const appts = (await Promise.all(ids.map((id) => loadAppointment(c.env, id)))).filter((a): a is ApptRow => !!a);
+  const { appts, skipped } = await createSessions(c, form, days, time, crypto.randomUUID(), { day: firstDay, v: first });
   if (appts.length === 1) await c.env.DB.prepare("UPDATE appointments SET series_id = NULL WHERE id = ?").bind(appts[0].id).run();
   if (appts.length > 1) await notifySeriesBooked(c.env, appts, { skipTherapist: user.role === "therapist" });
   else await notifyBooked(c.env, appts[0], { skipTherapist: user.role === "therapist" });
   const capped = days.length >= MAX_SERIES ? ` (limit of ${MAX_SERIES} per series)` : "";
-  const skippedText = skipped.length ? ` Skipped ${skipped.length}: ${skipped.slice(0, 3).join("; ")}${skipped.length > 3 ? "; …" : ""}.` : "";
   return redirectWith(c, `/appointments/${appts[0].id}`, {
     type: skipped.length ? "error" : "ok",
-    text: `Booked ${appts.length} weekly session${appts.length === 1 ? "" : "s"}${capped}. One WhatsApp message lists all dates.${skippedText}`.slice(0, 600),
+    text: `Booked ${appts.length} weekly session${appts.length === 1 ? "" : "s"}${capped}. One WhatsApp message lists all dates.${skippedNote(skipped)}`.slice(0, 600),
   });
+}
+
+async function seriesSessions(env: Env, seriesId: string) {
+  const { results } = await env.DB.prepare(`${APPT_SELECT} WHERE a.series_id = ? AND a.status != 'cancelled' ORDER BY a.start_utc`)
+    .bind(seriesId).all<ApptRow>();
+  return results;
 }
 
 async function seriesInfo(env: Env, appt: ApptRow) {
   if (!appt.series_id) return null;
-  const row = await env.DB.prepare(
-    `SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'booked' AND start_utc > ? THEN 1 ELSE 0 END) AS later
-       FROM appointments WHERE series_id = ? AND status != 'cancelled'`,
-  ).bind(appt.start_utc, appt.series_id).first<{ total: number; later: number | null }>();
-  return row && row.total > 1 ? { total: row.total, later: row.later ?? 0 } : null;
+  const all = await seriesSessions(env, appt.series_id);
+  if (all.length < 2) return null;
+  const later = all.filter((a) => a.status === "booked" && a.start_utc > appt.start_utc).length;
+  const lastDay = istDay(new Date(all.at(-1)!.start_utc));
+  return { total: all.length, later, nextMonth: monthLabel(lastDay, 1) };
 }
 
 async function loadForUser(c: C): Promise<ApptRow | null> {
@@ -317,13 +336,40 @@ app.post("/appointments/:id/cancel", adminOnly, async (c) => {
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Cancelled. WhatsApp messages are ready for the patient and therapist." });
 });
 
+// Repeat a weekly series for the calendar month after its last session (same days, time and details).
+app.post("/appointments/:id/continue", async (c) => {
+  const appt = await loadForUser(c);
+  if (!appt || !appt.series_id) return c.notFound();
+  if (!canMark(c.get("user"), appt)) return c.text("Only the clinic admin or this session's therapist can do this.", 403);
+  const all = await seriesSessions(c.env, appt.series_id);
+  const last = all.at(-1)!;
+  const lastStart = new Date(last.start_utc);
+  const weekdays = [...new Set(all.map((a) => weekday(istDay(new Date(a.start_utc)))))];
+  const days = nextMonthDays(istDay(lastStart), weekdays);
+  const label = monthLabel(istDay(lastStart), 1);
+  const time = dateToIstLocal(lastStart).slice(11, 16);
+  const form: ApptForm = {
+    patient_id: String(last.patient_id), therapist_id: String(last.therapist_id), service: last.service,
+    duration: String(last.duration_min), extra: String(last.extra_min), notes: last.notes ?? "",
+  };
+  const { appts, skipped } = await createSessions(c, form, days, time, appt.series_id);
+  if (appts.length === 0) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: `No sessions could be booked in ${label}.${skippedNote(skipped)}`.slice(0, 600) });
+  await notifySeriesBooked(c.env, appts, { skipTherapist: c.get("user").role === "therapist" });
+  return redirectWith(c, `/appointments/${appts[0].id}`, {
+    type: skipped.length ? "error" : "ok",
+    text: `Continued for ${label}: ${appts.length} session${appts.length === 1 ? "" : "s"} booked. One WhatsApp message lists all dates.${skippedNote(skipped)}`.slice(0, 600),
+  });
+});
+
 app.post("/appointments/:id/reschedule", adminOnly, async (c) => {
   const appt = await loadForUser(c);
   if (!appt) return c.notFound();
   if (appt.status !== "booked") return c.redirect(`/appointments/${appt.id}`, 303);
-  const form = { ...formFrom(await c.req.parseBody()), patient_id: String(appt.patient_id) };
+  const body = await c.req.parseBody();
+  const form = { ...formFrom(body), patient_id: String(appt.patient_id) };
   const v = await validateSlot(c.env, form, appt.id);
   if ("error" in v) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: v.error! });
+  if (str(body.scope) === "following" && appt.series_id) return moveSeries(c, appt, form, v);
   const changedTime = v.slot.start.toISOString() !== new Date(appt.start_utc).toISOString();
   const changedTherapist = v.therapistId !== appt.therapist_id;
   // A new time means the reminders have to be sent again.
@@ -343,10 +389,91 @@ app.post("/appointments/:id/reschedule", adminOnly, async (c) => {
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Saved. Time and therapist did not change, so no messages were sent." });
 });
 
+/** Moves this and all later booked sessions of a series by the same shift; new therapist/details apply to all. */
+async function moveSeries(c: C, appt: ApptRow, form: ApptForm, first: SlotOk) {
+  const shiftMs = first.slot.start.getTime() - new Date(appt.start_utc).getTime();
+  const { results: sessions } = await c.env.DB.prepare(
+    `${APPT_SELECT} WHERE a.series_id = ? AND a.status = 'booked' AND a.start_utc >= ? ORDER BY a.start_utc`,
+  ).bind(appt.series_id, appt.start_utc).all<ApptRow>();
+  const now = new Date().toISOString();
+  const moved: number[] = [];
+  const before: ApptRow[] = [];
+  const skipped: string[] = [];
+  for (const s of sessions) {
+    const newStart = new Date(new Date(s.start_utc).getTime() + shiftMs);
+    const v = s.id === appt.id ? first : await validateSlot(c.env, { ...form, start: dateToIstLocal(newStart) }, s.id);
+    if ("error" in v) { skipped.push(`${shortDay(istDay(new Date(s.start_utc)))} (${v.error!.replace(/\.$/, "")})`); continue; }
+    const ok = v as SlotOk;
+    await c.env.DB.prepare(
+      `UPDATE appointments SET therapist_id = ?, service = ?, start_utc = ?, duration_min = ?, extra_min = ?, notes = ?,
+         created_at = ?, reminder_24h_sent_at = NULL, reminder_2h_sent_at = NULL WHERE id = ?`,
+    ).bind(ok.therapistId, ok.service, ok.slot.start.toISOString(), ok.slot.durationMin, ok.slot.extraMin, ok.notes || null, now, s.id).run();
+    moved.push(s.id);
+    before.push(s);
+  }
+  const updated = (await Promise.all(moved.map((id) => loadAppointment(c.env, id)))).filter((a): a is ApptRow => !!a);
+  const changedTherapist = first.therapistId !== appt.therapist_id;
+  if (updated.length) await notifySeriesMoved(c.env, updated, before, changedTherapist ? appt.therapist_phone : null);
+  return redirectWith(c, `/appointments/${appt.id}`, {
+    type: skipped.length ? "error" : "ok",
+    text: `Moved ${updated.length} session${updated.length === 1 ? "" : "s"}. One WhatsApp message lists the new times.${skipped.length ? ` Not moved (kept at the old time): ${skipped.slice(0, 3).join("; ")}${skipped.length > 3 ? "; …" : ""}.` : ""}`.slice(0, 600),
+  });
+}
+
+// --- Holidays ------------------------------------------------------------------------------------
+app.get("/holidays", adminOnly, async (c) => {
+  const today = istDay(new Date());
+  const { results } = await c.env.DB.prepare("SELECT day, name FROM holidays WHERE day >= ? ORDER BY day").bind(today).all<{ day: string; name: string }>();
+  const rows = await Promise.all(results.map(async (h) => {
+    const r = istDayRange(h.day)!;
+    const n = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM appointments WHERE status = 'booked' AND start_utc >= ? AND start_utc < ?")
+      .bind(r.start.toISOString(), r.end.toISOString()).first<{ n: number }>();
+    return { ...h, booked: n?.n ?? 0 };
+  }));
+  return c.html(holidaysPage(c.get("user"), rows, today, takeFlash(c)));
+});
+
+app.post("/holidays", adminOnly, async (c) => {
+  const f = await c.req.parseBody();
+  const day = str(f.day), name = str(f.name).slice(0, 60) || "Clinic holiday";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || day < istDay(new Date())) return redirectWith(c, "/holidays", { type: "error", text: "Choose today or a future date." });
+  await c.env.DB.prepare("INSERT INTO holidays (day, name) VALUES (?, ?) ON CONFLICT(day) DO UPDATE SET name = excluded.name").bind(day, name).run();
+  const r = istDayRange(day)!;
+  const n = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM appointments WHERE status = 'booked' AND start_utc >= ? AND start_utc < ?")
+    .bind(r.start.toISOString(), r.end.toISOString()).first<{ n: number }>();
+  const warn = n?.n ? ` ${n.n} session${n.n === 1 ? " is" : "s are"} already booked that day: open the day to cancel or move ${n.n === 1 ? "it" : "them"}.` : "";
+  return redirectWith(c, "/holidays", { type: warn ? "error" : "ok", text: `${shortDay(day)} marked as closed (${name}). New bookings and repeats will skip it.${warn}` });
+});
+
+app.post("/holidays/:day/delete", adminOnly, async (c) => {
+  await c.env.DB.prepare("DELETE FROM holidays WHERE day = ?").bind(c.req.param("day")).run();
+  return redirectWith(c, "/holidays", { type: "ok", text: "Holiday removed. That day is open for bookings again." });
+});
+
+// --- Follow-ups for missed sessions -----------------------------------------------------------------
+async function followUps(env: Env) {
+  const { results } = await env.DB.prepare(
+    `SELECT a.patient_id, a.status, a.start_utc, p.name, p.guardian_name, p.followed_up_at
+       FROM appointments a JOIN patients p ON p.id = a.patient_id
+      WHERE a.status IN ('completed', 'no_show') AND a.start_utc < ?
+      ORDER BY a.patient_id, a.start_utc DESC`,
+  ).bind(new Date().toISOString()).all<{ patient_id: number; status: string; start_utc: string; name: string; guardian_name: string | null; followed_up_at: string | null }>();
+  const byPatient = new Map<number, typeof results>();
+  for (const r of results) byPatient.set(r.patient_id, [...(byPatient.get(r.patient_id) ?? []), r]);
+  const out: { id: number; name: string; missed: number; lastMissed: string }[] = [];
+  for (const [id, rows] of byPatient) {
+    const missed = missedStreak(rows.map((r) => r.status));
+    if (missed < FOLLOW_UP_AFTER) continue;
+    if (rows[0].followed_up_at && rows[0].followed_up_at > rows[0].start_utc) continue; // already followed up after the latest miss
+    out.push({ id, name: rows[0].name, missed, lastMissed: rows[0].start_utc });
+  }
+  return out;
+}
+
 // --- Patients ------------------------------------------------------------------------------------
 app.get("/patients", adminOnly, async (c) => {
   const q = (c.req.query("q") ?? "").trim().slice(0, 80);
-  return c.html(patientsPage(c.get("user"), await patientList(c.env, q), q, takeFlash(c)));
+  return c.html(patientsPage(c.get("user"), await patientList(c.env, q), q, takeFlash(c), new Set((await followUps(c.env)).map((f) => f.id))));
 });
 
 app.post("/patients", adminOnly, async (c) => {
@@ -356,6 +483,25 @@ app.post("/patients", adminOnly, async (c) => {
   const res = await c.env.DB.prepare("INSERT INTO patients (name, guardian_name, phone, whatsapp_consent, notes) VALUES (?, ?, ?, ?, ?)")
     .bind(str(f.name).slice(0, 80), str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null).run();
   return redirectWith(c, `/appointments/new?patient_id=${res.meta.last_row_id}`, { type: "ok", text: `${str(f.name)} added. Book their appointment below.` });
+});
+
+app.get("/patients/:id/summary", adminOnly, async (c) => {
+  const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(c.req.param("id"))).first<PatientRow>();
+  if (!p) return c.notFound();
+  const mParam = c.req.query("month") ?? "";
+  const month = /^\d{4}-\d{2}$/.test(mParam) ? mParam : istDay(new Date()).slice(0, 7);
+  const from = istDayRange(`${month}-01`)!.start;
+  const to = istDayRange(`${addDays(`${month}-01`, 31).slice(0, 7)}-01`)!.start;
+  const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.patient_id = ? AND a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`)
+    .bind(p.id, from.toISOString(), to.toISOString()).all<ApptRow>();
+  const flag = (await followUps(c.env)).find((f) => f.id === p.id) ?? null;
+  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c)));
+});
+
+app.post("/patients/:id/followed-up", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await c.env.DB.prepare("UPDATE patients SET followed_up_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
+  return redirectWith(c, `/patients/${id}/summary`, { type: "ok", text: "Marked as followed up. The reminder is cleared until they miss again." });
 });
 
 app.get("/patients/:id/edit", adminOnly, async (c) => {
