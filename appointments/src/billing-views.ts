@@ -72,7 +72,7 @@ export function newBillPage(user: User, patients: PatientRow[], form: {
 <h1>New bill</h1>
 <form method="get" action="/bills/new" class="card">
 <div class="row" style="align-items:end">
-<div><label for="patient_id">Patient</label><select id="patient_id" name="patient_id" required><option value="">Choose…</option>
+<div><label for="patient_id">Patient</label><select id="patient_id" name="patient_id" required onchange="this.form.submit()"><option value="">Choose…</option>
 ${patients.map((p) => html`<option value="${p.id}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""}</option>`)}</select></div>
 <div><label for="month">Fill sessions from</label><input id="month" type="month" name="month" value="${form.month}"></div>
 <button class="secondary" style="flex:0 0 auto">Fill from sessions</button></div>
@@ -82,7 +82,7 @@ ${form.sessionsFound === 0 ? html`<p class="flash error" style="margin:8px 0 0">
 </form>
 <form method="post" action="/bills" class="card" id="bill-form">
 <input type="hidden" name="patient_id" value="${form.patient_id}">
-${form.patient_id ? "" : html`<p class="flash error" style="margin:0 0 8px">Choose a patient above first.</p>`}
+${form.patient_id ? html`<p class="muted" style="margin:0 0 8px">Bill for: <strong>${patients.find((p) => String(p.id) === form.patient_id)?.name ?? ""}</strong></p>` : html`<p class="flash error" style="margin:0 0 8px">Choose a patient in the box above first.</p>`}
 <div class="row"><div><label for="bill_date">Bill date</label><input id="bill_date" type="date" name="bill_date" value="${form.bill_date}" required></div></div>
 <div class="row" style="align-items:end">
 <div><label for="add-line">Add a therapy line</label><select id="add-line"><option value="">Choose a therapy…</option>
@@ -92,12 +92,12 @@ ${form.services.map((sv) => html`<option value="${sv}">${sv}${form.lastRates[sv]
 <label>Items</label>
 <div style="overflow-x:auto"><table class="lines"><tr><th>Description</th><th>Sessions / qty</th><th>Rate (₹)</th><th class="num">Amount</th></tr>
 ${lines.map((l) => html`<tr><td><input name="desc" value="${l.description}" maxlength="160" placeholder="e.g. Speech therapy sessions (Nov)"><input type="hidden" name="service" value="${l.service}"></td>
-<td><input class="q" name="qty" type="number" min="0" step="0.5" value="${l.quantity}"></td>
-<td><input class="r" name="rate" type="number" min="0" step="1" value="${l.rate}"></td><td class="num amt">–</td></tr>`)}
+<td><input class="q" name="qty" type="number" inputmode="decimal" min="0" step="any" value="${l.quantity}"></td>
+<td><input class="r" name="rate" type="number" inputmode="decimal" min="0" step="any" value="${l.rate}"></td><td class="num amt">–</td></tr>`)}
 </table></div>
 <div class="row" style="margin-top:6px">
-<div><label for="discount">Discount (₹)</label><input id="discount" name="discount" type="number" min="0" step="1" value="${form.discount}"></div>
-<div><label for="paid">Amount paid (₹)</label><input id="paid" name="paid" type="number" min="0" step="1" value="${form.paid}"></div>
+<div><label for="discount">Discount (₹)</label><input id="discount" name="discount" type="number" inputmode="decimal" min="0" step="any" value="${form.discount}"></div>
+<div><label for="paid">Amount paid (₹)</label><input id="paid" name="paid" type="number" inputmode="decimal" min="0" step="any" value="${form.paid}"></div>
 </div>
 <div class="row">
 <div><label for="payment_mode">Payment mode</label><select id="payment_mode" name="payment_mode"><option value="">–</option>
@@ -107,7 +107,7 @@ ${PAYMENT_MODES.map((m) => html`<option ${m === form.payment_mode ? "selected" :
 <label for="notes">Note on the bill (optional, no medical details)</label><input id="notes" name="notes" value="${form.notes}" maxlength="200">
 <div class="bill-totals"><div>Subtotal: <strong id="t-sub">₹0</strong></div><div>Total: <strong id="t-total">₹0</strong></div><div>Balance: <strong id="t-bal">₹0</strong></div></div>
 <p class="muted">Once issued, a bill can't be edited. If something is wrong, cancel it and create a new one.</p>
-<button ${form.patient_id ? "" : "disabled"}>Create bill</button>
+<button>Create bill</button>
 </form>
 <script>
 (function () {
