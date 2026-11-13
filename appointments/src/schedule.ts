@@ -83,3 +83,34 @@ export function normalisePhone(input: string): string | null {
   if (!/^[6-9]\d{9}$/.test(n)) return null;
   return `91${n}`;
 }
+
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const isDay = (v?: string): v is string => {
+  if (!v || !DAY_RE.test(v)) return false;
+  const t = Date.parse(`${v}T00:00:00Z`);
+  return !Number.isNaN(t) && new Date(t).toISOString().startsWith(v); // rejects 2026-02-30 etc.
+};
+const addDays = (day: string, n: number) => {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
+/**
+ * The 7-day strip on the schedule page. By default it starts today; if the chosen day is
+ * outside today..today+6 it starts at the chosen day; Prev/Next pass an explicit start.
+ * The selected day is always inside the returned window.
+ */
+export function weekWindow(today: string, dayParam?: string, startParam?: string) {
+  const selected = isDay(dayParam) ? dayParam : today;
+  let start: string;
+  if (isDay(startParam) && selected >= startParam && selected <= addDays(startParam, 6)) start = startParam;
+  else if (selected >= today && selected <= addDays(today, 6)) start = today;
+  else start = selected;
+  const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
+  return { selected, start, days, prevStart: addDays(start, -7), nextStart: addDays(start, 7) };
+}
+
+/** 0 = Sunday … 6 = Saturday for a "YYYY-MM-DD" calendar day. */
+export const weekday = (day: string) => new Date(`${day}T00:00:00Z`).getUTCDay();
+export const isWeekend = (day: string) => weekday(day) === 0 || weekday(day) === 6;

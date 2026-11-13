@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkClinicHours, dueReminders, findClashes, normalisePhone, overlaps } from "../src/schedule.ts";
+import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, weekWindow } from "../src/schedule.ts";
 import { formatDateTime, istDay, istLocalToDate, dateToIstLocal } from "../src/time.ts";
 import { reminderWhen } from "../src/notify.ts";
 import { renderTemplate, TEMPLATES } from "../src/whatsapp.ts";
@@ -78,4 +78,21 @@ test("templates render and follow Meta's basic rules", () => {
     const nums = [...t.matchAll(/\{\{(\d+)\}\}/g)].map((m) => Number(m[1]));
     assert.deepEqual(nums.sort((a, b) => a - b), nums.map((_, i) => i + 1), `${name} variables are 1..n`);
   }
+});
+
+test("7-day schedule strip", () => {
+  const today = "2026-11-13"; // Friday
+  const w = weekWindow(today);
+  assert.equal(w.selected, today);
+  assert.deepEqual(w.days, ["2026-11-13", "2026-11-14", "2026-11-15", "2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19"]);
+  assert.equal(weekWindow(today, "2026-11-17").start, today, "a day inside this week keeps the strip");
+  assert.equal(weekWindow(today, "2026-12-25").start, "2026-12-25", "a far day starts its own strip");
+  const next = weekWindow(today, w.nextStart, w.nextStart);
+  assert.equal(next.start, "2026-11-20");
+  assert.equal(weekWindow(today, "2026-11-22", "2026-11-20").start, "2026-11-20", "tapping a day keeps that strip");
+  assert.equal(weekWindow(today, "2026-11-30", "2026-11-20").start, "2026-11-30", "start ignored if the day is outside it");
+  assert.equal(weekWindow(today, "garbage").selected, today);
+  assert.equal(weekWindow(today, "2026-13-45").selected, today, "impossible dates fall back to today");
+  assert.equal(weekWindow(today, "2026-02-30").selected, today);
+  assert.deepEqual(w.days.filter(isWeekend), ["2026-11-14", "2026-11-15"]);
 });

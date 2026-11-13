@@ -5,7 +5,7 @@ import {
   SESSION_COOKIE, SESSION_MAX_AGE, createSession, deleteSession, hashPassword, userForSession,
   verifyPassword, type User,
 } from "./auth.ts";
-import { checkClinicHours, findClashes, normalisePhone, type Slot } from "./schedule.ts";
+import { checkClinicHours, findClashes, normalisePhone, weekWindow, type Slot } from "./schedule.ts";
 import { istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
 import {
   APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, runReminders,
@@ -119,13 +119,16 @@ async function therapistList(env: Env) {
 
 app.get("/", async (c) => {
   const user = c.get("user");
-  const dayParam = c.req.query("day") ?? "";
-  const day = /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : istDay(new Date());
-  const range = istDayRange(day)!;
+  const today = istDay(new Date());
+  const win = weekWindow(today, c.req.query("day"), c.req.query("start"));
+  const from = istDayRange(win.days[0])!.start, to = istDayRange(win.days[6])!.end;
   const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`)
-    .bind(range.start.toISOString(), range.end.toISOString()).all<ApptRow>();
-  const therapists = (await therapistList(c.env)).filter((t) => t.active || results.some((a) => a.therapist_id === t.id));
-  return c.html(schedulePage(user, day, results, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0));
+    .bind(from.toISOString(), to.toISOString()).all<ApptRow>();
+  const mine = user.role === "admin" ? results : results.filter((a) => a.therapist_id === user.therapist_id);
+  const chips = win.days.map((d) => ({ day: d, booked: mine.filter((a) => a.status === "booked" && istDay(new Date(a.start_utc)) === d).length }));
+  const dayAppts = results.filter((a) => istDay(new Date(a.start_utc)) === win.selected);
+  const therapists = (await therapistList(c.env)).filter((t) => t.active || dayAppts.some((a) => a.therapist_id === t.id));
+  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0));
 });
 
 // --- Appointments ------------------------------------------------------------------------------

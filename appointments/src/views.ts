@@ -8,8 +8,8 @@ import { endOf } from "./schedule.ts";
 type H = ReturnType<typeof html>;
 
 const CSS = `
-:root{--bg:#f4f7fb;--card:#fff;--ink:#0b1220;--muted:#5b6474;--line:#dfe6ef;--brand:#1f6fd1;--brand-ink:#fff;--bar:#0b1220;--bar-ink:#fff;--warn:#b45309;--bad:#b91c1c;--ok:#15803d}
-@media (prefers-color-scheme:dark){:root{--bg:#070b14;--card:#111827;--ink:#e8eef7;--muted:#9aa6b8;--line:#243044;--brand:#5aa2f0;--brand-ink:#04101f;--bar:#000;--bar-ink:#fff;--warn:#f59e0b;--bad:#f87171;--ok:#4ade80}}
+:root{--bg:#f4f7fb;--card:#fff;--ink:#0b1220;--muted:#5b6474;--line:#dfe6ef;--brand:#1f6fd1;--brand-ink:#fff;--bar:#0b1220;--bar-ink:#fff;--wk-bg:#fff1e6;--wk-line:#f5b27a;--wk-ink:#c2410c;--warn:#b45309;--bad:#b91c1c;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#070b14;--card:#111827;--ink:#e8eef7;--muted:#9aa6b8;--line:#243044;--brand:#5aa2f0;--brand-ink:#04101f;--bar:#000;--bar-ink:#fff;--wk-bg:#2a1608;--wk-line:#9a4d18;--wk-ink:#fdba74;--warn:#f59e0b;--bad:#f87171;--ok:#4ade80}}
 *{box-sizing:border-box}body{margin:0;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
 header{background:var(--bar);color:var(--bar-ink);padding:10px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-bottom:3px solid var(--brand)}
 header strong{margin-right:auto;letter-spacing:.02em}header a{color:var(--bar-ink);text-decoration:none;font-size:15px;opacity:.9}header a:hover{opacity:1}
@@ -24,6 +24,17 @@ input[type=checkbox],input[type=radio]{width:auto}
 .btn.wa-send{background:#25d366;border-color:#25d366;color:#fff;white-space:nowrap}.btn.wa-send.secondary{background:transparent;color:var(--ok);border-color:var(--ok)}
 .send-panel{border:2px solid #25d366}.send-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}.send-row .btn{margin:0}
 .send-banner{display:flex;justify-content:space-between;gap:12px;text-decoration:none;color:inherit;border:2px solid #25d366}
+.weeknav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}.weeknav input{width:auto;padding:6px 10px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.day-chip{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);text-decoration:none;text-align:center;min-width:0}
+.day-chip .wd{font-size:12px;font-weight:700;color:var(--muted)}.day-chip .dn{font-size:22px;font-weight:800;line-height:1.1}.day-chip .mo{font-size:12px;color:var(--muted)}
+.day-chip .cnt{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.day-chip.weekend{background:var(--wk-bg);border-color:var(--wk-line)}.day-chip.weekend .wd,.day-chip.weekend .dn{color:var(--wk-ink)}
+.day-chip.today{border-width:2px;border-color:var(--brand)}
+.day-chip.selected{background:var(--brand);border-color:var(--brand)}.day-chip.selected *{color:var(--brand-ink)!important}
+.day-chip .cnt b{font-weight:800;color:var(--ink)}.day-chip.weekend .cnt b{color:var(--wk-ink)}@media (max-width:560px){.cnt-word{display:none}}
+.legend{display:flex;align-items:center;gap:6px;margin:8px 0 0}.sw{display:inline-block;width:14px;height:14px;border-radius:4px}.sw.weekend{background:var(--wk-bg);border:1px solid var(--wk-line)}
+.weekend-badge{color:var(--wk-ink);border-color:var(--wk-line);background:var(--wk-bg);vertical-align:middle}
 .daynav{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:end}.daynav .btn{margin:0}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 160px}
 button,.btn{display:inline-block;font:inherit;font-weight:600;padding:10px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);text-decoration:none;cursor:pointer;margin-top:14px}
@@ -94,19 +105,37 @@ export function setupPage(error?: string) {
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null }
 
-export function schedulePage(user: User, day: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0) {
-  const prev = shiftDay(day, -1), next = shiftDay(day, 1);
+export interface DayChip { day: string; booked: number }
+
+export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0) {
+  const day = win.selected;
   const groups = therapists
     .map((t) => ({ t, list: appts.filter((a) => a.therapist_id === t.id) }))
     .filter((g) => user.role === "admin" || g.t.id === user.therapist_id);
+  const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const chip = (c: DayChip) => {
+    const d = new Date(`${c.day}T00:00:00Z`);
+    const wd = d.getUTCDay();
+    const cls = ["day-chip", wd === 0 || wd === 6 ? "weekend" : "", c.day === day ? "selected" : "", c.day === today ? "today" : ""].join(" ");
+    return html`<a class="${cls}" href="/?day=${c.day}&start=${win.start}" aria-current="${c.day === day ? "date" : "false"}">
+<span class="wd">${c.day === today ? "Today" : WD[wd]}</span><span class="dn">${d.getUTCDate()}</span><span class="mo">${MON[d.getUTCMonth()]}</span>
+<span class="cnt">${c.booked ? html`<b>${c.booked}</b><span class="cnt-word"> booked</span>` : "free"}</span></a>`;
+  };
+  const sel = new Date(`${day}T00:00:00Z`);
   return layout("Schedule", user, html`
 <h1>Schedule</h1>
 ${user.role === "admin" ? pendingBanner(pendingCount) : ""}
-<form class="daynav" method="get" action="/">
-<a class="btn secondary" href="/?day=${prev}">‹ Prev</a>
-<div><label for="day" class="muted" style="margin-top:0">Day</label><input type="date" id="day" name="day" value="${day}" onchange="this.form.submit()"></div>
-<a class="btn secondary" href="/?day=${next}">Next ›</a>
-</form>
+<div class="weeknav">
+<a class="btn secondary small" href="/?day=${win.prevStart}&start=${win.prevStart}">‹ Prev week</a>
+<a class="btn secondary small" href="/?day=${win.nextStart}&start=${win.nextStart}">Next week ›</a>
+<a class="btn secondary small" href="/">Today</a>
+<form method="get" action="/" style="margin:0"><input type="date" name="day" value="${day}" onchange="this.form.submit()" aria-label="Jump to a date"></form>
+</div>
+<div class="week">${chips.map(chip)}</div>
+<p class="muted legend"><span class="sw weekend"></span> Saturday &amp; Sunday</p>
+<h2 style="margin-top:8px">${WD[sel.getUTCDay()]}, ${sel.getUTCDate()} ${MON[sel.getUTCMonth()]} ${sel.getUTCFullYear()}${
+  sel.getUTCDay() === 0 || sel.getUTCDay() === 6 ? html` <span class="badge weekend-badge">Weekend</span>` : ""}</h2>
 ${groups.length === 0 ? html`<div class="card muted">No therapists yet. ${user.role === "admin" ? html`<a href="/therapists">Add one</a>.` : ""}</div>` : ""}
 ${groups.map((g) => html`
 <h2>${g.t.name} <span class="muted">${g.list.filter((a) => a.status === "booked").length} booked</span></h2>
