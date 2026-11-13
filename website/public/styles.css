@@ -289,3 +289,38 @@ p { margin: 0 0 1em; }
 }
 .call-float svg { width: 24px; height: 24px; }
 @media (min-width: 900px) { .call-float { display: none; } }
+
+/* Links and inner pages */
+.service .more { display: inline-block; margin-top: 12px; font-weight: 800; text-decoration: none; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; font-size: .9rem; }
+.footer-links a { color: var(--cream); text-decoration: none; opacity: .85; }
+.footer-links a:hover { opacity: 1; text-decoration: underline; }
+.crumbs { font-size: .9rem; color: var(--muted); margin: 18px 0 0; }
+.crumbs a { color: var(--muted); }
+.page-hero { padding: 40px 0 8px; }
+.page-hero h1 { font-size: clamp(2rem, 5vw, 3rem); }
+.content { display: grid; gap: 28px; padding: 24px 0 64px; }
+@media (min-width: 960px) { .content { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+.prose h2 { font-size: 1.6rem; margin-top: 1.6em; }
+.prose h2:first-child { margin-top: 0; }
+.prose ul { padding-left: 20px; }
+.prose li { margin-bottom: 6px; }
+.aside-card { background: var(--night); color: var(--cream); border-radius: 24px; padding: 24px; position: sticky; top: 92px; }
+.aside-card h2 { color: var(--white); font-size: 1.3rem; }
+.aside-card p { color: rgba(245, 248, 252, .85); font-size: .95rem; }
+.aside-card .btn { width: 100%; justify-content: center; margin-top: 10px; }
+.aside-card .btn-ghost { border-color: var(--cream); color: var(--cream); }
+.aside-card ul { padding-left: 18px; font-size: .92rem; color: rgba(245, 248, 252, .85); }
+.related { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 12px; }
+.related a { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; text-decoration: none; color: var(--ink); font-weight: 700; }
+.related a span { display: block; font-weight: 400; color: var(--muted); font-size: .9rem; }
+.callout { background: var(--teal-soft); border-radius: 18px; padding: 16px 18px; }
+.services-index { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.service-link { display: flex; flex-direction: column; gap: 6px; }
+.service-link strong { font-family: var(--font-head); font-size: 1.2rem; }
+.service-link em { font-style: normal; color: var(--coral); font-weight: 800; margin-top: auto; }
+.contact-light li { color: var(--ink); }
+.contact-light .ic { background: var(--teal-soft); }
+.contact-light a { color: var(--coral); }
+.prose .faq { max-width: none; }
+.prose .steps li { list-style: none; }

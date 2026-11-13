@@ -1,37 +1,19 @@
-# Old website addresses -> closest section of the new site.
-# 302 (temporary) on purpose: service/about/contact pages will be built at these addresses in Phase 2.
-/service /#services 302
-/service/ /#services 302
-/services /#services 302
-/services/ /#services 302
-/physiotherapy /#services 302
-/physiotherapy/ /#services 302
-/speech-language-therapy /#services 302
-/speech-language-therapy/ /#services 302
-/behavioral-therapy /#services 302
-/behavioral-therapy/ /#services 302
-/behavioural-therapy /#services 302
-/behavioural-therapy/ /#services 302
-/occupational-therapy /#services 302
-/occupational-therapy/ /#services 302
-/special-education /#services 302
-/special-education/ /#services 302
-/audiology /#services 302
-/audiology/ /#services 302
-/best-speech-therapist-in-noida-for-adults /#services 302
-/best-speech-therapist-in-noida-for-adults/ /#services 302
-/therapist /#team 302
-/therapist/ /#team 302
-/therapists /#team 302
-/therapists/ /#team 302
-/about /#team 302
-/about/ /#team 302
-/about-us /#team 302
-/about-us/ /#team 302
-/contact /#contact 302
-/contact/ /#contact 302
-/contact-us /#contact 302
-/contact-us/ /#contact 302
+# Old website addresses -> the matching page on the new site (permanent).
+/service /services/ 301
+/service/ /services/ 301
+/behavioural-therapy /behavioral-therapy/ 301
+/behavioural-therapy/ /behavioral-therapy/ 301
+/best-speech-therapist-in-noida-for-adults /speech-language-therapy/ 301
+/best-speech-therapist-in-noida-for-adults/ /speech-language-therapy/ 301
+/therapist /about/ 301
+/therapist/ /about/ 301
+/therapists /about/ 301
+/therapists/ /about/ 301
+/about-us /about/ 301
+/about-us/ /about/ 301
+/contact /contact-us/ 301
+/contact/ /contact-us/ 301
+/sitemap_index.xml /sitemap.xml 301
+# Old blog had no replacement yet: temporary.
 /blog / 302
 /blog/ / 302
-/sitemap_index.xml /sitemap.xml 301

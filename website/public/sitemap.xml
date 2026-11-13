@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://vocalzz.com/</loc></url>
+  <url><loc>https://vocalzz.com/services/</loc></url>
+  <url><loc>https://vocalzz.com/speech-language-therapy/</loc></url>
+  <url><loc>https://vocalzz.com/occupational-therapy/</loc></url>
+  <url><loc>https://vocalzz.com/behavioral-therapy/</loc></url>
+  <url><loc>https://vocalzz.com/special-education/</loc></url>
+  <url><loc>https://vocalzz.com/audiology/</loc></url>
+  <url><loc>https://vocalzz.com/physiotherapy/</loc></url>
+  <url><loc>https://vocalzz.com/about/</loc></url>
+  <url><loc>https://vocalzz.com/contact-us/</loc></url>
   <url><loc>https://vocalzz.com/privacy.html</loc></url>
 </urlset>

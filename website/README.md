@@ -10,6 +10,27 @@ A fast, single-page clinic website (plus privacy and 404 pages). Plain HTML and 
 | `public/404.html` | "Page not found" page |
 | `public/fonts/` | Fraunces and Nunito Sans, self-hosted (SIL Open Font License) |
 
+## Pages
+
+| Address | Page |
+|---|---|
+| `/` | Home (`public/index.html`, edited by hand) |
+| `/services/` | All services |
+| `/speech-language-therapy/`, `/occupational-therapy/`, `/behavioral-therapy/`, `/special-education/`, `/audiology/`, `/physiotherapy/` | One page per service |
+| `/about/` | About us and team |
+| `/contact-us/` | Contact, hours and map |
+
+The inner pages, `sitemap.xml`, and the header/footer of `privacy.html` and `404.html` are **generated** by
+`build_pages.py` from the content inside it and the homepage's header and footer. After changing the homepage
+header/footer or any page text, run:
+
+```bash
+python3 website/build_pages.py
+```
+
+and commit the generated files. Old WordPress addresses are redirected in `public/_redirects`.
+Clinical text must be approved by Dr. Tanu Garg; no guarantees, timelines or statistics.
+
 ## Put it online (Cloudflare, free)
 
 Cloudflare dashboard → **Compute → Workers & Pages → Create → Import a repository** → pick this repository:
