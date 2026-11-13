@@ -49,6 +49,7 @@ input[type=checkbox],input[type=radio]{width:auto}
 .followup-banner{border:2px solid var(--warn)}.followup-banner a{font-weight:700}
 .continue-card{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;border:2px dashed var(--brand)}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.stat{background:var(--bg);border-radius:10px;padding:10px;text-align:center}.stat b{display:block;font-size:26px}
+.danger-zone{margin-top:28px;border:1px solid var(--bad)}.danger-zone summary{cursor:pointer;color:var(--bad);font-weight:700;font-size:14px}.danger-zone button[disabled]{opacity:.45;cursor:not-allowed}
 .locked{padding:10px;border:1px dashed var(--line);border-radius:8px;background:var(--bg);font-weight:600}
 .comment{padding:10px 0;border-bottom:1px solid var(--line)}.comment-body{white-space:pre-wrap;margin-top:2px}
 textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
@@ -145,7 +146,7 @@ export function setupPage(error?: string) {
 <button>Create admin</button></form></div>`, error ? { type: "error", text: error } : undefined);
 }
 
-export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number }
+export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number; deleted_at?: string | null }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null }
 
 export interface DayChip { day: string; booked: number; holiday?: string }
@@ -504,7 +505,7 @@ ${therapists.map((t) => html`<tr><td>${t.name}</td><td>${t.specialty ?? ""}</td>
 `, flash);
 }
 
-export function patientEditPage(user: User, p: PatientRow, flash?: { type: "ok" | "error"; text: string }) {
+export function patientEditPage(user: User, p: PatientRow, flash?: { type: "ok" | "error"; text: string }, counts: DeleteCounts = { total: 0, upcoming: 0 }) {
   return layout("Edit patient", user, html`
 <p><a href="/patients">← Patients</a></p>
 <h1>Edit patient</h1>
@@ -517,10 +518,14 @@ They agreed to get appointment messages on WhatsApp</label>
 <label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${p.notes ?? ""}">
 <p class="muted">Changes apply to future messages. Messages already sent are not changed.</p>
 <button>Save changes</button> <a class="btn secondary" href="/patients">Cancel</a>
-</form>`, flash);
+</form>
+${dangerZone("patient", p.name, `/patients/${p.id}/delete`, html`
+<p>This <strong>permanently deletes</strong> ${p.name}'s record together with <strong>${counts.total} appointment${counts.total === 1 ? "" : "s"}</strong>${counts.upcoming ? html` (<strong>${counts.upcoming} upcoming</strong>)` : ""}, their WhatsApp message history and comments. It cannot be undone.</p>
+${counts.upcoming ? html`<p class="flash error" style="margin:8px 0">Upcoming sessions will disappear without any message to the family or therapist. To let them know, cancel those sessions first.</p>` : ""}
+<p class="muted">Use this when a family asks for their data to be deleted, or a record was added by mistake. To simply stop seeing a patient, there's no need to delete them.</p>`)}`, flash);
 }
 
-export function therapistEditPage(user: User, t: TherapistRow, flash?: { type: "ok" | "error"; text: string }) {
+export function therapistEditPage(user: User, t: TherapistRow, flash?: { type: "ok" | "error"; text: string }, counts: DeleteCounts = { total: 0, upcoming: 0 }) {
   return layout("Edit therapist", user, html`
 <p><a href="/therapists">← Therapists</a></p>
 <h1>Edit therapist</h1>
@@ -532,7 +537,12 @@ export function therapistEditPage(user: User, t: TherapistRow, flash?: { type: "
 <input id="password" name="password" type="password" minlength="8" autocomplete="new-password">
 <p class="muted">${t.has_login ? "Setting a new password logs the therapist out of all devices." : "With a password, the therapist logs in with their phone number and sees only their own schedule."}</p>
 <button>Save changes</button> <a class="btn secondary" href="/therapists">Cancel</a>
-</form>`, flash);
+</form>
+${dangerZone("therapist", t.name, `/therapists/${t.id}/delete`, html`
+<p>This removes ${t.name} from the app: their name, phone number and login are erased and they can no longer log in. Their <strong>${counts.total} past session${counts.total === 1 ? "" : "s"}</strong> stay in patients' history as "Former therapist". It cannot be undone.</p>
+<p class="muted">If they're only taking a break, use <strong>Inactive</strong> on the Therapists page instead.</p>`, counts.upcoming
+  ? `${t.name} still has ${counts.upcoming} upcoming session${counts.upcoming === 1 ? "" : "s"}. Move them to another therapist or cancel them first.`
+  : undefined)}`, flash);
 }
 
 /** Messages created together for one appointment event (e.g. the booking confirmation to patient + therapist). */
@@ -588,6 +598,32 @@ ${first.appointment_id ? html`<a class="muted" href="/appointments/${first.appoi
 </div>
 </details>`;
   })}</div>`;
+}
+
+export interface DeleteCounts { total: number; upcoming: number }
+
+/** A folded, deliberately awkward delete section: type the exact name and tick a box. */
+function dangerZone(kind: string, name: string, action: string, explain: ReturnType<typeof html>, blocked?: string) {
+  return html`<details class="card danger-zone">
+<summary>Danger zone: delete this ${kind}</summary>
+${explain}
+${blocked
+  ? html`<p class="flash error" style="margin:8px 0">${blocked}</p>`
+  : html`<form method="post" action="${action}" class="delete-form">
+<label for="confirm_name">To confirm, type the ${kind}'s name exactly: <strong>${name}</strong></label>
+<input id="confirm_name" name="confirm_name" autocomplete="off" required>
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="understand" value="1" required> I understand this cannot be undone</label>
+<button class="danger" disabled data-name="${name}">Permanently delete ${kind}</button>
+</form>
+<script>
+(function () {
+  var f = document.currentScript.previousElementSibling, b = f.querySelector("button"), i = f.querySelector("input[name=confirm_name]"), c = f.querySelector("input[name=understand]");
+  function check() { b.disabled = !(c.checked && i.value.trim().toLowerCase() === b.dataset.name.trim().toLowerCase()); }
+  i.addEventListener("input", check); c.addEventListener("change", check);
+  f.addEventListener("submit", function (e) { if (!confirm("Last check: permanently delete " + b.dataset.name + "?")) e.preventDefault(); });
+})();
+</script>`}
+</details>`;
 }
 
 export function messagesPage(user: User, messages: MessageRow[], pendingOnly: boolean) {

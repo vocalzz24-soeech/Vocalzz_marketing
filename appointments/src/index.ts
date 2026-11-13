@@ -504,10 +504,36 @@ app.post("/patients/:id/followed-up", adminOnly, async (c) => {
   return redirectWith(c, `/patients/${id}/summary`, { type: "ok", text: "Marked as followed up. The reminder is cleared until they miss again." });
 });
 
+async function deleteCounts(env: Env, column: "patient_id" | "therapist_id", id: number) {
+  const r = await env.DB.prepare(
+    `SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'booked' AND start_utc > ? THEN 1 ELSE 0 END) AS upcoming
+       FROM appointments WHERE ${column} = ?`,
+  ).bind(new Date().toISOString(), id).first<{ total: number; upcoming: number | null }>();
+  return { total: r?.total ?? 0, upcoming: r?.upcoming ?? 0 };
+}
+const confirmed = (body: Record<string, unknown>, name: string) =>
+  str(body.understand) === "1" && str(body.confirm_name).toLowerCase() === name.trim().toLowerCase();
+
 app.get("/patients/:id/edit", adminOnly, async (c) => {
   const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(c.req.param("id"))).first<PatientRow>();
   if (!p) return c.notFound();
-  return c.html(patientEditPage(c.get("user"), p, takeFlash(c)));
+  return c.html(patientEditPage(c.get("user"), p, takeFlash(c), await deleteCounts(c.env, "patient_id", p.id)));
+});
+
+app.post("/patients/:id/delete", adminOnly, async (c) => {
+  const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(c.req.param("id"))).first<PatientRow>();
+  if (!p) return c.notFound();
+  if (!confirmed(await c.req.parseBody(), p.name)) {
+    return redirectWith(c, `/patients/${p.id}/edit`, { type: "error", text: "Not deleted: type the patient's name exactly and tick the box to confirm." });
+  }
+  const sub = "SELECT id FROM appointments WHERE patient_id = ?";
+  await c.env.DB.batch([
+    c.env.DB.prepare(`DELETE FROM appointment_comments WHERE appointment_id IN (${sub})`).bind(p.id),
+    c.env.DB.prepare(`DELETE FROM messages WHERE appointment_id IN (${sub})`).bind(p.id),
+    c.env.DB.prepare("DELETE FROM appointments WHERE patient_id = ?").bind(p.id),
+    c.env.DB.prepare("DELETE FROM patients WHERE id = ?").bind(p.id),
+  ]);
+  return redirectWith(c, "/patients", { type: "ok", text: `${p.name} and all their records have been permanently deleted.` });
 });
 
 app.post("/patients/:id", adminOnly, async (c) => {
@@ -529,7 +555,7 @@ app.post("/patients/:id/consent", adminOnly, async (c) => {
 });
 
 // --- Therapists ----------------------------------------------------------------------------------
-app.get("/therapists", adminOnly, async (c) => c.html(therapistsPage(c.get("user"), await therapistList(c.env), takeFlash(c))));
+app.get("/therapists", adminOnly, async (c) => c.html(therapistsPage(c.get("user"), (await therapistList(c.env)).filter((t) => !t.deleted_at), takeFlash(c))));
 
 app.post("/therapists", adminOnly, async (c) => {
   const f = await c.req.parseBody();
@@ -558,14 +584,33 @@ async function loadTherapist(env: Env, id: number) {
 
 app.get("/therapists/:id/edit", adminOnly, async (c) => {
   const t = await loadTherapist(c.env, Number(c.req.param("id")));
-  if (!t) return c.notFound();
-  return c.html(therapistEditPage(c.get("user"), t, takeFlash(c)));
+  if (!t || t.deleted_at) return c.notFound();
+  return c.html(therapistEditPage(c.get("user"), t, takeFlash(c), await deleteCounts(c.env, "therapist_id", t.id)));
+});
+
+app.post("/therapists/:id/delete", adminOnly, async (c) => {
+  const t = await loadTherapist(c.env, Number(c.req.param("id")));
+  if (!t || t.deleted_at) return c.notFound();
+  const back = `/therapists/${t.id}/edit`;
+  if (!confirmed(await c.req.parseBody(), t.name)) return redirectWith(c, back, { type: "error", text: "Not deleted: type the therapist's name exactly and tick the box to confirm." });
+  const counts = await deleteCounts(c.env, "therapist_id", t.id);
+  if (counts.upcoming) return redirectWith(c, back, { type: "error", text: `Not deleted: ${t.name} still has ${counts.upcoming} upcoming session(s). Move or cancel them first.` });
+  const now = new Date().toISOString();
+  const scrambled = crypto.randomUUID();
+  await c.env.DB.batch([
+    // Keep the row so past sessions stay intact, but erase personal details and switch everything off.
+    c.env.DB.prepare("UPDATE therapists SET name = 'Former therapist', phone = '', specialty = NULL, active = 0, deleted_at = ? WHERE id = ?").bind(now, t.id),
+    c.env.DB.prepare("DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE therapist_id = ?)").bind(t.id),
+    c.env.DB.prepare("UPDATE users SET name = 'Former therapist', login = 'deleted-' || id, password_hash = ?, password_salt = ?, active = 0 WHERE therapist_id = ?")
+      .bind(scrambled, scrambled, t.id),
+  ]);
+  return redirectWith(c, "/therapists", { type: "ok", text: `${t.name} has been deleted. Their past sessions now show as "Former therapist".` });
 });
 
 app.post("/therapists/:id", adminOnly, async (c) => {
   const id = Number(c.req.param("id"));
   const t = await loadTherapist(c.env, id);
-  if (!t) return c.notFound();
+  if (!t || t.deleted_at) return c.notFound();
   const back = `/therapists/${id}/edit`;
   const f = await c.req.parseBody();
   const name = str(f.name).slice(0, 80);
@@ -601,8 +646,8 @@ app.post("/therapists/:id/active", adminOnly, async (c) => {
   const value = str((await c.req.parseBody()).value) === "1" ? 1 : 0;
   const id = Number(c.req.param("id"));
   await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE therapists SET active = ? WHERE id = ?").bind(value, id),
-    c.env.DB.prepare("UPDATE users SET active = ? WHERE therapist_id = ?").bind(value, id),
+    c.env.DB.prepare("UPDATE therapists SET active = ? WHERE id = ? AND deleted_at IS NULL").bind(value, id),
+    c.env.DB.prepare("UPDATE users SET active = ? WHERE therapist_id = ? AND therapist_id IN (SELECT id FROM therapists WHERE deleted_at IS NULL)").bind(value, id),
   ]);
   return redirectWith(c, "/therapists", { type: "ok", text: value ? "Therapist activated." : "Therapist deactivated; their login is switched off." });
 });

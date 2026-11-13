@@ -31,6 +31,8 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
 - **Patient history:** monthly attended / missed / cancelled / upcoming counts per patient, with a one-tap WhatsApp share for parents.
 - **Missed-session follow-ups:** patients who miss 2 sessions in a row are flagged on the Schedule and Patients pages until marked as followed up.
 
+- **Deleting:** admin only, from the bottom of a patient's or therapist's Edit page ("Danger zone"): type the exact name and tick a box. Patients are deleted with all their appointments, messages and comments. Therapists are anonymised ("Former therapist") so patients' past sessions stay intact, and cannot be deleted while they have upcoming sessions.
+
 Not built yet: cancelling by replying on WhatsApp, payments (Razorpay), daily schedule summary for therapists,
 reports.
 
