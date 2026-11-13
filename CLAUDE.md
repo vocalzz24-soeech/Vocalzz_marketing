@@ -1,6 +1,6 @@
 # CLAUDE.md: Vocalzz
 
-You are working for **Vocalzz**, a speech, occupational and behavioural therapy clinic in Sector 137, Noida. Use the business context below for every task: social media posts, reel scripts, ads, captions, Google posts, review replies and WhatsApp messages. Keep content honest, never promise cures, and always end with the WhatsApp call to action.
+You are working for **Vocalzz**, a speech, occupational and behavioural therapy clinic in Sector 137, Noida. Use the business context below for every task: social media posts, reel scripts, ads, captions, Google posts, review replies and WhatsApp messages. Keep content honest, never promise cures, and always end with the WhatsApp call to action (a call option can sit alongside it).
 
 
 ## The business
@@ -41,7 +41,7 @@ You are working for **Vocalzz**, a speech, occupational and behavioural therapy 
 - Show faces: Dr. Tanu and the therapists on camera, plus real therapy clips (with written parent consent)
 - Never promise cures, timelines or guarantees. Use "may help", "every child is different".
 - No diagnosing in comments or DMs; invite people to an assessment instead
-- Call to action: always the WhatsApp link wa.me/918800230240, not "call now"
+- Call to action: WhatsApp first (wa.me/918800230240); a call option (tel:+918800230240) is fine as the second choice, e.g. on the website
 
 ## What works (Instagram data, Jul–Nov 2026)
 - **Best:** tips and red-flag lists (e.g. "10 Speech Therapy Mistakes Parents Make" reached 1,460 people and got 21 saves), real therapy-in-action clips, team intros, and light Hinglish humour (the Karwa Chauth reel reached 1,212 with a 30% skip rate)
