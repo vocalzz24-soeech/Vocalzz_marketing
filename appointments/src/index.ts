@@ -438,15 +438,28 @@ app.get("/bills", adminOnly, async (c) => {
   return c.html(billsListPage(c.get("user"), results, q, month, takeFlash(c)));
 });
 
+/** Last rate charged per therapy: this patient's own bills first, then any bill. */
+async function lastRates(env: Env, patientId: number) {
+  const { results } = await env.DB.prepare(
+    `SELECT i.service, i.rate FROM bill_items i JOIN bills b ON b.id = i.bill_id
+      WHERE i.service IS NOT NULL AND b.cancelled_at IS NULL ORDER BY (b.patient_id = ?) ASC, b.id ASC`,
+  ).bind(patientId).all<{ service: string; rate: number }>();
+  const out: Record<string, number> = {};
+  for (const r of results) out[r.service] = r.rate; // later rows (own patient, newest) win
+  return out;
+}
+
 app.get("/bills/new", adminOnly, async (c) => {
   const patientId = Number(c.req.query("patient_id") ?? 0);
   const month = monthOk(c.req.query("month"));
+  const includeUnmarked = c.req.query("incl") === "all";
   const lines: DraftLine[] = [];
   let sessionsFound: number | null = null;
   if (patientId && month) {
     const { from, to } = monthRange(month);
     const { results } = await c.env.DB.prepare(
-      "SELECT service, start_utc FROM appointments WHERE patient_id = ? AND status = 'completed' AND start_utc >= ? AND start_utc < ? ORDER BY start_utc",
+      `SELECT service, start_utc FROM appointments WHERE patient_id = ? AND ${includeUnmarked ? "status IN ('completed', 'booked')" : "status = 'completed'"}
+         AND start_utc >= ? AND start_utc < ? ORDER BY start_utc`,
     ).bind(patientId, from.toISOString(), to.toISOString()).all<{ service: string; start_utc: string }>();
     sessionsFound = results.length;
     const groups = new Map<string, string[]>();
@@ -466,6 +479,7 @@ app.get("/bills/new", adminOnly, async (c) => {
   return c.html(newBillPage(c.get("user"), await patientList(c.env), {
     patient_id: patientId ? String(patientId) : "", month: month || istDay(new Date()).slice(0, 7), bill_date: istDay(new Date()),
     lines, discount: "", paid: "", payment_mode: "", payment_ref: "", notes: "", sessionsFound,
+    includeUnmarked, services: SERVICES, lastRates: await lastRates(c.env, patientId),
   }, takeFlash(c)));
 });
 
@@ -510,6 +524,20 @@ app.get("/bills/:id", adminOnly, async (c) => {
   if (!b) return c.notFound();
   const { results } = await c.env.DB.prepare("SELECT * FROM bill_items WHERE bill_id = ? ORDER BY position").bind(b.id).all<BillItemRow>();
   return c.html(billPage(c.get("user"), b, results, clinicOf(c.env), takeFlash(c)));
+});
+
+app.post("/bills/:id/delete", adminOnly, async (c) => {
+  const b = await c.env.DB.prepare("SELECT * FROM bills WHERE id = ?").bind(Number(c.req.param("id"))).first<BillRow>();
+  if (!b) return c.notFound();
+  const body = await c.req.parseBody();
+  if (str(body.understand) !== "1" || str(body.confirm_number).toUpperCase() !== b.number.toUpperCase()) {
+    return redirectWith(c, `/bills/${b.id}`, { type: "error", text: "Not deleted: type the bill number exactly and tick the box to confirm." });
+  }
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM bill_items WHERE bill_id = ?").bind(b.id),
+    c.env.DB.prepare("DELETE FROM bills WHERE id = ?").bind(b.id),
+  ]);
+  return redirectWith(c, "/bills", { type: "ok", text: `Bill ${b.number} has been deleted permanently.` });
 });
 
 app.post("/bills/:id/cancel", adminOnly, async (c) => {

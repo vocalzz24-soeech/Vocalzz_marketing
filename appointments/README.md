@@ -37,6 +37,10 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
   amount in words; Download PDF or Print. Bills can't be edited; a wrong bill is cancelled (kept, stamped CANCELLED).
   Bills keep their own copy of the patient's name and phone, so they survive if the patient record is deleted.
   The logo on bills is `public/logo.png`: replace it with the original logo file when available.
+  Sessions not in the schedule: "Add a therapy line" fills the therapy and last rate; type the count and dates.
+  "Also include sessions that weren't marked completed" adds booked sessions in the month (including upcoming ones).
+  Test or mistaken bills can be deleted permanently (type the bill number and tick to confirm); real bills issued
+  wrongly should be cancelled instead, which keeps a record.
 
 Not built yet: cancelling by replying on WhatsApp, payments (Razorpay), daily schedule summary for therapists,
 reports.

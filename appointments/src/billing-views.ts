@@ -63,6 +63,7 @@ ${bills.map((b) => html`<tr><td><a href="/bills/${b.id}">${b.number}</a></td><td
 export function newBillPage(user: User, patients: PatientRow[], form: {
   patient_id: string; month: string; bill_date: string; lines: DraftLine[]; discount: string; paid: string;
   payment_mode: string; payment_ref: string; notes: string; sessionsFound: number | null;
+  includeUnmarked: boolean; services: string[]; lastRates: Record<string, number>;
 }, flash: Flash) {
   const lines = [...form.lines];
   while (lines.length < Math.max(4, form.lines.length + 2)) lines.push({ description: "", service: "", quantity: "", rate: "" });
@@ -75,13 +76,19 @@ export function newBillPage(user: User, patients: PatientRow[], form: {
 ${patients.map((p) => html`<option value="${p.id}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""}</option>`)}</select></div>
 <div><label for="month">Fill sessions from</label><input id="month" type="month" name="month" value="${form.month}"></div>
 <button class="secondary" style="flex:0 0 auto">Fill from sessions</button></div>
-<p class="muted" style="margin:6px 0 0">Adds the patient's <strong>completed</strong> sessions in that month, grouped by therapy, with the last rate you used. You can change everything below.</p>
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="incl" value="all" ${form.includeUnmarked ? "checked" : ""}> Also include sessions in the schedule that weren't marked completed</label>
+<p class="muted" style="margin:6px 0 0">Adds the patient's sessions in that month, grouped by therapy, with the last rate you used. Sessions that were never put in the schedule? Use <strong>Add a therapy line</strong> below and type the number of sessions and dates.</p>
 ${form.sessionsFound === 0 ? html`<p class="flash error" style="margin:8px 0 0">No completed sessions found for that month. Mark sessions as completed, or type the lines yourself.</p>` : ""}
 </form>
 <form method="post" action="/bills" class="card" id="bill-form">
 <input type="hidden" name="patient_id" value="${form.patient_id}">
 ${form.patient_id ? "" : html`<p class="flash error" style="margin:0 0 8px">Choose a patient above first.</p>`}
 <div class="row"><div><label for="bill_date">Bill date</label><input id="bill_date" type="date" name="bill_date" value="${form.bill_date}" required></div></div>
+<div class="row" style="align-items:end">
+<div><label for="add-line">Add a therapy line</label><select id="add-line"><option value="">Choose a therapy…</option>
+${form.services.map((sv) => html`<option value="${sv}">${sv}${form.lastRates[sv] ? ` (last rate ₹${form.lastRates[sv]})` : ""}</option>`)}</select></div>
+</div>
+<p class="muted" style="margin:4px 0 0">For sessions not in the schedule: pick the therapy, then set the number of sessions and add the dates to the description, e.g. "(2, 5, 9 Nov)".</p>
 <label>Items</label>
 <div style="overflow-x:auto"><table class="lines"><tr><th>Description</th><th>Sessions / qty</th><th>Rate (₹)</th><th class="num">Amount</th></tr>
 ${lines.map((l) => html`<tr><td><input name="desc" value="${l.description}" maxlength="160" placeholder="e.g. Speech therapy sessions (Nov)"><input type="hidden" name="service" value="${l.service}"></td>
@@ -120,6 +127,20 @@ ${PAYMENT_MODES.map((m) => html`<option ${m === form.payment_mode ? "selected" :
     document.getElementById("t-bal").textContent = fmt(Math.max(total - n(f.paid.value), 0));
   }
   f.addEventListener("input", calc); calc();
+  var rates = ${raw(JSON.stringify(form.lastRates))};
+  var add = document.getElementById("add-line");
+  add.addEventListener("change", function () {
+    var sv = add.value; if (!sv) return;
+    var rows = Array.prototype.slice.call(f.querySelectorAll(".lines tr")).slice(1);
+    var row = rows.find(function (tr) { return !tr.querySelector("[name=desc]").value; });
+    if (!row) { alert("All lines are used. Create the bill, or clear a line first."); add.value = ""; return; }
+    row.querySelector("[name=desc]").value = sv + " sessions (dates: )";
+    row.querySelector("[name=service]").value = sv;
+    row.querySelector("[name=qty]").value = 1;
+    row.querySelector("[name=rate]").value = rates[sv] || "";
+    add.value = ""; calc();
+    var d = row.querySelector("[name=desc]"); d.focus(); d.setSelectionRange(d.value.length - 1, d.value.length - 1);
+  });
 })();
 </script>`, flash);
 }
@@ -162,6 +183,22 @@ ${b.cancelled_at ? html`<p class="muted no-print" style="text-align:center">Canc
 <p>The bill stays on record marked <strong>CANCELLED</strong>, and its number is not reused. Create a new bill if needed.</p>
 <form method="post" action="/bills/${b.id}/cancel"><label for="reason">Reason</label><input id="reason" name="reason" maxlength="200" required>
 <button class="danger">Cancel bill</button></form></details>`}
+<details class="card danger-zone no-print" style="max-width:800px;margin:12px auto 0"><summary>Delete this bill permanently</summary>
+<p>For <strong>test bills or bills made by mistake</strong>. The bill is removed completely and won't appear anywhere. For a real bill that was issued wrongly, use <strong>Cancel</strong> instead, which keeps a record.</p>
+<p class="muted">If this is the most recent bill, its number (${b.number}) will be used again for the next bill. Otherwise that number is simply skipped.</p>
+<form method="post" action="/bills/${b.id}/delete" class="delete-form">
+<label for="confirm_number">To confirm, type the bill number: <strong>${b.number}</strong></label>
+<input id="confirm_number" name="confirm_number" autocomplete="off" required>
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="understand" value="1" required> I understand this cannot be undone</label>
+<button class="danger" disabled data-num="${b.number}">Delete bill permanently</button></form>
+<script>
+(function () {
+  var f = document.currentScript.previousElementSibling, btn = f.querySelector("button"), i = f.querySelector("[name=confirm_number]"), c = f.querySelector("[name=understand]");
+  function chk() { btn.disabled = !(c.checked && i.value.trim().toUpperCase() === btn.dataset.num.toUpperCase()); }
+  i.addEventListener("input", chk); c.addEventListener("change", chk);
+  f.addEventListener("submit", function (e) { if (!confirm("Delete bill " + btn.dataset.num + " permanently?")) e.preventDefault(); });
+})();
+</script></details>
 <script src="/vendor/html2pdf.bundle.min.js"></script>
 <script>
 document.getElementById("dl").addEventListener("click", function () {
