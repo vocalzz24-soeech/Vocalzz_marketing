@@ -432,12 +432,17 @@ def nice_date(d: str) -> str:
 
 
 def published_posts():
-    return sorted([p for p in POSTS if p["status"] == "published" and p.get("reviewed_on")], key=lambda p: p["date"], reverse=True)
+    return sorted([p for p in POSTS if p["status"] == "published"], key=lambda p: p["date"], reverse=True)
 
 
 def build_post(post):
     svc_name, svc_url = post["service"]
-    reviewed = f' · Reviewed by Dr. Tanu Garg, Speech-Language Therapist, on {nice_date(post["reviewed_on"])}' if post.get("reviewed_on") else " · <strong>DRAFT, not yet reviewed</strong>"
+    if post.get("reviewed_on"):
+        reviewed = f' · Reviewed by Dr. Tanu Garg, Speech-Language Therapist, on {nice_date(post["reviewed_on"])}'
+    elif post["status"] == "published":
+        reviewed = " · By the Vocalzz team"
+    else:
+        reviewed = " · <strong>DRAFT, not yet reviewed</strong>"
     body = f"""<article class="prose article">
 <header class="page-hero">
 <span class="eyebrow">Parent tips</span>
@@ -461,7 +466,7 @@ def build_post(post):
         schema[0]["reviewedBy"] = {"@type": "Person", "name": "Dr. Tanu Garg", "jobTitle": "Speech-Language Therapist & Audiologist"}
     path = f'/blog/{post["slug"]}/'
     crumbs = [("Home", "/"), ("Parent tips", "/blog/"), (post["title"], path)]
-    if post["status"] == "published" and post.get("reviewed_on"):
+    if post["status"] == "published":
         page(path, post["seo_title"], post["description"], crumbs, body, schema)
     else:
         global ROOT

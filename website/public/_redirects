@@ -14,6 +14,3 @@
 /contact /contact-us/ 301
 /contact/ /contact-us/ 301
 /sitemap_index.xml /sitemap.xml 301
-# Old blog had no replacement yet: temporary.
-/blog / 302
-/blog/ / 302

@@ -2,7 +2,8 @@
 
 status: "draft" -> built into website/drafts/ for review only (not served on the live site)
         "published" -> built into public/blog/<slug>/ and listed on /blog/ and in the sitemap
-Only publish after Dr. Tanu Garg has reviewed the article (set reviewed_on).
+Publishing is the clinic owner's call. Set reviewed_on only once Dr. Tanu Garg has actually reviewed the
+article: that adds "Reviewed by Dr. Tanu Garg" to the page.
 Write simply and warmly. No guarantees, timelines or statistics; "every child is different".
 Body is HTML made of <p>, <h2>, <ul>/<li> and <strong> only.
 """
@@ -10,8 +11,8 @@ Body is HTML made of <p>, <h2>, <ul>/<li> and <strong> only.
 POSTS = [
     {
         "slug": "late-talker-signs",
-        "status": "draft",
-        "date": "2026-11-16",
+        "status": "published",
+        "date": "2026-11-13",
         "reviewed_on": None,  # e.g. "2026-11-17" once Dr. Tanu approves
         "title": "Late talker or speech delay? Signs to watch in toddlers, and when to get help",
         "seo_title": "Late Talker or Speech Delay? Signs to Watch in Toddlers | Vocalzz Noida",
