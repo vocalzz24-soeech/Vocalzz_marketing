@@ -366,7 +366,7 @@
       <span style="font-size:1.3rem">Vocalzz</span>
     </a>
     <span>Better Communication, Better Life</span>
-    <span>© <span id="year">2026</span> Vocalzz · <a href="/privacy.html">Privacy</a></span>
+    <span>© <span id="year">2026</span> Vocalzz · <a href="/privacy.html">Privacy</a> · <a id="staff-link" href="https://book.vocalzz.com/">Staff login</a></span>
   </div>
   <div class="wrap" style="margin-top:14px;font-size:.85rem;opacity:.75">Information on this website is general and not a diagnosis. Every child is different; please book an assessment for advice about your child.</div>
 </footer>
@@ -376,6 +376,15 @@
   <span>Chat with us</span>
 </a>
 
-<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+// Staff login points at the appointment app: same Cloudflare account on workers.dev, book.vocalzz.com on the real domain.
+(function () {
+  var h = location.hostname, app = null;
+  if (h.indexOf("vocalzz-website.") === 0) app = h.replace("vocalzz-website.", "vocalzz-appointments.");
+  else if (/(^|\.)vocalzz\.com$/.test(h)) app = "book.vocalzz.com";
+  if (app) document.getElementById("staff-link").href = "https://" + app + "/";
+})();
+</script>
 </body>
 </html>

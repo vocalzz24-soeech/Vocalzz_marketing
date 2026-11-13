@@ -41,6 +41,7 @@ export function layout(title: string, user: User | null, body: H | string, flash
 <title>${title} · Vocalzz Appointments</title><style>${raw(CSS)}</style></head>
 <body>
 <header><strong>Vocalzz Appointments</strong>
+<a class="site-link" href="https://vocalzz.com/">← Website</a>
 ${user
   ? html`<a href="/">Schedule</a>${user.role === "admin"
       ? html`<a href="/appointments/new">+ Book</a><a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/messages">Messages</a>`
@@ -51,7 +52,17 @@ ${user
 <main>
 ${flash ? html`<div class="flash ${flash.type}">${flash.text}</div>` : ""}
 ${body}
-</main></body></html>`;
+</main>
+<script>
+// "Website" link: same Cloudflare account on workers.dev, vocalzz.com on the real domain.
+(function () {
+  var h = location.hostname, site = null;
+  if (h.indexOf("vocalzz-appointments.") === 0) site = h.replace("vocalzz-appointments.", "vocalzz-website.");
+  else if (/(^|\\.)vocalzz\\.com$/.test(h)) site = "vocalzz.com";
+  if (site) document.querySelectorAll("a.site-link").forEach(function (a) { a.href = "https://" + site + "/"; });
+})();
+</script>
+</body></html>`;
 }
 
 export function loginPage(error?: string) {
