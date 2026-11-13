@@ -420,8 +420,88 @@ def sync_simple_pages():
         f.write_text(doc, encoding="utf-8")
 
 
+from blog_posts import POSTS  # noqa: E402
+
+DRAFTS = Path(__file__).resolve().parent / "drafts"
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+
+def nice_date(d: str) -> str:
+    y, m, day = d.split("-")
+    return f"{int(day)} {MONTHS[int(m) - 1]} {y}"
+
+
+def published_posts():
+    return sorted([p for p in POSTS if p["status"] == "published" and p.get("reviewed_on")], key=lambda p: p["date"], reverse=True)
+
+
+def build_post(post):
+    svc_name, svc_url = post["service"]
+    reviewed = f' · Reviewed by Dr. Tanu Garg, Speech-Language Therapist, on {nice_date(post["reviewed_on"])}' if post.get("reviewed_on") else " · <strong>DRAFT, not yet reviewed</strong>"
+    body = f"""<article class="prose article">
+<header class="page-hero">
+<span class="eyebrow">Parent tips</span>
+<h1>{esc(post["title"])}</h1>
+<p class="muted">{nice_date(post["date"])}{reviewed}</p>
+</header>
+{post["body"]}
+<p class="callout">This article is general information, not a diagnosis. Every child is different. If you're worried, an assessment is the best way to get advice for your child.</p>
+<div class="cta-row" style="margin:18px 0">
+<a class="btn btn-wa" href="{esc(wa(post["wa"]))}" target="_blank" rel="noopener">Ask us on WhatsApp</a>
+<a class="btn btn-ghost" href="{TEL}">Call +91 88002 30240</a>
+</div>
+<p>Learn more about <a href="{svc_url}">{esc(svc_name)} at Vocalzz</a> · <a href="/blog/">More parent tips</a></p>
+<div style="height:48px"></div>
+</article>"""
+    schema = [{"@context": "https://schema.org", "@type": "Article", "headline": post["title"], "description": post["description"],
+               "datePublished": post["date"], "url": f'{SITE}/blog/{post["slug"]}/', "inLanguage": "en-IN",
+               "author": {"@type": "Organization", "name": "Vocalzz", "url": f"{SITE}/"},
+               "publisher": {"@type": "Organization", "name": "Vocalzz", "url": f"{SITE}/"}}]
+    if post.get("reviewed_on"):
+        schema[0]["reviewedBy"] = {"@type": "Person", "name": "Dr. Tanu Garg", "jobTitle": "Speech-Language Therapist & Audiologist"}
+    path = f'/blog/{post["slug"]}/'
+    crumbs = [("Home", "/"), ("Parent tips", "/blog/"), (post["title"], path)]
+    if post["status"] == "published" and post.get("reviewed_on"):
+        page(path, post["seo_title"], post["description"], crumbs, body, schema)
+    else:
+        global ROOT
+        saved, ROOT = ROOT, DRAFTS  # drafts are written outside public/, so they are never served
+        try:
+            page(path, "[DRAFT] " + post["seo_title"], post["description"], crumbs, body, schema)
+        finally:
+            ROOT = saved
+
+
+def update_redirects(has_blog: bool):
+    """The old /blog address points to the homepage until the first article is published."""
+    f = ROOT / "_redirects"
+    lines = [l for l in f.read_text(encoding="utf-8").splitlines() if not l.startswith(("/blog ", "/blog/ ", "# Old blog"))]
+    if not has_blog:
+        lines += ["# Old blog had no replacement yet: temporary.", "/blog / 302", "/blog/ / 302"]
+    f.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def build_blog_index():
+    posts = published_posts()
+    update_redirects(bool(posts))
+    if not posts:
+        return
+    cards = "".join(f"""<a class="service-link" href="/blog/{p['slug']}/"><strong>{esc(p['title'])}</strong><span>{esc(p['summary'])}</span><em>{nice_date(p['date'])} · Read →</em></a>""" for p in posts)
+    body = f"""<header class="page-hero">
+<span class="eyebrow">Parent tips</span>
+<h1>Parent tips from the Vocalzz team</h1>
+<p class="lead">Simple, practical guidance on speech, language, learning and behaviour, reviewed by our therapists.</p>
+</header>
+<div class="related services-index" style="margin:12px 0 64px">{cards}</div>"""
+    page("/blog/", "Parent Tips on Speech, Learning & Behaviour | Vocalzz Noida",
+         "Practical tips for parents on speech delay, stammering, sensory needs, learning and behaviour, from the Vocalzz therapy team in Sector 137, Noida.",
+         [("Home", "/"), ("Parent tips", "/blog/")], body, [])
+
+
 def build_sitemap():
     urls = ["/", "/services/"] + [f"/{s['slug']}/" for s in SERVICES] + ["/about/", "/contact-us/", "/privacy.html"]
+    if published_posts():
+        urls += ["/blog/"] + [f"/blog/{p['slug']}/" for p in published_posts()]
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                       + "".join(f"  <url><loc>{SITE}{u}</loc></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
 
@@ -432,6 +512,10 @@ if __name__ == "__main__":
     build_services_index()
     build_about()
     build_contact()
+    for post in POSTS:
+        build_post(post)
+    build_blog_index()
     build_sitemap()
     sync_simple_pages()
-    print("Built", len(SERVICES) + 3, "pages and sitemap.xml")
+    print("Built", len(SERVICES) + 3, "pages,", len(published_posts()), "published articles,",
+          len(POSTS) - len(published_posts()), "draft(s) in website/drafts/, and sitemap.xml")
