@@ -42,6 +42,19 @@ input[type=checkbox],input[type=radio]{width:auto}
 .pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;border:1px solid}
 .pill.ok{color:var(--ok);border-color:var(--ok)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.wait{color:#fff;background:#d97706;border-color:#d97706}.pill.muted-pill{color:var(--muted);border-color:var(--line)}
 .msg-main{min-width:0}
+.ev{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.ev.pending{border-left:4px solid #25d366}
+.ev-row{display:grid;grid-template-columns:1.1fr 1.3fr 1.1fr auto;gap:6px 16px;align-items:center;padding:12px 14px;cursor:pointer;list-style:none}
+.ev-row::-webkit-details-marker{display:none}
+.ev-when{display:flex;flex-direction:column;line-height:1.3}.ev-when .muted{font-size:13px}
+.ev-who{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+.lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.ev-kind{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ev-toggle{font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap}.ev-toggle::after{content:" ▾"}.ev[open] .ev-toggle::after{content:" ▴"}
+.ev[open] .ev-toggle{color:var(--muted)}
+.ev-body{border-top:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.ev-msg{display:flex;flex-direction:column;gap:6px}
+@media (max-width:760px){.ev-row{grid-template-columns:minmax(0,1fr)}.ev-kind{flex-direction:row;justify-content:space-between;align-items:center}}
 @media (max-width:640px){.msg{grid-template-columns:minmax(0,1fr)}.msg-action .btn{display:block;text-align:center;white-space:normal}.msg-who .muted{display:block}}
 .weeknav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}.weeknav input{width:auto;padding:6px 10px}
 .week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
@@ -223,7 +236,8 @@ ${["0", "10", "15"].map((v) => html`<label><input type="radio" name="extra" valu
 <input id="notes" name="notes" value="${form.notes ?? ""}" maxlength="200">`;
 }
 
-export interface MessageRow { id: number; appointment_id: number | null; recipient: string; to_phone: string; kind: string; body_preview: string; status: string; error: string | null; created_at: string; manual_sent_at: string | null; to_name?: string | null }
+export interface MessageRow { id: number; appointment_id: number | null; recipient: string; to_phone: string; kind: string; body_preview: string; status: string; error: string | null; created_at: string; manual_sent_at: string | null; to_name?: string | null;
+  patient_name?: string | null; guardian_name?: string | null; therapist_name?: string | null; appt_start?: string | null; appt_service?: string | null; appt_status?: string | null }
 
 /** Not delivered automatically (WhatsApp not connected yet, or a send failed) and not yet sent by hand. */
 export const needsManualSend = (m: MessageRow) => (m.status === "dry_run" || m.status === "failed") && !m.manual_sent_at;
@@ -413,13 +427,68 @@ export function therapistEditPage(user: User, t: TherapistRow, flash?: { type: "
 </form>`, flash);
 }
 
+/** Messages created together for one appointment event (e.g. the booking confirmation to patient + therapist). */
+function groupMessages(messages: MessageRow[]) {
+  const groups: { key: string; items: MessageRow[] }[] = [];
+  for (const m of messages) {
+    const g = groups.at(-1);
+    const near = g && Math.abs(Date.parse(g.items[0].created_at) - Date.parse(m.created_at)) < 120_000;
+    if (g && near && g.items[0].appointment_id === m.appointment_id && g.items[0].kind === m.kind) g.items.push(m);
+    else groups.push({ key: `${m.appointment_id}-${m.kind}-${m.id}`, items: [m] });
+  }
+  return groups;
+}
+
+function shortStatus(m: MessageRow) {
+  if (m.manual_sent_at || m.status === "sent") return html`<span class="pill ok">✓ Sent</span>`;
+  if (m.status === "skipped") return html`<span class="pill muted-pill">No consent</span>`;
+  if (m.status === "failed") return html`<span class="pill bad">Failed</span>`;
+  return html`<span class="pill wait">To send</span>`;
+}
+
+/** One row per appointment event: session time, patient, therapist; messages expand on tap. */
+export function messageGroups(messages: MessageRow[]) {
+  if (messages.length === 0) return html`<div class="card muted">No messages here.</div>`;
+  let lastDay = "";
+  return html`<div class="msg-list">${groupMessages(messages).map(({ items }) => {
+    const first = items[0];
+    const heading = dayHeading(first.created_at);
+    const showHeading = heading !== lastDay;
+    lastDay = heading;
+    const pending = items.filter(needsManualSend).length;
+    const patientMsg = items.find((m) => m.recipient === "patient");
+    const therapistMsg = items.find((m) => m.recipient === "therapist");
+    const start = first.appt_start ? new Date(first.appt_start) : null;
+    return html`${showHeading ? html`<div class="msg-day">${heading}</div>` : ""}
+<details class="ev ${pending ? "pending" : ""}">
+<summary class="ev-row">
+  <div class="ev-when"><strong>${start ? formatDateTime(start).replace(/ \d{4},/, ",") : "—"}</strong>
+    <span class="muted">${first.appt_service ?? ""}${first.appt_status === "cancelled" ? " · cancelled" : ""}</span></div>
+  <div class="ev-who"><span class="lbl">Patient</span> <strong>${first.patient_name ?? "—"}</strong>${first.guardian_name ? html` <span class="muted">(${first.guardian_name})</span>` : ""}
+    ${patientMsg ? shortStatus(patientMsg) : ""}</div>
+  <div class="ev-who"><span class="lbl">Therapist</span> <strong>${first.therapist_name ?? "—"}</strong>
+    ${therapistMsg ? shortStatus(therapistMsg) : ""}</div>
+  <div class="ev-kind"><span class="pill muted-pill">${kindLabel(first.kind)}</span><span class="ev-toggle">View messages</span></div>
+</summary>
+<div class="ev-body">
+${items.map((m) => html`<div class="ev-msg">
+  <div class="msg-head">${statusPill(m)} <strong>To ${m.to_name || m.recipient}</strong> <span class="muted">${m.recipient} · ${fmtPhone(m.to_phone)}</span></div>
+  <div class="msg-full">${m.body_preview}</div>
+  ${needsManualSend(m) ? html`<div class="msg-action">${sendButton(m, m.to_name || m.recipient)}</div>` : ""}
+</div>`)}
+${first.appointment_id ? html`<a class="muted" href="/appointments/${first.appointment_id}">Open appointment →</a>` : ""}
+</div>
+</details>`;
+  })}</div>`;
+}
+
 export function messagesPage(user: User, messages: MessageRow[], pendingOnly: boolean) {
   return layout("Messages", user, html`<h1>WhatsApp messages</h1>
 <div class="row" style="flex:0 0 auto;gap:8px;margin-bottom:8px">
 <a class="btn ${pendingOnly ? "" : "secondary"} small" style="flex:0 0 auto" href="/messages?pending=1">Waiting for you to send</a>
 <a class="btn ${pendingOnly ? "secondary" : ""} small" style="flex:0 0 auto" href="/messages">All messages</a></div>
-<p class="muted">${pendingOnly ? "Messages for upcoming appointments that still need sending from your WhatsApp." : "The last 200 messages."}</p>
-${messageTable(messages)}`);
+<p class="muted">${pendingOnly ? "Upcoming appointments with messages still to send from your WhatsApp." : "Recent appointment messages. Tap a row to see the messages."}</p>
+${messageGroups(messages)}`);
 }
 
 export function pendingBanner(count: number) {

@@ -384,7 +384,9 @@ app.post("/therapists/:id/active", adminOnly, async (c) => {
 // --- Message log ---------------------------------------------------------------------------------
 // Messages with the recipient's name (patient's parent/name or therapist), when it still matches.
 const MSG_SELECT = `SELECT m.*, CASE WHEN m.to_phone = p.phone THEN COALESCE(p.guardian_name, p.name)
-    WHEN m.to_phone = t.phone THEN t.name END AS to_name
+    WHEN m.to_phone = t.phone THEN t.name END AS to_name,
+    p.name AS patient_name, p.guardian_name AS guardian_name, t.name AS therapist_name,
+    a.start_utc AS appt_start, a.service AS appt_service, a.status AS appt_status
   FROM messages m LEFT JOIN appointments a ON a.id = m.appointment_id
   LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN therapists t ON t.id = a.therapist_id`;
 
