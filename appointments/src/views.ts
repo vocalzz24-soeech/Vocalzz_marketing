@@ -2,7 +2,7 @@
 import { html, raw } from "hono/html";
 import type { User } from "./auth.ts";
 import type { ApptRow } from "./notify.ts";
-import { dateToIstLocal, formatDateTime, formatTime } from "./time.ts";
+import { dateToIstLocal, formatDateTime, formatTime, istDay } from "./time.ts";
 import { endOf, timeSlots } from "./schedule.ts";
 
 // Clinic hours 10:00–21:00 (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
@@ -27,6 +27,22 @@ input[type=checkbox],input[type=radio]{width:auto}
 .btn.wa-send{background:#25d366;border-color:#25d366;color:#fff;white-space:nowrap}.btn.wa-send.secondary{background:transparent;color:var(--ok);border-color:var(--ok)}
 .send-panel{border:2px solid #25d366}.send-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}.send-row .btn{margin:0}
 .send-banner{display:flex;justify-content:space-between;gap:12px;text-decoration:none;color:inherit;border:2px solid #25d366}
+.msg-list{display:flex;flex-direction:column;gap:8px}
+.msg-day{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 2px}
+.msg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.msg.pending{border-left:4px solid #25d366}
+.msg-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.msg-who{min-width:0}
+.msg-meta{font-size:13px;margin-top:2px}
+.msg-body{margin-top:6px}.msg-body summary{display:flex;gap:10px;align-items:baseline;cursor:pointer;list-style:none;font-size:14px}
+.msg-body summary::-webkit-details-marker{display:none}
+.msg-preview{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.msg-more{flex:none;font-size:13px;color:var(--brand);font-weight:600}.msg-body[open] .msg-more{display:none}.msg-body[open] .msg-preview{display:none}
+.msg-full{white-space:pre-wrap;font-size:14px;background:var(--bg);border-radius:8px;padding:10px 12px}
+.msg-action .btn{margin:0}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;border:1px solid}
+.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.wait{color:#fff;background:#d97706;border-color:#d97706}.pill.muted-pill{color:var(--muted);border-color:var(--line)}
+.msg-main{min-width:0}
+@media (max-width:640px){.msg{grid-template-columns:minmax(0,1fr)}.msg-action .btn{display:block;text-align:center;white-space:normal}.msg-who .muted{display:block}}
 .weeknav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}.weeknav input{width:auto;padding:6px 10px}
 .week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .day-chip{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);text-decoration:none;text-align:center;min-width:0}
@@ -207,7 +223,7 @@ ${["0", "10", "15"].map((v) => html`<label><input type="radio" name="extra" valu
 <input id="notes" name="notes" value="${form.notes ?? ""}" maxlength="200">`;
 }
 
-export interface MessageRow { id: number; appointment_id: number | null; recipient: string; to_phone: string; kind: string; body_preview: string; status: string; error: string | null; created_at: string; manual_sent_at: string | null }
+export interface MessageRow { id: number; appointment_id: number | null; recipient: string; to_phone: string; kind: string; body_preview: string; status: string; error: string | null; created_at: string; manual_sent_at: string | null; to_name?: string | null }
 
 /** Not delivered automatically (WhatsApp not connected yet, or a send failed) and not yet sent by hand. */
 export const needsManualSend = (m: MessageRow) => (m.status === "dry_run" || m.status === "failed") && !m.manual_sent_at;
@@ -283,16 +299,46 @@ ${pending.map((m) => html`<div class="send-row"><div><strong>${kindLabel(m.kind)
 </div>`;
 }
 
+const fmtPhone = (p: string) => (p.length === 12 && p.startsWith("91") ? `+91 ${p.slice(2, 7)} ${p.slice(7)}` : `+${p}`);
+
+function statusPill(m: MessageRow) {
+  if (m.manual_sent_at) return html`<span class="pill ok" title="${formatDateTime(new Date(m.manual_sent_at))}">Sent by you · ${formatTime(new Date(m.manual_sent_at))}</span>`;
+  if (m.status === "sent") return html`<span class="pill ok">Sent</span>`;
+  if (m.status === "skipped") return html`<span class="pill muted-pill" title="${m.error ?? ""}">Not sent · no consent</span>`;
+  if (m.status === "failed") return html`<span class="pill bad" title="${m.error ?? ""}">Failed</span>`;
+  return html`<span class="pill wait">Waiting for you</span>`;
+}
+
+function dayHeading(iso: string) {
+  const d = istDay(new Date(iso)), now = new Date();
+  if (d === istDay(now)) return "Today";
+  if (d === istDay(new Date(now.getTime() - 86_400_000))) return "Yesterday";
+  return formatDateTime(new Date(iso)).replace(/, \d+:\d+ [AP]M$/, "");
+}
+
+/** Compact, mobile-friendly message list grouped by day. */
 export function messageTable(messages: MessageRow[]) {
-  if (messages.length === 0) return html`<div class="card muted">No messages yet.</div>`;
-  return html`<div class="card" style="overflow-x:auto"><table>
-<tr><th>When</th><th>To</th><th>Type</th><th>Status</th><th>Message</th><th></th></tr>
-${messages.map((m) => html`<tr><td>${formatDateTime(new Date(m.created_at))}</td><td>${m.recipient}<br><span class="muted">+${m.to_phone}</span></td>
-<td>${kindLabel(m.kind)}${m.appointment_id ? html`<br><a href="/appointments/${m.appointment_id}">#${m.appointment_id}</a>` : ""}</td>
-<td>${statusLabel2(m)}</td>
-<td style="white-space:pre-wrap">${m.body_preview}</td>
-<td>${needsManualSend(m) ? sendButton(m, m.recipient) : ""}</td></tr>`)}
-</table></div>`;
+  if (messages.length === 0) return html`<div class="card muted">No messages here.</div>`;
+  let lastDay = "";
+  return html`<div class="msg-list">${messages.map((m) => {
+    const heading = dayHeading(m.created_at);
+    const showHeading = heading !== lastDay;
+    lastDay = heading;
+    const who = m.to_name || (m.recipient === "patient" ? "Patient" : "Therapist");
+    const firstLine = m.body_preview.split("\n")[0];
+    return html`${showHeading ? html`<div class="msg-day">${heading}</div>` : ""}
+<div class="msg ${needsManualSend(m) ? "pending" : ""}">
+  <div class="msg-main">
+    <div class="msg-head">
+      ${statusPill(m)}
+      <span class="msg-who"><strong>${who}</strong> <span class="muted">${m.recipient} · ${fmtPhone(m.to_phone)}</span></span>
+    </div>
+    <div class="msg-meta muted">${kindLabel(m.kind)}${m.appointment_id ? html` · <a href="/appointments/${m.appointment_id}">appointment #${m.appointment_id}</a>` : ""} · ${formatTime(new Date(m.created_at))}</div>
+    <details class="msg-body"><summary><span class="msg-preview">${firstLine}</span><span class="msg-more">Show message</span></summary><div class="msg-full">${m.body_preview}</div></details>
+  </div>
+  ${needsManualSend(m) ? html`<div class="msg-action">${sendButton(m, who === "Patient" || who === "Therapist" ? m.recipient : who)}</div>` : ""}
+</div>`;
+  })}</div>`;
 }
 
 export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }) {

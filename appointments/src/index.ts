@@ -213,7 +213,7 @@ async function loadForUser(c: C): Promise<ApptRow | null> {
 app.get("/appointments/:id", async (c) => {
   const appt = await loadForUser(c);
   if (!appt) return c.notFound();
-  const { results } = await c.env.DB.prepare("SELECT * FROM messages WHERE appointment_id = ? ORDER BY id DESC").bind(appt.id).all<MessageRow>();
+  const { results } = await c.env.DB.prepare(`${MSG_SELECT} WHERE m.appointment_id = ? ORDER BY m.id DESC`).bind(appt.id).all<MessageRow>();
   return c.html(appointmentPage(c.get("user"), appt, results, await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), takeFlash(c)));
 });
 
@@ -382,6 +382,12 @@ app.post("/therapists/:id/active", adminOnly, async (c) => {
 });
 
 // --- Message log ---------------------------------------------------------------------------------
+// Messages with the recipient's name (patient's parent/name or therapist), when it still matches.
+const MSG_SELECT = `SELECT m.*, CASE WHEN m.to_phone = p.phone THEN COALESCE(p.guardian_name, p.name)
+    WHEN m.to_phone = t.phone THEN t.name END AS to_name
+  FROM messages m LEFT JOIN appointments a ON a.id = m.appointment_id
+  LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN therapists t ON t.id = a.therapist_id`;
+
 // Messages still to be sent by hand: not delivered automatically, not yet sent, and about an
 // appointment that is still upcoming (or a cancellation from the last 3 days).
 const PENDING_WHERE = `m.status IN ('dry_run','failed') AND m.manual_sent_at IS NULL
@@ -397,9 +403,9 @@ async function pendingCount(env: Env) {
 app.get("/messages", adminOnly, async (c) => {
   const pendingOnly = c.req.query("pending") === "1";
   const { results } = pendingOnly
-    ? await c.env.DB.prepare(`SELECT m.* FROM messages m JOIN appointments a ON a.id = m.appointment_id WHERE ${PENDING_WHERE} ORDER BY m.id`)
+    ? await c.env.DB.prepare(`${MSG_SELECT} WHERE ${PENDING_WHERE} ORDER BY m.id DESC`)
         .bind(...pendingArgs()).all<MessageRow>()
-    : await c.env.DB.prepare("SELECT * FROM messages ORDER BY id DESC LIMIT 200").all<MessageRow>();
+    : await c.env.DB.prepare(`${MSG_SELECT} ORDER BY m.id DESC LIMIT 200`).all<MessageRow>();
   return c.html(messagesPage(c.get("user"), results, pendingOnly));
 });
 
