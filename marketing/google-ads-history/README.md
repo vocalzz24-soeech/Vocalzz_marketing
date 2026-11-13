@@ -23,3 +23,14 @@ See keywords.csv and search_terms.csv.
   competitor clinic names (Holding Hope, Sonakshi, Meenakshi, The Wings, Continua, Brain Light), other
   cities (Gurgaon, Delhi, Faridabad, Mumbai, Bahadurgarh) and government hospitals (AIIMS, Safdarjung,
   govt); include Greater Noida in targeting.
+
+## Full history export (27 Jun - 14 Nov 2026, folder overview_2026-06-27_to_2026-11-14)
+- Total spend about Rs 5,938 and 658 clicks across 5 campaigns:
+  - Jul-Aug 2026: "Speech and Language Therapy", "Occupational Therapist Noida", "Campaign Speech Therapist
+    Noida", "Autism Centre in Noida" (all paused): about Rs 2,540, ~460 clicks, CTR about 1% on very high
+    impressions (cheap, low-intent clicks, likely display/partner placements).
+  - 5-21 Oct 2026: "Vocalzz Speech 05.10.2026" (search): Rs 3,395, 199 clicks, CTR 13.3%.
+- 95% of spend on mobile phones.
+- Audience seen: men and women 25-44 are about 78% of known impressions (fathers 35-44 the largest group).
+- Ads ran around the clock (1,345 impressions at midnight); most impressions 10 am-7 pm; Sun/Mon busiest.
+- No call or WhatsApp conversions were tracked in any campaign.
