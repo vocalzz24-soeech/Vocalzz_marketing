@@ -8,7 +8,7 @@ const GRAPH_URL = "https://graph.facebook.com/v21.0";
 export const TEMPLATES = {
   vocalzz_appt_confirmed:
     "Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz is confirmed for {{5}}.\n\n" +
-    "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
+    "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201305.\n" +
     "To cancel or change the time, just reply to this message.",
   vocalzz_appt_reminder:
     "Hello {{1}}, a reminder that the {{2}} session for {{3}} with {{4}} at Vocalzz is {{5}}.\n\n" +
@@ -27,7 +27,7 @@ export const TEMPLATES = {
     "Appointment cancelled: {{1}} ({{2}}) on {{3}} will not take place. Please check the schedule.",
   vocalzz_series_confirmed:
     "Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz are booked for {{5}} on these dates: {{6}}.\n\n" +
-    "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
+    "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201305.\n" +
     "To cancel or change a session, just reply to this message.",
   vocalzz_therapist_series:
     "New weekly sessions for you: {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.",

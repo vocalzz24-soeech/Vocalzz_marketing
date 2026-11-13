@@ -6,7 +6,7 @@ The skill reads this before every run. The full brand context is in the repo-roo
 ## Business
 - **Name**: Vocalzz
 - **Business type**: Multi-therapy clinic: speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy for children, adults and seniors
-- **Location**: Tower E-004, Logix Blossom County, Sector 137, Noida 201304
+- **Location**: Tower E-004, Logix Blossom County, Sector 137, Noida 201305
 - **Website**: vocalzz.com
 - **Instagram**: @vocalzz_4u
 - **Customers**: mainly parents (25–44) of children aged 2–8 with speech delay, autism or ADHD; also teens/adults who stammer, and families of elderly people with hearing loss or post-stroke speech problems
@@ -52,7 +52,7 @@ Hindi / Hinglish:
 ## Geography
 - Primary (~10 km of Sector 137): Noida Expressway sectors (93–168), Sector 18/50/62/76/78, Greater Noida West (Noida Extension), Greater Noida
 - Secondary: East Delhi (Mayur Vihar, Patparganj), Ghaziabad (Indirapuram), Delhi NCR
-- Pin codes of interest: 201301, 201303, 201304, 201305, 201306, 201307, 201309, 201310, 201318
+- Pin codes of interest: 201301, 201303, 201305, 201305, 201306, 201307, 201309, 201310, 201318
 
 ## Known competitors
 Add one per line: Name | website domain | Facebook page URL
