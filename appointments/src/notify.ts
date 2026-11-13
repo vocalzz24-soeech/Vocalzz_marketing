@@ -1,6 +1,6 @@
 // Builds and sends the WhatsApp messages for appointment events and reminders.
 import type { Env } from "./env.ts";
-import { dueReminders, type ReminderKind } from "./schedule.ts";
+import { dueReminders, shortDay, type ReminderKind } from "./schedule.ts";
 import { formatDateTime, formatTime, istDay } from "./time.ts";
 import { sendWhatsApp } from "./whatsapp.ts";
 
@@ -10,6 +10,7 @@ export interface ApptRow {
   therapist_id: number;
   notes: string | null;
   cancel_reason: string | null;
+  series_id?: string | null;
   service: string;
   start_utc: string;
   duration_min: number;
@@ -91,6 +92,38 @@ export async function notifyCancelled(env: Env, a: ApptRow) {
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "cancelled",
     template: "vocalzz_therapist_cancelled", params: [a.patient_name, a.service, when],
+  });
+}
+
+const dayList = (appts: ApptRow[]) => appts.map((a) => shortDay(istDay(new Date(a.start_utc)))).join(", ");
+
+/** One summary message per person for a newly booked weekly series (instead of one per session). */
+export async function notifySeriesBooked(env: Env, appts: ApptRow[], opts: { skipTherapist?: boolean } = {}) {
+  const a = appts[0];
+  const time = formatTime(new Date(a.start_utc));
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "series_confirmation",
+    template: "vocalzz_series_confirmed", allowed: !!a.whatsapp_consent,
+    params: [greet(a), a.service, a.patient_name, a.therapist_name, time, dayList(appts)],
+  });
+  if (opts.skipTherapist) return;
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "series_confirmation",
+    template: "vocalzz_therapist_series", params: [a.patient_name, a.service, time, dayList(appts)],
+  });
+}
+
+/** One message per person when several sessions of a series are cancelled together. */
+export async function notifySeriesCancelled(env: Env, appts: ApptRow[]) {
+  const a = appts[0];
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "series_cancelled",
+    template: "vocalzz_series_cancelled", allowed: !!a.whatsapp_consent,
+    params: [greet(a), a.service, a.patient_name, dayList(appts)],
+  });
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "series_cancelled",
+    template: "vocalzz_therapist_series_cancelled", params: [a.patient_name, a.service, dayList(appts)],
   });
 }
 

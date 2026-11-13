@@ -3,7 +3,7 @@ import { html, raw } from "hono/html";
 import type { User } from "./auth.ts";
 import type { ApptRow } from "./notify.ts";
 import { dateToIstLocal, formatDateTime, formatTime, istDay } from "./time.ts";
-import { endOf, timeSlots } from "./schedule.ts";
+import { endOf, MAX_SERIES, timeSlots } from "./schedule.ts";
 
 // Clinic hours 10:00–21:00 (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
 const TIME_SLOTS = timeSlots(10, 21);
@@ -42,6 +42,7 @@ input[type=checkbox],input[type=radio]{width:auto}
 .pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;border:1px solid}
 .pill.ok{color:var(--ok);border-color:var(--ok)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.wait{color:#fff;background:#d97706;border-color:#d97706}.pill.muted-pill{color:var(--muted);border-color:var(--line)}
 .msg-main{min-width:0}
+.repeat-box{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.repeat-toggle{display:flex!important;gap:8px;align-items:center;margin:0!important;font-size:16px}.chips label.wk{background:var(--wk-bg);border-color:var(--wk-line)}
 .locked{padding:10px;border:1px dashed var(--line);border-radius:8px;background:var(--bg);font-weight:600}
 .comment{padding:10px 0;border-bottom:1px solid var(--line)}.comment-body{white-space:pre-wrap;margin-top:2px}
 textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
@@ -200,7 +201,8 @@ export const SERVICES = [
 
 const statusLabel = (s: string) => ({ booked: "Booked", cancelled: "Cancelled", completed: "Completed", no_show: "No-show" })[s] ?? s;
 
-export interface ApptForm { patient_id?: string; therapist_id?: string; service?: string; start?: string; duration?: string; extra?: string; notes?: string }
+export interface ApptForm { patient_id?: string; therapist_id?: string; service?: string; start?: string; duration?: string; extra?: string; notes?: string;
+  repeat?: string; repeat_days?: string[]; repeat_until?: string; repeat_until_date?: string }
 
 export function newAppointmentPage(user: User, patients: PatientRow[], therapists: TherapistRow[], defaultDuration: number, form: ApptForm = {}, error?: string) {
   return layout("Book appointment", user, html`
@@ -213,8 +215,67 @@ ${patients.map((p) => html`<option value="${p.id}" ${String(p.id) === form.patie
 </select>
 <p class="muted">${user.role === "admin" ? html`New patient? <a href="/patients">Add them first</a>.` : "New patient? Ask the clinic admin to add them first."}</p>
 ${apptFields(therapists, defaultDuration, form, user.role === "therapist" ? therapists.find((t) => t.id === user.therapist_id) : undefined)}
+${repeatFields(form)}
 <button>Book and send WhatsApp messages</button>
 </form>`, error ? { type: "error", text: error } : undefined);
+}
+
+function repeatFields(form: ApptForm) {
+  const on = form.repeat === "1";
+  const days = new Set(form.repeat_days ?? []);
+  const until = form.repeat_until ?? "month_end";
+  const WD = [["1", "Mon"], ["2", "Tue"], ["3", "Wed"], ["4", "Thu"], ["5", "Fri"], ["6", "Sat"], ["0", "Sun"]];
+  return html`<div class="repeat-box">
+<label class="repeat-toggle"><input type="checkbox" id="repeat" name="repeat" value="1" ${on ? "checked" : ""}> <span>Repeat every week</span></label>
+<div id="repeat-opts" ${on ? "" : "hidden"}>
+<label>On these days</label>
+<div class="chips">${WD.map(([v, l]) => html`<label class="${v === "0" || v === "6" ? "wk" : ""}"><input type="checkbox" name="repeat_days" value="${v}" ${days.has(v) ? "checked" : ""}> ${l}</label>`)}</div>
+<label for="repeat_until">Until</label>
+<div class="row">
+<div><select id="repeat_until" name="repeat_until">
+${[["month_end", "End of this month"], ["4w", "4 weeks"], ["8w", "8 weeks"], ["date", "A date I choose…"]].map(([v, l]) => html`<option value="${v}" ${v === until ? "selected" : ""}>${l}</option>`)}
+</select></div>
+<div id="until-date-wrap" ${until === "date" ? "" : "hidden"}><input type="date" name="repeat_until_date" value="${form.repeat_until_date ?? ""}" aria-label="Last date"></div>
+</div>
+<p class="muted" id="repeat-preview" style="margin:6px 0 0"></p>
+<p class="muted" style="margin:4px 0 0">Same time, therapist and length each week. Dates that clash are skipped and listed after booking. The patient gets one WhatsApp message listing all dates, plus the usual reminders before each session.</p>
+</div></div>
+<script>
+(function () {
+  var cb = document.getElementById("repeat"), opts = document.getElementById("repeat-opts");
+  var date = document.getElementById("date"), until = document.getElementById("repeat_until"), wrap = document.getElementById("until-date-wrap");
+  var prev = document.getElementById("repeat-preview");
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[name="repeat_days"]'));
+  var WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function iso(d) { return d.toISOString().slice(0, 10); }
+  function addDays(s, n) { var d = new Date(s + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return iso(d); }
+  function ensureDay() {
+    if (!date.value) return;
+    var wd = String(new Date(date.value + "T00:00:00Z").getUTCDay());
+    if (!boxes.some(function (b) { return b.checked; })) boxes.forEach(function (b) { if (b.value === wd) b.checked = true; });
+  }
+  function preview() {
+    if (!cb.checked || !date.value) { prev.textContent = ""; return; }
+    var first = date.value, last;
+    if (until.value === "4w") last = addDays(first, 27);
+    else if (until.value === "8w") last = addDays(first, 55);
+    else if (until.value === "date") last = document.querySelector('input[name="repeat_until_date"]').value;
+    else { var d = new Date(first + "T00:00:00Z"); last = iso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0))); }
+    if (!last || last < first) { prev.textContent = "Choose a last date after the first session."; return; }
+    var set = boxes.filter(function (b) { return b.checked; }).map(function (b) { return Number(b.value); });
+    var out = [first];
+    for (var x = addDays(first, 1); x <= last && out.length < ${MAX_SERIES}; x = addDays(x, 1)) {
+      if (set.indexOf(new Date(x + "T00:00:00Z").getUTCDay()) >= 0) out.push(x);
+    }
+    prev.textContent = out.length + " sessions: " + out.map(function (s) { var d = new Date(s + "T00:00:00Z"); return WD[d.getUTCDay()] + " " + d.getUTCDate() + " " + MO[d.getUTCMonth()]; }).join(", ");
+  }
+  cb.addEventListener("change", function () { opts.hidden = !cb.checked; ensureDay(); preview(); });
+  date.addEventListener("change", function () { ensureDay(); preview(); });
+  until.addEventListener("change", function () { wrap.hidden = until.value !== "date"; preview(); });
+  document.addEventListener("change", function (e) { if (e.target.name === "repeat_days" || e.target.name === "repeat_until_date") preview(); });
+  preview();
+})();
+</script>`;
 }
 
 function apptFields(therapists: TherapistRow[], defaultDuration: number, form: ApptForm, lockedTo?: TherapistRow) {
@@ -254,6 +315,7 @@ export const needsManualSend = (m: MessageRow) => (m.status === "dry_run" || m.s
 const KIND_LABEL: Record<string, string> = {
   confirmation: "booking confirmation", reminder_24h: "day-before reminder", reminder_2h: "2-hour reminder",
   rescheduled: "new time", cancelled: "cancellation",
+  series_confirmation: "weekly sessions booked", series_cancelled: "weekly sessions cancelled",
 };
 const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
 
@@ -273,7 +335,7 @@ export function sendButton(m: MessageRow, who: string) {
 
 export interface CommentRow { id: number; body: string; created_at: string; author: string; role: string }
 
-export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, comments: CommentRow[], bookedBy: string | null, flash?: { type: "ok" | "error"; text: string }) {
+export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, comments: CommentRow[], bookedBy: string | null, series: { total: number; later: number } | null, flash?: { type: "ok" | "error"; text: string }) {
   const start = new Date(a.start_utc);
   const end = endOf({ start, durationMin: a.duration_min, extraMin: a.extra_min });
   const isAdmin = user.role === "admin";
@@ -287,6 +349,7 @@ export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], 
 <div>Status: <span class="badge ${a.status}">${statusLabel(a.status)}</span>${a.cancel_reason ? html` <span class="muted">${a.cancel_reason}</span>` : ""}</div>
 ${a.notes ? html`<div class="muted">Note: ${a.notes}</div>` : ""}
 ${bookedBy ? html`<div class="muted">Booked by ${bookedBy}</div>` : ""}
+${series ? html`<div class="muted">🔁 Part of a weekly series: ${series.total} sessions${series.later ? `, ${series.later} more after this one` : ""}</div>` : ""}
 ${!isAdmin ? html`<div class="muted" style="margin-top:6px">Only the clinic admin can change or cancel appointments. Add a comment below if something needs changing.</div>` : ""}
 ${!a.whatsapp_consent ? html`<div class="flash error" style="margin-top:10px">No WhatsApp consent recorded, so this patient gets no messages. Update it on the Patients page.</div>` : ""}
 </div>
@@ -307,6 +370,9 @@ ${apptFields(therapists, defaultDuration, {
 <button>Save and notify both</button></form></details>
 <details class="card"><summary><strong>Cancel appointment</strong></summary>
 <form method="post" action="/appointments/${a.id}/cancel">
+${series && series.later ? html`<label>Which sessions?</label>
+<div class="chips"><label><input type="radio" name="scope" value="one" checked> Only this session</label>
+<label><input type="radio" name="scope" value="following"> This and the ${series.later} later session${series.later === 1 ? "" : "s"}</label></div>` : ""}
 <label for="reason">Reason (internal, optional)</label><input id="reason" name="reason" maxlength="200">
 <button class="danger">Cancel and notify both</button></form></details>` : ""}
 <h2>Comments</h2>

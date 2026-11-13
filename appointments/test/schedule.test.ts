@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, timeSlots, weekWindow } from "../src/schedule.ts";
+import { checkClinicHours, dueReminders, findClashes, isWeekend, normalisePhone, overlaps, seriesDays, seriesEnd, shortDay, timeSlots, weekWindow } from "../src/schedule.ts";
 import { formatDateTime, istDay, istLocalToDate, dateToIstLocal } from "../src/time.ts";
 import { reminderWhen } from "../src/notify.ts";
 import { renderTemplate, TEMPLATES } from "../src/whatsapp.ts";
@@ -105,4 +105,18 @@ test("booking times come in 5-minute steps within clinic hours", () => {
   assert.equal(t.at(-1)!.value, "20:55"); assert.equal(t.at(-1)!.label, "8:55 PM");
   assert.equal(t.length, 132);
   assert.ok(t.every((x) => Number(x.value.slice(3)) % 5 === 0));
+});
+
+test("weekly series dates", () => {
+  // Mon 16 Nov 2026, repeating Mon + Thu until end of month
+  assert.equal(seriesEnd("2026-11-16", "month_end"), "2026-11-30");
+  assert.deepEqual(seriesDays("2026-11-16", [1, 4], "2026-11-30").map(shortDay),
+    ["Mon 16 Nov", "Thu 19 Nov", "Mon 23 Nov", "Thu 26 Nov", "Mon 30 Nov"]);
+  assert.equal(seriesEnd("2026-11-16", "4w"), "2026-12-13");
+  assert.equal(seriesDays("2026-11-16", [1], seriesEnd("2026-11-16", "8w")!).length, 8);
+  assert.equal(seriesEnd("2026-11-16", "date", "2026-11-10"), null, "end before start");
+  assert.equal(seriesEnd("2026-11-16", "date", "2027-12-01"), null, "more than 6 months");
+  assert.equal(seriesEnd("2026-12-30", "month_end"), "2026-12-31");
+  assert.equal(seriesDays("2026-11-16", [0, 1, 2, 3, 4, 5, 6], "2027-05-01").length, 26, "capped");
+  assert.equal(seriesDays("2026-11-16", [3], "2026-11-30")[0], "2026-11-16", "first day always included");
 });

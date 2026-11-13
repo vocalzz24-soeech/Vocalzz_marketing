@@ -24,6 +24,8 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
   schedule, and can mark sessions completed or no-show.
 - **Message log** for every appointment.
 
+- **Weekly repeats:** tick "Repeat every week", pick the days and an end (end of month, 4 or 8 weeks, or a date). Clashing dates are skipped; one WhatsApp message lists all dates; a series can be cancelled from any session onwards.
+
 Not built yet: cancelling by replying on WhatsApp, payments (Razorpay), daily schedule summary for therapists,
 reports.
 

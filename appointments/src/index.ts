@@ -5,10 +5,10 @@ import {
   SESSION_COOKIE, SESSION_MAX_AGE, createSession, deleteSession, hashPassword, userForSession,
   verifyPassword, type User,
 } from "./auth.ts";
-import { checkClinicHours, findClashes, normalisePhone, weekWindow, type Slot } from "./schedule.ts";
+import { checkClinicHours, findClashes, MAX_SERIES, normalisePhone, seriesDays, seriesEnd, shortDay, weekWindow, type RepeatUntil, type Slot } from "./schedule.ts";
 import { istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
 import {
-  APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, runReminders,
+  APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, notifySeriesBooked, notifySeriesCancelled, runReminders,
   type ApptRow,
 } from "./notify.ts";
 import {
@@ -180,6 +180,8 @@ async function validateSlot(env: Env, f: ApptForm, excludeId?: number) {
 const formFrom = (f: Record<string, unknown>): ApptForm => ({
   patient_id: str(f.patient_id), therapist_id: str(f.therapist_id), service: str(f.service),
   start: str(f.start) || (str(f.date) && str(f.time) ? `${str(f.date)}T${str(f.time)}` : ""), duration: str(f.duration), extra: str(f.extra) || "0", notes: str(f.notes),
+  repeat: str(f.repeat), repeat_until: str(f.repeat_until), repeat_until_date: str(f.repeat_until_date),
+  repeat_days: (Array.isArray(f.repeat_days) ? f.repeat_days : f.repeat_days ? [f.repeat_days] : []).map((v) => String(v)).filter((v) => /^[0-6]$/.test(v)),
 });
 
 app.get("/appointments/new", async (c) => {
@@ -189,7 +191,7 @@ app.get("/appointments/new", async (c) => {
 
 app.post("/appointments", async (c) => {
   const user = c.get("user");
-  const form = formFrom(await c.req.parseBody());
+  const form = formFrom(await c.req.parseBody({ all: true }));
   // Therapists can only book sessions for themselves.
   if (user.role === "therapist") form.therapist_id = String(user.therapist_id);
   const fail = async (msg: string) =>
@@ -198,6 +200,7 @@ app.post("/appointments", async (c) => {
   if (!patient) return fail("Choose a patient.");
   const v = await validateSlot(c.env, form);
   if ("error" in v) return fail(v.error!);
+  if (form.repeat === "1") return bookSeries(c, form, v, fail);
   const res = await c.env.DB.prepare(
     `INSERT INTO appointments (patient_id, therapist_id, service, start_utc, duration_min, extra_min, notes, created_by)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -207,6 +210,53 @@ app.post("/appointments", async (c) => {
   await notifyBooked(c.env, appt, { skipTherapist: user.role === "therapist" });
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Booked. WhatsApp messages are ready for the patient and therapist." });
 });
+
+type SlotOk = { slot: Slot; therapistId: number; service: string; notes: string };
+
+/** Books the first session plus weekly repeats; dates that fail validation are skipped and reported. */
+async function bookSeries(c: C, form: ApptForm, first: SlotOk, fail: (msg: string) => Promise<Response>) {
+  const user = c.get("user");
+  const firstDay = (form.start ?? "").slice(0, 10), time = (form.start ?? "").slice(11, 16);
+  const until = (["month_end", "4w", "8w", "date"].includes(form.repeat_until ?? "") ? form.repeat_until : "month_end") as RepeatUntil;
+  const lastDay = seriesEnd(firstDay, until, form.repeat_until_date);
+  if (!lastDay) return fail("Choose a last date between the first session and 6 months later.");
+  const weekdays = (form.repeat_days ?? []).map(Number);
+  if (weekdays.length === 0) return fail("Tick at least one day to repeat on.");
+  const days = seriesDays(firstDay, weekdays, lastDay);
+
+  const seriesId = crypto.randomUUID();
+  const insert = (v: SlotOk) => c.env.DB.prepare(
+    `INSERT INTO appointments (patient_id, therapist_id, service, start_utc, duration_min, extra_min, notes, created_by, series_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(Number(form.patient_id), v.therapistId, v.service, v.slot.start.toISOString(), v.slot.durationMin, v.slot.extraMin, v.notes || null, user.id, seriesId).run();
+
+  const ids: number[] = [];
+  const skipped: string[] = [];
+  for (const day of days) {
+    const v = day === firstDay ? first : await validateSlot(c.env, { ...form, start: `${day}T${time}` });
+    if ("error" in v) { skipped.push(`${shortDay(day)} (${v.error!.replace(/\.$/, "")})`); continue; }
+    ids.push(Number((await insert(v as SlotOk)).meta.last_row_id));
+  }
+  const appts = (await Promise.all(ids.map((id) => loadAppointment(c.env, id)))).filter((a): a is ApptRow => !!a);
+  if (appts.length === 1) await c.env.DB.prepare("UPDATE appointments SET series_id = NULL WHERE id = ?").bind(appts[0].id).run();
+  if (appts.length > 1) await notifySeriesBooked(c.env, appts, { skipTherapist: user.role === "therapist" });
+  else await notifyBooked(c.env, appts[0], { skipTherapist: user.role === "therapist" });
+  const capped = days.length >= MAX_SERIES ? ` (limit of ${MAX_SERIES} per series)` : "";
+  const skippedText = skipped.length ? ` Skipped ${skipped.length}: ${skipped.slice(0, 3).join("; ")}${skipped.length > 3 ? "; …" : ""}.` : "";
+  return redirectWith(c, `/appointments/${appts[0].id}`, {
+    type: skipped.length ? "error" : "ok",
+    text: `Booked ${appts.length} weekly session${appts.length === 1 ? "" : "s"}${capped}. One WhatsApp message lists all dates.${skippedText}`.slice(0, 600),
+  });
+}
+
+async function seriesInfo(env: Env, appt: ApptRow) {
+  if (!appt.series_id) return null;
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'booked' AND start_utc > ? THEN 1 ELSE 0 END) AS later
+       FROM appointments WHERE series_id = ? AND status != 'cancelled'`,
+  ).bind(appt.start_utc, appt.series_id).first<{ total: number; later: number | null }>();
+  return row && row.total > 1 ? { total: row.total, later: row.later ?? 0 } : null;
+}
 
 async function loadForUser(c: C): Promise<ApptRow | null> {
   const appt = await loadAppointment(c.env, Number(c.req.param("id")));
@@ -225,7 +275,7 @@ app.get("/appointments/:id", async (c) => {
   ).bind(appt.id).all<CommentRow>();
   const booker = await c.env.DB.prepare("SELECT u.name FROM appointments a JOIN users u ON u.id = a.created_by WHERE a.id = ?").bind(appt.id).first<{ name: string }>();
   const user = c.get("user");
-  return c.html(appointmentPage(user, appt, user.role === "admin" ? results : [], await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), comments, booker?.name ?? null, takeFlash(c)));
+  return c.html(appointmentPage(user, appt, user.role === "admin" ? results : [], await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), comments, booker?.name ?? null, await seriesInfo(c.env, appt), takeFlash(c)));
 });
 
 app.post("/appointments/:id/comments", async (c) => {
@@ -251,9 +301,18 @@ app.post("/appointments/:id/cancel", adminOnly, async (c) => {
   const appt = await loadForUser(c);
   if (!appt) return c.notFound();
   if (appt.status !== "booked") return c.redirect(`/appointments/${appt.id}`, 303);
-  const reason = str((await c.req.parseBody()).reason).slice(0, 200);
+  const body = await c.req.parseBody();
+  const reason = str(body.reason).slice(0, 200);
+  const now = new Date().toISOString();
+  if (str(body.scope) === "following" && appt.series_id) {
+    const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.series_id = ? AND a.status = 'booked' AND a.start_utc >= ? ORDER BY a.start_utc`)
+      .bind(appt.series_id, appt.start_utc).all<ApptRow>();
+    await c.env.DB.batch(results.map((a) => c.env.DB.prepare("UPDATE appointments SET status = 'cancelled', cancelled_at = ?, cancel_reason = ? WHERE id = ?").bind(now, reason || null, a.id)));
+    if (results.length > 1) await notifySeriesCancelled(c.env, results); else await notifyCancelled(c.env, appt);
+    return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: `Cancelled ${results.length} session${results.length === 1 ? "" : "s"}. One WhatsApp message lists all cancelled dates.` });
+  }
   await c.env.DB.prepare("UPDATE appointments SET status = 'cancelled', cancelled_at = ?, cancel_reason = ? WHERE id = ?")
-    .bind(new Date().toISOString(), reason || null, appt.id).run();
+    .bind(now, reason || null, appt.id).run();
   await notifyCancelled(c.env, appt);
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Cancelled. WhatsApp messages are ready for the patient and therapist." });
 });

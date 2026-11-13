@@ -124,3 +124,36 @@ export function timeSlots(openHour: number, closeHour: number): { value: string;
   }
   return out;
 }
+
+export type RepeatUntil = "month_end" | "4w" | "8w" | "date";
+export const MAX_SERIES = 26;
+
+/** Last day a weekly series should run to (inclusive), or null if the custom date is invalid. */
+export function seriesEnd(firstDay: string, until: RepeatUntil, customDay?: string): string | null {
+  if (until === "4w") return addDays(firstDay, 27);
+  if (until === "8w") return addDays(firstDay, 55);
+  if (until === "date") {
+    if (!isDay(customDay) || customDay < firstDay || customDay > addDays(firstDay, 183)) return null;
+    return customDay;
+  }
+  const d = new Date(`${firstDay}T00:00:00Z`);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).toISOString().slice(0, 10);
+}
+
+/** Days from firstDay to lastDay (inclusive) on the given weekdays (0 = Sun). The first day is always included. */
+export function seriesDays(firstDay: string, weekdays: number[], lastDay: string, max = MAX_SERIES): string[] {
+  const set = new Set(weekdays);
+  const out = [firstDay];
+  for (let d = addDays(firstDay, 1); d <= lastDay && out.length < max; d = addDays(d, 1)) {
+    if (set.has(weekday(d))) out.push(d);
+  }
+  return out;
+}
+
+const SHORT_WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const SHORT_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "Mon 16 Nov" */
+export function shortDay(day: string): string {
+  const d = new Date(`${day}T00:00:00Z`);
+  return `${SHORT_WD[d.getUTCDay()]} ${d.getUTCDate()} ${SHORT_MON[d.getUTCMonth()]}`;
+}

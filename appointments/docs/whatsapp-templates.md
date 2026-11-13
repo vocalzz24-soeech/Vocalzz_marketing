@@ -113,3 +113,61 @@ Sample values:
 - {{1}}: Aarav
 - {{2}}: Speech therapy
 - {{3}}: Fri, 20 Nov 2026, 5:00 PM
+
+## vocalzz_series_confirmed
+
+```
+Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz are booked for {{5}} on these dates: {{6}}.
+
+Address: E-004, Logix Blossom County, Sector 137, Noida.
+To cancel or change a session, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Dr. Samriddhi
+- {{5}}: 5:00 PM
+- {{6}}: Mon 16 Nov, Thu 19 Nov, Mon 23 Nov, Thu 26 Nov
+
+## vocalzz_therapist_series
+
+```
+New weekly sessions for you: {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Speech therapy
+- {{3}}: 5:00 PM
+- {{4}}: Mon 16 Nov, Thu 19 Nov, Mon 23 Nov
+
+## vocalzz_series_cancelled
+
+```
+Hello {{1}}, these {{2}} sessions for {{3}} at Vocalzz have been cancelled: {{4}}.
+
+To book new times, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Speech therapy
+- {{3}}: Aarav
+- {{4}}: Mon 23 Nov, Thu 26 Nov
+
+## vocalzz_therapist_series_cancelled
+
+```
+Sessions cancelled: {{1}} ({{2}}) on {{3}}. Please check the schedule.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Speech therapy
+- {{3}}: Mon 23 Nov, Thu 26 Nov
