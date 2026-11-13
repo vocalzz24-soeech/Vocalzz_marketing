@@ -57,7 +57,8 @@ ${body}
 // "Website" link: same Cloudflare account on workers.dev, vocalzz.com on the real domain.
 (function () {
   var h = location.hostname, site = null;
-  if (h.indexOf("vocalzz-appointments.") === 0) site = h.replace("vocalzz-appointments.", "vocalzz-website.");
+  var m = /^vocalzz-(appointments|marketing)\\./.exec(h);
+  if (m) site = h.replace(m[0], "vocalzz-website.");
   else if (/(^|\\.)vocalzz\\.com$/.test(h)) site = "vocalzz.com";
   if (site) document.querySelectorAll("a.site-link").forEach(function (a) { a.href = "https://" + site + "/"; });
 })();

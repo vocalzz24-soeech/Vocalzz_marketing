@@ -382,7 +382,7 @@ document.getElementById("year").textContent = new Date().getFullYear();
 // Staff login points at the appointment app: same Cloudflare account on workers.dev, book.vocalzz.com on the real domain.
 (function () {
   var h = location.hostname, app = null;
-  if (h.indexOf("vocalzz-website.") === 0) app = h.replace("vocalzz-website.", "vocalzz-appointments.");
+  if (h.indexOf("vocalzz-website.") === 0) app = h.replace("vocalzz-website.", "vocalzz-marketing."); // Cloudflare project name of the appointment app
   else if (/(^|\.)vocalzz\.com$/.test(h)) app = "book.vocalzz.com";
   if (app) document.getElementById("staff-link").href = "https://" + app + "/";
 })();
