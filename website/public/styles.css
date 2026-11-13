@@ -187,6 +187,14 @@ p { margin: 0 0 1em; }
 .ms p { font-size: .96rem; color: var(--muted); margin: 6px 0 0; }
 .note { font-size: .92rem; color: var(--muted); margin-top: 22px; }
 
+/* Photo cards */
+.photo-card { margin: 26px 0 0; }
+.photo-card img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 28px; border: 6px solid var(--white); box-shadow: var(--shadow); }
+.photo-card figcaption { color: var(--muted); font-size: .88rem; margin-top: 8px; }
+.photo-card-dark { margin: 0 0 24px; }
+.photo-card-dark img { border-color: rgba(255, 255, 255, .15); aspect-ratio: 16 / 10; object-position: center 35%; }
+.photo-card-dark figcaption { color: rgba(255, 248, 241, .75); }
+
 /* Team */
 .team-photo { margin: 32px auto 0; max-width: 980px; }
 .team-photo img { width: 100%; height: auto; border-radius: 32px; box-shadow: var(--shadow); border: 6px solid var(--white); }
