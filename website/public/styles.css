@@ -11,7 +11,7 @@
   --teal: #1e6fd9;       /* brand blue: buttons, links, logo text */
   --teal-2: #3a8ef0;     /* light blue */
   --teal-soft: #e3eefb;
-  --coral: #2b84ec;      /* accents and labels */
+  --coral: #1a66cc;      /* accents and labels on light backgrounds (AA contrast) */
   --coral-soft: #e8f1fd;
   --sun: #a9b8cc;        /* silver */
   --sun-soft: #eef3f9;
@@ -68,7 +68,7 @@ p { margin: 0 0 1em; }
 .lead { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
 .center { text-align: center; }
 .center .lead { margin-inline: auto; }
-.hand { font-family: var(--font-head); font-style: italic; color: var(--teal-2); }
+.hand { font-family: var(--font-head); font-style: italic; color: var(--coral); }
 
 /* Buttons */
 .btn {
@@ -141,7 +141,7 @@ p { margin: 0 0 1em; }
 .worry:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--teal-soft); }
 .worry .emoji { font-size: 1.6rem; line-height: 1; }
 .worry strong { display: block; font-size: 1.02rem; }
-.worry small { color: var(--teal-2); font-weight: 800; }
+.worry small { color: var(--coral); font-weight: 800; }
 
 /* Services */
 .services { background: var(--white); }
@@ -265,7 +265,7 @@ p { margin: 0 0 1em; }
 .wa-float {
   position: fixed; right: 16px; bottom: 16px; z-index: 60;
   display: inline-flex; align-items: center; gap: 8px;
-  background: #25d366; color: #fff; text-decoration: none; font-weight: 800;
+  background: #15803d; color: #fff; text-decoration: none; font-weight: 800;
   padding: 14px 18px; border-radius: 999px; box-shadow: 0 10px 24px rgba(0, 0, 0, .2);
 }
 .wa-float svg { width: 22px; height: 22px; }

@@ -16,7 +16,7 @@ Manager too, and wait for it to be approved again.
 ```
 Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz is confirmed for {{5}}.
 
-Address: E-004, Logix Blossom County, Sector 137, Noida.
+Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
 To cancel or change the time, just reply to this message.
 ```
 
@@ -119,7 +119,7 @@ Sample values:
 ```
 Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz are booked for {{5}} on these dates: {{6}}.
 
-Address: E-004, Logix Blossom County, Sector 137, Noida.
+Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
 To cancel or change a session, just reply to this message.
 ```
 

@@ -15,7 +15,7 @@ migrations_dir = "migrations"
 
 [vars]
 CLINIC_NAME = "Vocalzz"
-CLINIC_ADDRESS = "E-004, Logix Blossom County, Sector 137, Noida"
+CLINIC_ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida 201304"
 CLINIC_WHATSAPP = "918800230240"
 DEFAULT_DURATION_MIN = "45"
 OPEN_HOUR = "10"

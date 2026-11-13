@@ -8,11 +8,11 @@ You are working for **Vocalzz**, a speech, occupational and behavioural therapy 
 - **What it is:** a multi-therapy clinic for children, adults and seniors
 - **Founder / lead clinician:** Dr. Tanu Garg, Speech-Language Therapist & Audiologist, 10+ years' experience (previously at Fortis Noida and BL Kapoor Hospital)
 - **Team:** Dr. Samriddhi (PT & certified occupational therapist), Tanishk Kaushik (occupational therapist), Minhaj Hashmi (special educator & communication therapist)
-- **Address:** E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh
+- **Address:** Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304 (same format everywhere: website, Google, directories)
 - **Hours:** 10 am to 9 pm, 7 days a week
 - **Phone / WhatsApp:** +91 88002 30240
 - **Website:** https://vocalzz.com
-- **Email:** contactus@vocalzz.com
+- **Email:** contactus@vocalzz.com (the only email to publish; help@ is not used)
 - **Instagram:** @vocalzz_4u
 - **Google rating:** 4.9★ from 129 reviews (Nov 2026)
 - **Tagline:** "Better Communication, Better Life"

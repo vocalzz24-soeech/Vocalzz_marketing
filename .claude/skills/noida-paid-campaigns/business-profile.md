@@ -6,7 +6,7 @@ The skill reads this before every run. The full brand context is in the repo-roo
 ## Business
 - **Name**: Vocalzz
 - **Business type**: Multi-therapy clinic: speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy for children, adults and seniors
-- **Location**: E-004, Logix Blossom County, Sector 137, Noida
+- **Location**: Tower E-004, Logix Blossom County, Sector 137, Noida 201304
 - **Website**: vocalzz.com
 - **Instagram**: @vocalzz_4u
 - **Customers**: mainly parents (25–44) of children aged 2–8 with speech delay, autism or ADHD; also teens/adults who stammer, and families of elderly people with hearing loss or post-stroke speech problems
