@@ -32,6 +32,11 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
 - **Missed-session follow-ups:** patients who miss 2 sessions in a row are flagged on the Schedule and Patients pages until marked as followed up.
 
 - **Deleting:** admin only, from the bottom of a patient's or therapist's Edit page ("Danger zone"): type the exact name and tick a box. Patients are deleted with all their appointments, messages and comments. Therapists are anonymised ("Former therapist") so patients' past sessions stay intact, and cannot be deleted while they have upcoming sessions.
+- **Billing** (admin, menu "Bills"): create a bill from a patient's completed sessions in a month (grouped by therapy,
+  last-used rate pre-filled) or by typing lines; numbers per financial year (VZ/26-27/0001); discount, paid and balance,
+  amount in words; Download PDF or Print. Bills can't be edited; a wrong bill is cancelled (kept, stamped CANCELLED).
+  Bills keep their own copy of the patient's name and phone, so they survive if the patient record is deleted.
+  The logo on bills is `public/logo.png`: replace it with the original logo file when available.
 
 Not built yet: cancelling by replying on WhatsApp, payments (Razorpay), daily schedule summary for therapists,
 reports.

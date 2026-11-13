@@ -3,6 +3,10 @@ main = "src/index.ts"
 compatibility_date = "2025-10-01"
 
 # Reminder check runs every 5 minutes.
+# Static files (PDF library, logo) served before the Worker runs.
+[assets]
+directory = "./public"
+
 [triggers]
 crons = ["*/5 * * * *"]
 
@@ -17,6 +21,8 @@ migrations_dir = "migrations"
 CLINIC_NAME = "Vocalzz"
 CLINIC_ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida 201304"
 CLINIC_WHATSAPP = "918800230240"
+CLINIC_EMAIL = "contactus@vocalzz.com"
+CLINIC_WEBSITE = "vocalzz.com"
 DEFAULT_DURATION_MIN = "45"
 OPEN_HOUR = "10"
 CLOSE_HOUR = "21"

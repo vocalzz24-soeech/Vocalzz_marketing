@@ -3,6 +3,8 @@ export interface Env {
   CLINIC_NAME: string;
   CLINIC_ADDRESS: string;
   CLINIC_WHATSAPP: string;
+  CLINIC_EMAIL: string;
+  CLINIC_WEBSITE: string;
   DEFAULT_DURATION_MIN: string;
   OPEN_HOUR: string;
   CLOSE_HOUR: string;

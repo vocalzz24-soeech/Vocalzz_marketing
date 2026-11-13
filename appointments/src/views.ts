@@ -104,7 +104,7 @@ export function layout(title: string, user: User | null, body: H | string, flash
 <a class="site-link" href="https://vocalzz.com/">← Website</a>
 ${user
   ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a>${user.role === "admin"
-      ? html`<a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/messages">Messages</a>`
+      ? html`<a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/bills">Bills</a><a href="/messages">Messages</a>`
       : ""}
     <form method="post" action="/logout" style="margin:0"><button class="secondary" style="margin:0;padding:6px 12px">Log out</button></form>`
   : ""}
@@ -665,7 +665,7 @@ ${rows.map((h) => html`<tr><td>${formatDateTime(new Date(`${h.day}T06:30:00Z`)).
 </div>`, flash);
 }
 
-export function patientSummaryPage(user: User, p: PatientRow, month: string, appts: ApptRow[], flag: FollowUp | null, flash?: { type: "ok" | "error"; text: string }) {
+export function patientSummaryPage(user: User, p: PatientRow, month: string, appts: ApptRow[], flag: FollowUp | null, flash?: { type: "ok" | "error"; text: string }, billsCard: unknown = "") {
   const now = Date.now();
   const count = (st: string) => appts.filter((a) => a.status === st).length;
   const attended = count("completed"), missed = count("no_show"), cancelled = count("cancelled");
@@ -699,6 +699,7 @@ ${unmarked ? html`<div class="stat"><b class="muted">${unmarked}</b>not marked y
 </div>
 ${unmarked ? html`<p class="muted">${unmarked} past session${unmarked === 1 ? " is" : "s are"} still "booked". Open ${unmarked === 1 ? "it" : "them"} and mark completed or no-show so the summary is accurate.</p>` : ""}
 ${p.whatsapp_consent ? html`<a class="btn wa-send" target="_blank" rel="noopener" href="https://wa.me/${p.phone}?text=${encodeURIComponent(share)}">Share this summary with ${greetName} on WhatsApp</a>` : html`<p class="muted">No WhatsApp consent recorded, so sharing is off.</p>`}
+${billsCard}
 <h2>Sessions</h2>
 ${appts.length === 0 ? html`<div class="card muted">No sessions this month.</div>` : ""}
 ${appts.map((a) => html`<a class="card appt" href="/appointments/${a.id}">

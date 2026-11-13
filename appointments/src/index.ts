@@ -6,6 +6,8 @@ import {
   verifyPassword, type User,
 } from "./auth.ts";
 import { addDays, checkClinicHours, findClashes, FOLLOW_UP_AFTER, MAX_SERIES, missedStreak, monthLabel, nextMonthDays, normalisePhone, seriesDays, seriesEnd, shortDay, weekday, weekWindow, type RepeatUntil, type Slot } from "./schedule.ts";
+import { billTotals, nextBillNumber, PAYMENT_MODES } from "./billing.ts";
+import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
 import { dateToIstLocal, istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
 import {
   APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, notifySeriesBooked, notifySeriesCancelled, notifySeriesMoved, runReminders,
@@ -420,6 +422,104 @@ async function moveSeries(c: C, appt: ApptRow, form: ApptForm, first: SlotOk) {
   });
 }
 
+// --- Billing -------------------------------------------------------------------------------------
+const clinicOf = (env: Env) => ({ name: env.CLINIC_NAME, address: env.CLINIC_ADDRESS, phone: env.CLINIC_WHATSAPP, email: env.CLINIC_EMAIL, website: env.CLINIC_WEBSITE });
+const monthOk = (m?: string) => (m && /^\d{4}-\d{2}$/.test(m) ? m : "");
+const monthRange = (month: string) => ({ from: istDayRange(`${month}-01`)!.start, to: istDayRange(`${addDays(`${month}-01`, 31).slice(0, 7)}-01`)!.start });
+
+app.get("/bills", adminOnly, async (c) => {
+  const q = (c.req.query("q") ?? "").trim().slice(0, 60);
+  const month = monthOk(c.req.query("month"));
+  const like = `%${q}%`;
+  const { results } = await c.env.DB.prepare(
+    `SELECT * FROM bills WHERE (? = '' OR bill_to_name LIKE ? OR bill_to_guardian LIKE ? OR number LIKE ?) AND (? = '' OR substr(bill_date, 1, 7) = ?)
+      ORDER BY bill_date DESC, id DESC LIMIT 200`,
+  ).bind(q, like, like, like, month, month).all<BillRow>();
+  return c.html(billsListPage(c.get("user"), results, q, month, takeFlash(c)));
+});
+
+app.get("/bills/new", adminOnly, async (c) => {
+  const patientId = Number(c.req.query("patient_id") ?? 0);
+  const month = monthOk(c.req.query("month"));
+  const lines: DraftLine[] = [];
+  let sessionsFound: number | null = null;
+  if (patientId && month) {
+    const { from, to } = monthRange(month);
+    const { results } = await c.env.DB.prepare(
+      "SELECT service, start_utc FROM appointments WHERE patient_id = ? AND status = 'completed' AND start_utc >= ? AND start_utc < ? ORDER BY start_utc",
+    ).bind(patientId, from.toISOString(), to.toISOString()).all<{ service: string; start_utc: string }>();
+    sessionsFound = results.length;
+    const groups = new Map<string, string[]>();
+    for (const r of results) groups.set(r.service, [...(groups.get(r.service) ?? []), istDay(new Date(r.start_utc))]);
+    const monthName = new Date(`${month}-01T00:00:00Z`).toLocaleString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+    for (const [service, days] of groups) {
+      const last = await c.env.DB.prepare(
+        `SELECT i.rate FROM bill_items i JOIN bills b ON b.id = i.bill_id WHERE i.service = ? AND b.cancelled_at IS NULL
+          ORDER BY (b.patient_id = ?) DESC, b.id DESC LIMIT 1`,
+      ).bind(service, patientId).first<{ rate: number }>();
+      lines.push({
+        description: `${service}: ${days.length} session${days.length === 1 ? "" : "s"} in ${monthName} (${days.map((d) => Number(d.slice(8, 10))).join(", ")})`,
+        service, quantity: String(days.length), rate: last ? String(last.rate) : "",
+      });
+    }
+  }
+  return c.html(newBillPage(c.get("user"), await patientList(c.env), {
+    patient_id: patientId ? String(patientId) : "", month: month || istDay(new Date()).slice(0, 7), bill_date: istDay(new Date()),
+    lines, discount: "", paid: "", payment_mode: "", payment_ref: "", notes: "", sessionsFound,
+  }, takeFlash(c)));
+});
+
+app.post("/bills", adminOnly, async (c) => {
+  const body = await c.req.parseBody({ all: true });
+  const arr = (v: unknown) => (Array.isArray(v) ? v : v === undefined ? [] : [v]).map((x) => String(x));
+  const desc = arr(body.desc), svc = arr(body.service), qty = arr(body.qty), rate = arr(body.rate);
+  const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(str(body.patient_id))).first<PatientRow>();
+  const back = `/bills/new${p ? `?patient_id=${p.id}` : ""}`;
+  if (!p) return redirectWith(c, back, { type: "error", text: "Choose a patient first." });
+  const day = str(body.bill_date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return redirectWith(c, back, { type: "error", text: "Choose a valid bill date." });
+  const t = billTotals(desc.map((d, i) => ({ description: d.slice(0, 160), service: svc[i] || null, quantity: Number(qty[i]) || 0, rate: Number(rate[i]) || 0 })),
+    Number(str(body.discount)) || 0, Number(str(body.paid)) || 0);
+  if (t.items.length === 0 || t.subtotal <= 0) return redirectWith(c, back, { type: "error", text: "Add at least one line with a description, quantity and rate." });
+  const mode = PAYMENT_MODES.includes(str(body.payment_mode)) ? str(body.payment_mode) : null;
+  let billId = 0;
+  for (let attempt = 0; attempt < 3 && !billId; attempt++) {
+    const prefix = `VZ/${nextBillNumber(day, null).split("/")[1]}/`;
+    const latest = await c.env.DB.prepare("SELECT number FROM bills WHERE number LIKE ? ORDER BY number DESC LIMIT 1").bind(`${prefix}%`).first<{ number: string }>();
+    const number = nextBillNumber(day, latest?.number ?? null);
+    try {
+      const res = await c.env.DB.prepare(
+        `INSERT INTO bills (number, patient_id, bill_date, bill_to_name, bill_to_guardian, bill_to_phone, subtotal, discount, total, paid, payment_mode, payment_ref, notes, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).bind(number, p.id, day, p.name, p.guardian_name, p.phone, t.subtotal, t.discount, t.total, t.paid, mode,
+        str(body.payment_ref).slice(0, 60) || null, str(body.notes).slice(0, 200) || null, c.get("user").id).run();
+      billId = Number(res.meta.last_row_id);
+    } catch (e) {
+      if (!String(e).includes("UNIQUE")) throw e; // another bill took the number: try the next one
+    }
+  }
+  if (!billId) return redirectWith(c, back, { type: "error", text: "Could not create the bill, please try again." });
+  await c.env.DB.batch(t.items.map((it, i) => c.env.DB.prepare(
+    "INSERT INTO bill_items (bill_id, position, description, service, quantity, rate, amount) VALUES (?, ?, ?, ?, ?, ?, ?)",
+  ).bind(billId, i + 1, it.description, it.service ?? null, it.quantity, it.rate, it.amount)));
+  return redirectWith(c, `/bills/${billId}`, { type: "ok", text: "Bill created. Tap Download PDF to save or share it." });
+});
+
+app.get("/bills/:id", adminOnly, async (c) => {
+  const b = await c.env.DB.prepare("SELECT * FROM bills WHERE id = ?").bind(Number(c.req.param("id"))).first<BillRow>();
+  if (!b) return c.notFound();
+  const { results } = await c.env.DB.prepare("SELECT * FROM bill_items WHERE bill_id = ? ORDER BY position").bind(b.id).all<BillItemRow>();
+  return c.html(billPage(c.get("user"), b, results, clinicOf(c.env), takeFlash(c)));
+});
+
+app.post("/bills/:id/cancel", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const reason = str((await c.req.parseBody()).reason).slice(0, 200);
+  if (!reason) return redirectWith(c, `/bills/${id}`, { type: "error", text: "Give a reason for cancelling." });
+  await c.env.DB.prepare("UPDATE bills SET cancelled_at = ?, cancel_reason = ? WHERE id = ? AND cancelled_at IS NULL").bind(new Date().toISOString(), reason, id).run();
+  return redirectWith(c, `/bills/${id}`, { type: "ok", text: "Bill cancelled. It stays on record marked CANCELLED." });
+});
+
 // --- Holidays ------------------------------------------------------------------------------------
 app.get("/holidays", adminOnly, async (c) => {
   const today = istDay(new Date());
@@ -495,7 +595,8 @@ app.get("/patients/:id/summary", adminOnly, async (c) => {
   const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.patient_id = ? AND a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`)
     .bind(p.id, from.toISOString(), to.toISOString()).all<ApptRow>();
   const flag = (await followUps(c.env)).find((f) => f.id === p.id) ?? null;
-  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c)));
+  const { results: pBills } = await c.env.DB.prepare("SELECT * FROM bills WHERE patient_id = ? ORDER BY id DESC LIMIT 20").bind(p.id).all<BillRow>();
+  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c), patientBillsCard(p, pBills, month)));
 });
 
 app.post("/patients/:id/followed-up", adminOnly, async (c) => {
@@ -531,6 +632,8 @@ app.post("/patients/:id/delete", adminOnly, async (c) => {
     c.env.DB.prepare(`DELETE FROM appointment_comments WHERE appointment_id IN (${sub})`).bind(p.id),
     c.env.DB.prepare(`DELETE FROM messages WHERE appointment_id IN (${sub})`).bind(p.id),
     c.env.DB.prepare("DELETE FROM appointments WHERE patient_id = ?").bind(p.id),
+    // Bills are financial records and are kept (with their own copy of the name); only the link is removed.
+    c.env.DB.prepare("UPDATE bills SET patient_id = NULL WHERE patient_id = ?").bind(p.id),
     c.env.DB.prepare("DELETE FROM patients WHERE id = ?").bind(p.id),
   ]);
   return redirectWith(c, "/patients", { type: "ok", text: `${p.name} and all their records have been permanently deleted.` });
