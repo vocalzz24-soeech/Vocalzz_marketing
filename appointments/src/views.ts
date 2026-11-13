@@ -21,6 +21,9 @@ h1{font-size:22px;margin:4px 0 14px}h2{font-size:18px;margin:22px 0 10px}
 label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
 input,select,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
 input[type=checkbox],input[type=radio]{width:auto}
+.btn.wa-send{background:#25d366;border-color:#25d366;color:#fff;white-space:nowrap}.btn.wa-send.secondary{background:transparent;color:var(--ok);border-color:var(--ok)}
+.send-panel{border:2px solid #25d366}.send-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}.send-row .btn{margin:0}
+.send-banner{display:flex;justify-content:space-between;gap:12px;text-decoration:none;color:inherit;border:2px solid #25d366}
 .daynav{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:end}.daynav .btn{margin:0}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 160px}
 button,.btn{display:inline-block;font:inherit;font-weight:600;padding:10px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);text-decoration:none;cursor:pointer;margin-top:14px}
@@ -91,13 +94,14 @@ export function setupPage(error?: string) {
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null }
 
-export function schedulePage(user: User, day: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }) {
+export function schedulePage(user: User, day: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0) {
   const prev = shiftDay(day, -1), next = shiftDay(day, 1);
   const groups = therapists
     .map((t) => ({ t, list: appts.filter((a) => a.therapist_id === t.id) }))
     .filter((g) => user.role === "admin" || g.t.id === user.therapist_id);
   return layout("Schedule", user, html`
 <h1>Schedule</h1>
+${user.role === "admin" ? pendingBanner(pendingCount) : ""}
 <form class="daynav" method="get" action="/">
 <a class="btn secondary" href="/?day=${prev}">‹ Prev</a>
 <div><label for="day" class="muted" style="margin-top:0">Day</label><input type="date" id="day" name="day" value="${day}" onchange="this.form.submit()"></div>
@@ -168,7 +172,30 @@ ${["0", "10", "15"].map((v) => html`<label><input type="radio" name="extra" valu
 <input id="notes" name="notes" value="${form.notes ?? ""}" maxlength="200">`;
 }
 
-export interface MessageRow { id: number; appointment_id: number | null; recipient: string; to_phone: string; kind: string; body_preview: string; status: string; error: string | null; created_at: string }
+export interface MessageRow { id: number; appointment_id: number | null; recipient: string; to_phone: string; kind: string; body_preview: string; status: string; error: string | null; created_at: string; manual_sent_at: string | null }
+
+/** Not delivered automatically (WhatsApp not connected yet, or a send failed) and not yet sent by hand. */
+export const needsManualSend = (m: MessageRow) => (m.status === "dry_run" || m.status === "failed") && !m.manual_sent_at;
+
+const KIND_LABEL: Record<string, string> = {
+  confirmation: "booking confirmation", reminder_24h: "day-before reminder", reminder_2h: "2-hour reminder",
+  rescheduled: "new time", cancelled: "cancellation",
+};
+const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
+
+function statusLabel2(m: MessageRow) {
+  if (m.manual_sent_at) return html`<strong style="color:var(--ok)">Sent by you</strong><br><span class="muted">${formatDateTime(new Date(m.manual_sent_at))}</span>`;
+  if (m.status === "sent") return html`<strong style="color:var(--ok)">Sent automatically</strong>`;
+  if (m.status === "skipped") return html`Not sent<br><span class="muted">${m.error ?? ""}</span>`;
+  if (m.status === "failed") return html`<strong style="color:var(--bad)">Failed</strong>, send it yourself<br><span class="muted">${m.error ?? ""}</span>`;
+  return html`<strong style="color:var(--warn)">Waiting for you to send</strong>`;
+}
+
+/** One-tap button: opens WhatsApp in the chat with this exact number, message already typed. */
+export function sendButton(m: MessageRow, who: string) {
+  return html`<a class="btn wa-send" href="/messages/${m.id}/send" target="_blank" rel="noopener"
+    onclick="this.textContent='Opened in WhatsApp ✓';this.classList.add('secondary')">Send to ${who} on WhatsApp</a>`;
+}
 
 export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, flash?: { type: "ok" | "error"; text: string }) {
   const start = new Date(a.start_utc);
@@ -184,6 +211,7 @@ export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], 
 ${a.notes ? html`<div class="muted">Note: ${a.notes}</div>` : ""}
 ${!a.whatsapp_consent ? html`<div class="flash error" style="margin-top:10px">No WhatsApp consent recorded, so this patient gets no messages. Update it on the Patients page.</div>` : ""}
 </div>
+${isAdmin ? sendPanel(a, messages) : ""}
 ${a.status === "booked" ? html`
 <div class="card"><h2 style="margin-top:0">After the session</h2>
 <form method="post" action="/appointments/${a.id}/status" class="row">
@@ -206,14 +234,29 @@ ${isAdmin ? html`<h2>WhatsApp messages</h2>${messageTable(messages)}` : ""}
 `, flash);
 }
 
+function sendPanel(a: ApptRow, messages: MessageRow[]) {
+  const pending = messages.filter(needsManualSend);
+  if (pending.length === 0) return "";
+  const who = (m: MessageRow) =>
+    m.to_phone === a.patient_phone ? `${a.guardian_name || a.patient_name} (patient)`
+    : m.to_phone === a.therapist_phone ? `${a.therapist_name} (therapist)`
+    : `+${m.to_phone}`;
+  return html`<div class="card send-panel">
+<h2 style="margin-top:0">Send on WhatsApp (${pending.length})</h2>
+<p class="muted">WhatsApp isn't connected yet, so send these from your own WhatsApp. Each button opens the chat with that person's number and the message already typed: just tap Send.</p>
+${pending.map((m) => html`<div class="send-row"><div><strong>${kindLabel(m.kind)}</strong> → ${who(m)} <span class="muted">+${m.to_phone}</span></div>${sendButton(m, who(m).replace(/ \(.*\)$/, ""))}</div>`)}
+</div>`;
+}
+
 export function messageTable(messages: MessageRow[]) {
   if (messages.length === 0) return html`<div class="card muted">No messages yet.</div>`;
   return html`<div class="card" style="overflow-x:auto"><table>
-<tr><th>When</th><th>To</th><th>Type</th><th>Status</th><th>Message</th></tr>
+<tr><th>When</th><th>To</th><th>Type</th><th>Status</th><th>Message</th><th></th></tr>
 ${messages.map((m) => html`<tr><td>${formatDateTime(new Date(m.created_at))}</td><td>${m.recipient}<br><span class="muted">+${m.to_phone}</span></td>
-<td>${m.kind}${m.appointment_id ? html`<br><a href="/appointments/${m.appointment_id}">#${m.appointment_id}</a>` : ""}</td>
-<td>${m.status === "dry_run" ? "test (not sent)" : m.status}${m.error ? html`<br><span class="muted">${m.error}</span>` : ""}</td>
-<td style="white-space:pre-wrap">${m.body_preview}</td></tr>`)}
+<td>${kindLabel(m.kind)}${m.appointment_id ? html`<br><a href="/appointments/${m.appointment_id}">#${m.appointment_id}</a>` : ""}</td>
+<td>${statusLabel2(m)}</td>
+<td style="white-space:pre-wrap">${m.body_preview}</td>
+<td>${needsManualSend(m) ? sendButton(m, m.recipient) : ""}</td></tr>`)}
 </table></div>`;
 }
 
@@ -289,9 +332,18 @@ export function therapistEditPage(user: User, t: TherapistRow, flash?: { type: "
 </form>`, flash);
 }
 
-export function messagesPage(user: User, messages: MessageRow[]) {
+export function messagesPage(user: User, messages: MessageRow[], pendingOnly: boolean) {
   return layout("Messages", user, html`<h1>WhatsApp messages</h1>
-<p class="muted">The last 200 messages. "test (not sent)" means WhatsApp is not connected yet.</p>${messageTable(messages)}`);
+<div class="row" style="flex:0 0 auto;gap:8px;margin-bottom:8px">
+<a class="btn ${pendingOnly ? "" : "secondary"} small" style="flex:0 0 auto" href="/messages?pending=1">Waiting for you to send</a>
+<a class="btn ${pendingOnly ? "secondary" : ""} small" style="flex:0 0 auto" href="/messages">All messages</a></div>
+<p class="muted">${pendingOnly ? "Messages for upcoming appointments that still need sending from your WhatsApp." : "The last 200 messages."}</p>
+${messageTable(messages)}`);
+}
+
+export function pendingBanner(count: number) {
+  if (!count) return "";
+  return html`<a class="card send-banner" href="/messages?pending=1"><strong>${count} WhatsApp message${count === 1 ? "" : "s"} waiting for you to send</strong><span>Open →</span></a>`;
 }
 
 export function shiftDay(day: string, delta: number): string {

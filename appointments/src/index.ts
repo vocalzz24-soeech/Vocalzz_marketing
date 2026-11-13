@@ -125,7 +125,7 @@ app.get("/", async (c) => {
   const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`)
     .bind(range.start.toISOString(), range.end.toISOString()).all<ApptRow>();
   const therapists = (await therapistList(c.env)).filter((t) => t.active || results.some((a) => a.therapist_id === t.id));
-  return c.html(schedulePage(user, day, results, therapists, takeFlash(c)));
+  return c.html(schedulePage(user, day, results, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -195,8 +195,8 @@ app.post("/appointments", adminOnly, async (c) => {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(Number(form.patient_id), v.therapistId, v.service, v.slot.start.toISOString(), v.slot.durationMin, v.slot.extraMin, v.notes || null, c.get("user").id).run();
   const appt = (await loadAppointment(c.env, Number(res.meta.last_row_id)))!;
-  c.executionCtx.waitUntil(notifyBooked(c.env, appt));
-  return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Booked. WhatsApp messages are being sent to the patient and therapist." });
+  await notifyBooked(c.env, appt);
+  return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Booked. WhatsApp messages are ready for the patient and therapist." });
 });
 
 async function loadForUser(c: C): Promise<ApptRow | null> {
@@ -229,8 +229,8 @@ app.post("/appointments/:id/cancel", adminOnly, async (c) => {
   const reason = str((await c.req.parseBody()).reason).slice(0, 200);
   await c.env.DB.prepare("UPDATE appointments SET status = 'cancelled', cancelled_at = ?, cancel_reason = ? WHERE id = ?")
     .bind(new Date().toISOString(), reason || null, appt.id).run();
-  c.executionCtx.waitUntil(notifyCancelled(c.env, appt));
-  return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Cancelled. The patient and therapist are being told on WhatsApp." });
+  await notifyCancelled(c.env, appt);
+  return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Cancelled. WhatsApp messages are ready for the patient and therapist." });
 });
 
 app.post("/appointments/:id/reschedule", adminOnly, async (c) => {
@@ -253,8 +253,8 @@ app.post("/appointments/:id/reschedule", adminOnly, async (c) => {
     changedTime ? 1 : 0, new Date().toISOString(), changedTime ? 1 : 0, changedTime ? 1 : 0, appt.id).run();
   const updated = (await loadAppointment(c.env, appt.id))!;
   if (changedTime || changedTherapist) {
-    c.executionCtx.waitUntil(notifyRescheduled(c.env, updated, new Date(appt.start_utc), changedTherapist ? appt.therapist_phone : null));
-    return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Saved. The patient and therapist are being told on WhatsApp." });
+    await notifyRescheduled(c.env, updated, new Date(appt.start_utc), changedTherapist ? appt.therapist_phone : null);
+    return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Saved. WhatsApp messages are ready for the patient and therapist." });
   }
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Saved. Time and therapist did not change, so no messages were sent." });
 });
@@ -378,9 +378,34 @@ app.post("/therapists/:id/active", adminOnly, async (c) => {
 });
 
 // --- Message log ---------------------------------------------------------------------------------
+// Messages still to be sent by hand: not delivered automatically, not yet sent, and about an
+// appointment that is still upcoming (or a cancellation from the last 3 days).
+const PENDING_WHERE = `m.status IN ('dry_run','failed') AND m.manual_sent_at IS NULL
+  AND ((a.status = 'booked' AND a.start_utc > ?) OR (m.kind = 'cancelled' AND m.created_at > ?))`;
+const pendingArgs = () => [new Date().toISOString(), new Date(Date.now() - 3 * 86_400_000).toISOString()];
+
+async function pendingCount(env: Env) {
+  const row = await env.DB.prepare(`SELECT COUNT(*) AS n FROM messages m JOIN appointments a ON a.id = m.appointment_id WHERE ${PENDING_WHERE}`)
+    .bind(...pendingArgs()).first<{ n: number }>();
+  return row?.n ?? 0;
+}
+
 app.get("/messages", adminOnly, async (c) => {
-  const { results } = await c.env.DB.prepare("SELECT * FROM messages ORDER BY id DESC LIMIT 200").all<MessageRow>();
-  return c.html(messagesPage(c.get("user"), results));
+  const pendingOnly = c.req.query("pending") === "1";
+  const { results } = pendingOnly
+    ? await c.env.DB.prepare(`SELECT m.* FROM messages m JOIN appointments a ON a.id = m.appointment_id WHERE ${PENDING_WHERE} ORDER BY m.id`)
+        .bind(...pendingArgs()).all<MessageRow>()
+    : await c.env.DB.prepare("SELECT * FROM messages ORDER BY id DESC LIMIT 200").all<MessageRow>();
+  return c.html(messagesPage(c.get("user"), results, pendingOnly));
+});
+
+// One-tap manual send: records the send, then opens WhatsApp in the chat with that exact number.
+app.get("/messages/:id/send", adminOnly, async (c) => {
+  const m = await c.env.DB.prepare("SELECT * FROM messages WHERE id = ?").bind(Number(c.req.param("id"))).first<MessageRow>();
+  if (!m) return c.notFound();
+  if (m.status === "skipped") return c.text("This patient has not agreed to WhatsApp messages.", 400);
+  await c.env.DB.prepare("UPDATE messages SET manual_sent_at = ? WHERE id = ? AND manual_sent_at IS NULL").bind(new Date().toISOString(), m.id).run();
+  return c.redirect(`https://wa.me/${m.to_phone}?text=${encodeURIComponent(m.body_preview)}`, 302);
 });
 
 export default {
