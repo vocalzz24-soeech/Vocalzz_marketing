@@ -40,13 +40,14 @@ export async function loadAppointment(env: Env, id: number): Promise<ApptRow | n
 const greet = (a: ApptRow) => a.guardian_name || a.patient_name;
 const minutes = (a: ApptRow) => String(a.duration_min + a.extra_min);
 
-export async function notifyBooked(env: Env, a: ApptRow) {
+export async function notifyBooked(env: Env, a: ApptRow, opts: { skipTherapist?: boolean } = {}) {
   const when = formatDateTime(new Date(a.start_utc));
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "confirmation",
     template: "vocalzz_appt_confirmed", allowed: !!a.whatsapp_consent,
     params: [greet(a), a.service, a.patient_name, a.therapist_name, when],
   });
+  if (opts.skipTherapist) return;
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "confirmation",
     template: "vocalzz_therapist_new",

@@ -13,7 +13,7 @@ import {
 } from "./notify.ts";
 import {
   appointmentPage, loginPage, messagesPage, newAppointmentPage, patientsPage, schedulePage,
-  setupPage, therapistsPage, patientEditPage, therapistEditPage, SERVICES, type ApptForm, type MessageRow, type PatientRow, type TherapistRow,
+  setupPage, therapistsPage, patientEditPage, therapistEditPage, SERVICES, type ApptForm, type CommentRow, type MessageRow, type PatientRow, type TherapistRow,
 } from "./views.ts";
 
 type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -124,11 +124,12 @@ app.get("/", async (c) => {
   const from = istDayRange(win.days[0])!.start, to = istDayRange(win.days[6])!.end;
   const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`)
     .bind(from.toISOString(), to.toISOString()).all<ApptRow>();
-  const mine = user.role === "admin" ? results : results.filter((a) => a.therapist_id === user.therapist_id);
+  const mineOnly = user.role === "therapist" && c.req.query("mine") === "1";
+  const mine = mineOnly ? results.filter((a) => a.therapist_id === user.therapist_id) : results;
   const chips = win.days.map((d) => ({ day: d, booked: mine.filter((a) => a.status === "booked" && istDay(new Date(a.start_utc)) === d).length }));
   const dayAppts = results.filter((a) => istDay(new Date(a.start_utc)) === win.selected);
   const therapists = (await therapistList(c.env)).filter((t) => t.active || dayAppts.some((a) => a.therapist_id === t.id));
-  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0));
+  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -181,13 +182,16 @@ const formFrom = (f: Record<string, unknown>): ApptForm => ({
   start: str(f.start) || (str(f.date) && str(f.time) ? `${str(f.date)}T${str(f.time)}` : ""), duration: str(f.duration), extra: str(f.extra) || "0", notes: str(f.notes),
 });
 
-app.get("/appointments/new", adminOnly, async (c) => {
+app.get("/appointments/new", async (c) => {
   const form: ApptForm = { patient_id: c.req.query("patient_id") };
   return c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form));
 });
 
-app.post("/appointments", adminOnly, async (c) => {
+app.post("/appointments", async (c) => {
+  const user = c.get("user");
   const form = formFrom(await c.req.parseBody());
+  // Therapists can only book sessions for themselves.
+  if (user.role === "therapist") form.therapist_id = String(user.therapist_id);
   const fail = async (msg: string) =>
     c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, msg), 400);
   const patient = await c.env.DB.prepare("SELECT id FROM patients WHERE id = ?").bind(Number(form.patient_id)).first();
@@ -199,27 +203,44 @@ app.post("/appointments", adminOnly, async (c) => {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(Number(form.patient_id), v.therapistId, v.service, v.slot.start.toISOString(), v.slot.durationMin, v.slot.extraMin, v.notes || null, c.get("user").id).run();
   const appt = (await loadAppointment(c.env, Number(res.meta.last_row_id)))!;
-  await notifyBooked(c.env, appt);
+  // A therapist who books their own session does not need a WhatsApp message about it.
+  await notifyBooked(c.env, appt, { skipTherapist: user.role === "therapist" });
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Booked. WhatsApp messages are ready for the patient and therapist." });
 });
 
 async function loadForUser(c: C): Promise<ApptRow | null> {
   const appt = await loadAppointment(c.env, Number(c.req.param("id")));
   const user = c.get("user");
-  if (!appt || (user.role !== "admin" && appt.therapist_id !== user.therapist_id)) return null;
-  return appt;
+  return appt; // everyone logged in can view; changes are checked per action
 }
+const canMark = (user: User, appt: ApptRow) => user.role === "admin" || appt.therapist_id === user.therapist_id;
 
 app.get("/appointments/:id", async (c) => {
   const appt = await loadForUser(c);
   if (!appt) return c.notFound();
   const { results } = await c.env.DB.prepare(`${MSG_SELECT} WHERE m.appointment_id = ? ORDER BY m.id DESC`).bind(appt.id).all<MessageRow>();
-  return c.html(appointmentPage(c.get("user"), appt, results, await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), takeFlash(c)));
+  const { results: comments } = await c.env.DB.prepare(
+    `SELECT k.id, k.body, k.created_at, u.name AS author, u.role FROM appointment_comments k JOIN users u ON u.id = k.user_id
+      WHERE k.appointment_id = ? ORDER BY k.id`,
+  ).bind(appt.id).all<CommentRow>();
+  const booker = await c.env.DB.prepare("SELECT u.name FROM appointments a JOIN users u ON u.id = a.created_by WHERE a.id = ?").bind(appt.id).first<{ name: string }>();
+  const user = c.get("user");
+  return c.html(appointmentPage(user, appt, user.role === "admin" ? results : [], await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), comments, booker?.name ?? null, takeFlash(c)));
+});
+
+app.post("/appointments/:id/comments", async (c) => {
+  const appt = await loadForUser(c);
+  if (!appt) return c.notFound();
+  const body = str((await c.req.parseBody()).body).slice(0, 500);
+  if (!body) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: "Write a comment first." });
+  await c.env.DB.prepare("INSERT INTO appointment_comments (appointment_id, user_id, body) VALUES (?, ?, ?)").bind(appt.id, c.get("user").id, body).run();
+  return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: "Comment added." });
 });
 
 app.post("/appointments/:id/status", async (c) => {
   const appt = await loadForUser(c);
   if (!appt) return c.notFound();
+  if (!canMark(c.get("user"), appt)) return c.text("Only the clinic admin or this session's therapist can do this.", 403);
   const status = str((await c.req.parseBody()).status);
   if (!["completed", "no_show"].includes(status) || appt.status !== "booked") return c.redirect(`/appointments/${appt.id}`, 303);
   await c.env.DB.prepare("UPDATE appointments SET status = ? WHERE id = ?").bind(status, appt.id).run();

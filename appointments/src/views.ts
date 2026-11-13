@@ -42,6 +42,10 @@ input[type=checkbox],input[type=radio]{width:auto}
 .pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;border:1px solid}
 .pill.ok{color:var(--ok);border-color:var(--ok)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.wait{color:#fff;background:#d97706;border-color:#d97706}.pill.muted-pill{color:var(--muted);border-color:var(--line)}
 .msg-main{min-width:0}
+.locked{padding:10px;border:1px dashed var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.comment{padding:10px 0;border-bottom:1px solid var(--line)}.comment-body{white-space:pre-wrap;margin-top:2px}
+textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--brand);border-radius:8px;overflow:hidden}.seg a{padding:4px 12px;font-size:14px;text-decoration:none;color:var(--brand)}.seg a.on{background:var(--brand);color:var(--brand-ink)}
 .ev{background:var(--card);border:1px solid var(--line);border-radius:12px}
 .ev.pending{border-left:4px solid #25d366}
 .ev-row{display:grid;grid-template-columns:1.1fr 1.3fr 1.1fr auto;gap:6px 16px;align-items:center;padding:12px 14px;cursor:pointer;list-style:none}
@@ -91,8 +95,8 @@ export function layout(title: string, user: User | null, body: H | string, flash
 <header><strong style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 64 64" width="26" height="26" aria-hidden="true"><defs><linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E4EAF2"/><stop offset="1" stop-color="#8C9BB0"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5AA9FF"/><stop offset="1" stop-color="#1E6FD9"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="#0B1220"/><path d="M8 13h12l13 33-6 9z" fill="url(#s)"/><path d="M27 13h30l-4 9L37 55h-9l15-33H31z" fill="url(#b)"/></svg>VOCALZZ <span style="color:var(--brand);font-weight:600">Appointments</span></strong>
 <a class="site-link" href="https://vocalzz.com/">← Website</a>
 ${user
-  ? html`<a href="/">Schedule</a>${user.role === "admin"
-      ? html`<a href="/appointments/new">+ Book</a><a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/messages">Messages</a>`
+  ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a>${user.role === "admin"
+      ? html`<a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/messages">Messages</a>`
       : ""}
     <form method="post" action="/logout" style="margin:0"><button class="secondary" style="margin:0;padding:6px 12px">Log out</button></form>`
   : ""}
@@ -139,18 +143,20 @@ export interface PatientRow { id: number; name: string; guardian_name: string | 
 
 export interface DayChip { day: string; booked: number }
 
-export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0) {
+export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false) {
   const day = win.selected;
   const groups = therapists
     .map((t) => ({ t, list: appts.filter((a) => a.therapist_id === t.id) }))
-    .filter((g) => user.role === "admin" || g.t.id === user.therapist_id);
+    .filter((g) => !mineOnly || g.t.id === user.therapist_id)
+    .sort((x, y) => Number(y.t.id === user.therapist_id) - Number(x.t.id === user.therapist_id));
+  const q = (extra: string) => `/?${extra}${mineOnly ? "&mine=1" : ""}`;
   const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const chip = (c: DayChip) => {
     const d = new Date(`${c.day}T00:00:00Z`);
     const wd = d.getUTCDay();
     const cls = ["day-chip", wd === 0 || wd === 6 ? "weekend" : "", c.day === day ? "selected" : "", c.day === today ? "today" : ""].join(" ");
-    return html`<a class="${cls}" href="/?day=${c.day}&start=${win.start}" aria-current="${c.day === day ? "date" : "false"}">
+    return html`<a class="${cls}" href="${q(`day=${c.day}&start=${win.start}`)}" aria-current="${c.day === day ? "date" : "false"}">
 <span class="wd">${c.day === today ? "Today" : WD[wd]}</span><span class="dn">${d.getUTCDate()}</span><span class="mo">${MON[d.getUTCMonth()]}</span>
 <span class="cnt">${c.booked ? html`<b>${c.booked}</b><span class="cnt-word"> booked</span>` : "free"}</span></a>`;
   };
@@ -159,10 +165,11 @@ export function schedulePage(user: User, win: { selected: string; start: string;
 <h1>Schedule</h1>
 ${user.role === "admin" ? pendingBanner(pendingCount) : ""}
 <div class="weeknav">
-<a class="btn secondary small" href="/?day=${win.prevStart}&start=${win.prevStart}">‹ Prev week</a>
-<a class="btn secondary small" href="/?day=${win.nextStart}&start=${win.nextStart}">Next week ›</a>
-<a class="btn secondary small" href="/">Today</a>
-<form method="get" action="/" style="margin:0"><input type="date" name="day" value="${day}" onchange="this.form.submit()" aria-label="Jump to a date"></form>
+<a class="btn secondary small" href="${q(`day=${win.prevStart}&start=${win.prevStart}`)}">‹ Prev week</a>
+<a class="btn secondary small" href="${q(`day=${win.nextStart}&start=${win.nextStart}`)}">Next week ›</a>
+<a class="btn secondary small" href="${q("")}">Today</a>
+<form method="get" action="/" style="margin:0"><input type="date" name="day" value="${day}" onchange="this.form.submit()" aria-label="Jump to a date">${mineOnly ? html`<input type="hidden" name="mine" value="1">` : ""}</form>
+${user.role === "therapist" ? html`<span class="seg"><a class="${mineOnly ? "" : "on"}" href="/?day=${day}&start=${win.start}">Everyone</a><a class="${mineOnly ? "on" : ""}" href="/?day=${day}&start=${win.start}&mine=1">Only my sessions</a></span>` : ""}
 </div>
 <div class="week">${chips.map(chip)}</div>
 <p class="muted legend"><span class="sw weekend"></span> Saturday &amp; Sunday</p>
@@ -198,25 +205,27 @@ export interface ApptForm { patient_id?: string; therapist_id?: string; service?
 export function newAppointmentPage(user: User, patients: PatientRow[], therapists: TherapistRow[], defaultDuration: number, form: ApptForm = {}, error?: string) {
   return layout("Book appointment", user, html`
 <h1>Book an appointment</h1>
-${patients.length === 0 ? html`<div class="card">Add a patient first on the <a href="/patients">Patients</a> page.</div>` : ""}
+${patients.length === 0 ? html`<div class="card">${user.role === "admin" ? html`Add a patient first on the <a href="/patients">Patients</a> page.` : "No patients yet. Ask the clinic admin to add the patient first."}</div>` : ""}
 <form class="card" method="post" action="/appointments">
 <label for="patient_id">Patient</label>
 <select id="patient_id" name="patient_id" required><option value="">Choose…</option>
 ${patients.map((p) => html`<option value="${p.id}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}</option>`)}
 </select>
-<p class="muted">New patient? <a href="/patients">Add them first</a>.</p>
-${apptFields(therapists, defaultDuration, form)}
+<p class="muted">${user.role === "admin" ? html`New patient? <a href="/patients">Add them first</a>.` : "New patient? Ask the clinic admin to add them first."}</p>
+${apptFields(therapists, defaultDuration, form, user.role === "therapist" ? therapists.find((t) => t.id === user.therapist_id) : undefined)}
 <button>Book and send WhatsApp messages</button>
 </form>`, error ? { type: "error", text: error } : undefined);
 }
 
-function apptFields(therapists: TherapistRow[], defaultDuration: number, form: ApptForm) {
+function apptFields(therapists: TherapistRow[], defaultDuration: number, form: ApptForm, lockedTo?: TherapistRow) {
   const extra = form.extra ?? "0";
   return html`
 <label for="therapist_id">Therapist</label>
-<select id="therapist_id" name="therapist_id" required><option value="">Choose…</option>
+${lockedTo
+  ? html`<input type="hidden" name="therapist_id" value="${lockedTo.id}"><div class="locked">${lockedTo.name} (you)</div>`
+  : html`<select id="therapist_id" name="therapist_id" required><option value="">Choose…</option>
 ${therapists.filter((t) => t.active).map((t) => html`<option value="${t.id}" ${String(t.id) === form.therapist_id ? "selected" : ""}>${t.name}${t.specialty ? ` · ${t.specialty}` : ""}</option>`)}
-</select>
+</select>`}
 <label for="service">Therapy</label>
 <select id="service" name="service" required>
 ${SERVICES.map((s) => html`<option ${s === form.service ? "selected" : ""}>${s}</option>`)}
@@ -262,10 +271,13 @@ export function sendButton(m: MessageRow, who: string) {
     onclick="this.textContent='Opened in WhatsApp ✓';this.classList.add('secondary')">Send to ${who} on WhatsApp</a>`;
 }
 
-export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, flash?: { type: "ok" | "error"; text: string }) {
+export interface CommentRow { id: number; body: string; created_at: string; author: string; role: string }
+
+export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], therapists: TherapistRow[], defaultDuration: number, comments: CommentRow[], bookedBy: string | null, flash?: { type: "ok" | "error"; text: string }) {
   const start = new Date(a.start_utc);
   const end = endOf({ start, durationMin: a.duration_min, extraMin: a.extra_min });
   const isAdmin = user.role === "admin";
+  const isOwn = user.role === "therapist" && user.therapist_id === a.therapist_id;
   return layout("Appointment", user, html`
 <h1>${a.patient_name} · ${a.service}</h1>
 <div class="card">
@@ -274,10 +286,12 @@ export function appointmentPage(user: User, a: ApptRow, messages: MessageRow[], 
 <div>Contact: ${a.guardian_name ? `${a.guardian_name} (parent) · ` : ""}+${a.patient_phone}</div>
 <div>Status: <span class="badge ${a.status}">${statusLabel(a.status)}</span>${a.cancel_reason ? html` <span class="muted">${a.cancel_reason}</span>` : ""}</div>
 ${a.notes ? html`<div class="muted">Note: ${a.notes}</div>` : ""}
+${bookedBy ? html`<div class="muted">Booked by ${bookedBy}</div>` : ""}
+${!isAdmin ? html`<div class="muted" style="margin-top:6px">Only the clinic admin can change or cancel appointments. Add a comment below if something needs changing.</div>` : ""}
 ${!a.whatsapp_consent ? html`<div class="flash error" style="margin-top:10px">No WhatsApp consent recorded, so this patient gets no messages. Update it on the Patients page.</div>` : ""}
 </div>
 ${isAdmin ? sendPanel(a, messages) : ""}
-${a.status === "booked" ? html`
+${a.status === "booked" && (isAdmin || isOwn) ? html`
 <div class="card"><h2 style="margin-top:0">After the session</h2>
 <form method="post" action="/appointments/${a.id}/status" class="row">
 <button name="status" value="completed" class="secondary">Mark completed</button>
@@ -295,6 +309,16 @@ ${apptFields(therapists, defaultDuration, {
 <form method="post" action="/appointments/${a.id}/cancel">
 <label for="reason">Reason (internal, optional)</label><input id="reason" name="reason" maxlength="200">
 <button class="danger">Cancel and notify both</button></form></details>` : ""}
+<h2>Comments</h2>
+<div class="card">
+${comments.length === 0 ? html`<p class="muted" style="margin-top:0">No comments yet.</p>` : ""}
+${comments.map((k) => html`<div class="comment"><div><strong>${k.author}</strong> <span class="muted">${k.role === "admin" ? "admin" : "therapist"} · ${formatDateTime(new Date(k.created_at))}</span></div><div class="comment-body">${k.body}</div></div>`)}
+<form method="post" action="/appointments/${a.id}/comments">
+<label for="comment">Add a comment</label>
+<textarea id="comment" name="body" rows="2" maxlength="500" required placeholder="e.g. Parent asked to move next week's session to the evening"></textarea>
+<p class="muted" style="margin:4px 0 0">Visible to the clinic team. Keep it short and avoid sensitive medical details.</p>
+<button>Add comment</button></form>
+</div>
 ${isAdmin ? html`<h2>WhatsApp messages</h2>${messageTable(messages)}` : ""}
 `, flash);
 }
