@@ -13,7 +13,7 @@ import {
 } from "./notify.ts";
 import {
   appointmentPage, loginPage, messagesPage, newAppointmentPage, patientsPage, schedulePage,
-  setupPage, therapistsPage, SERVICES, type ApptForm, type MessageRow, type PatientRow, type TherapistRow,
+  setupPage, therapistsPage, patientEditPage, therapistEditPage, SERVICES, type ApptForm, type MessageRow, type PatientRow, type TherapistRow,
 } from "./views.ts";
 
 type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -274,6 +274,24 @@ app.post("/patients", adminOnly, async (c) => {
   return redirectWith(c, `/appointments/new?patient_id=${res.meta.last_row_id}`, { type: "ok", text: `${str(f.name)} added. Book their appointment below.` });
 });
 
+app.get("/patients/:id/edit", adminOnly, async (c) => {
+  const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(c.req.param("id"))).first<PatientRow>();
+  if (!p) return c.notFound();
+  return c.html(patientEditPage(c.get("user"), p, takeFlash(c)));
+});
+
+app.post("/patients/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const exists = await c.env.DB.prepare("SELECT id FROM patients WHERE id = ?").bind(id).first();
+  if (!exists) return c.notFound();
+  const f = await c.req.parseBody();
+  const phone = normalisePhone(str(f.phone));
+  if (!str(f.name) || !phone) return redirectWith(c, `/patients/${id}/edit`, { type: "error", text: "Enter the patient's name and a valid 10-digit mobile number." });
+  await c.env.DB.prepare("UPDATE patients SET name = ?, guardian_name = ?, phone = ?, whatsapp_consent = ?, notes = ? WHERE id = ?")
+    .bind(str(f.name).slice(0, 80), str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null, id).run();
+  return redirectWith(c, "/patients", { type: "ok", text: `${str(f.name)} updated.` });
+});
+
 app.post("/patients/:id/consent", adminOnly, async (c) => {
   const value = str((await c.req.parseBody()).value) === "1" ? 1 : 0;
   await c.env.DB.prepare("UPDATE patients SET whatsapp_consent = ? WHERE id = ?").bind(value, Number(c.req.param("id"))).run();
@@ -300,6 +318,53 @@ app.post("/therapists", adminOnly, async (c) => {
       .bind(str(f.name).slice(0, 80), phone, res.meta.last_row_id, hash, salt).run();
   }
   return redirectWith(c, "/therapists", { type: "ok", text: `${str(f.name)} added.` });
+});
+
+async function loadTherapist(env: Env, id: number) {
+  return env.DB.prepare(
+    `SELECT t.*, EXISTS(SELECT 1 FROM users u WHERE u.therapist_id = t.id) AS has_login FROM therapists t WHERE t.id = ?`,
+  ).bind(id).first<TherapistRow>();
+}
+
+app.get("/therapists/:id/edit", adminOnly, async (c) => {
+  const t = await loadTherapist(c.env, Number(c.req.param("id")));
+  if (!t) return c.notFound();
+  return c.html(therapistEditPage(c.get("user"), t, takeFlash(c)));
+});
+
+app.post("/therapists/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const t = await loadTherapist(c.env, id);
+  if (!t) return c.notFound();
+  const back = `/therapists/${id}/edit`;
+  const f = await c.req.parseBody();
+  const name = str(f.name).slice(0, 80);
+  const phone = normalisePhone(str(f.phone));
+  const password = str(f.password);
+  if (!name || !phone) return redirectWith(c, back, { type: "error", text: "Enter a name and a valid 10-digit mobile number." });
+  if (password && password.length < 8) return redirectWith(c, back, { type: "error", text: "The password needs at least 8 characters." });
+  const login = await c.env.DB.prepare("SELECT id FROM users WHERE therapist_id = ?").bind(id).first<{ id: number }>();
+  if (login || password) {
+    const clash = await c.env.DB.prepare("SELECT id FROM users WHERE login = ? AND id != ?").bind(phone, login?.id ?? 0).first();
+    if (clash) return redirectWith(c, back, { type: "error", text: "Another login already uses that phone number." });
+  }
+  const stmts = [
+    c.env.DB.prepare("UPDATE therapists SET name = ?, phone = ?, specialty = ? WHERE id = ?").bind(name, phone, str(f.specialty).slice(0, 80) || null, id),
+  ];
+  if (login) {
+    stmts.push(c.env.DB.prepare("UPDATE users SET name = ?, login = ? WHERE id = ?").bind(name, phone, login.id));
+    if (password) {
+      const { hash, salt } = await hashPassword(password);
+      stmts.push(c.env.DB.prepare("UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?").bind(hash, salt, login.id));
+      stmts.push(c.env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(login.id));
+    }
+  } else if (password) {
+    const { hash, salt } = await hashPassword(password);
+    stmts.push(c.env.DB.prepare("INSERT INTO users (name, login, role, therapist_id, password_hash, password_salt, active) VALUES (?, ?, 'therapist', ?, ?, ?, ?)")
+      .bind(name, phone, id, hash, salt, t.active));
+  }
+  await c.env.DB.batch(stmts);
+  return redirectWith(c, "/therapists", { type: "ok", text: `${name} updated.${password ? " New password saved." : ""}` });
 });
 
 app.post("/therapists/:id/active", adminOnly, async (c) => {

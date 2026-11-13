@@ -8,11 +8,13 @@ import { endOf } from "./schedule.ts";
 type H = ReturnType<typeof html>;
 
 const CSS = `
-:root{--bg:#f7f7f5;--card:#fff;--ink:#1d1d1b;--muted:#6b6b66;--line:#e3e2dc;--brand:#0f766e;--brand-ink:#fff;--warn:#b45309;--bad:#b91c1c;--ok:#15803d}
-@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1f1f1d;--ink:#ecebe6;--muted:#a3a29b;--line:#34332f;--brand:#2dd4bf;--brand-ink:#04201d;--warn:#f59e0b;--bad:#f87171;--ok:#4ade80}}
+:root{--bg:#f4f7fb;--card:#fff;--ink:#0b1220;--muted:#5b6474;--line:#dfe6ef;--brand:#1f6fd1;--brand-ink:#fff;--bar:#0b1220;--bar-ink:#fff;--warn:#b45309;--bad:#b91c1c;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#070b14;--card:#111827;--ink:#e8eef7;--muted:#9aa6b8;--line:#243044;--brand:#5aa2f0;--brand-ink:#04101f;--bar:#000;--bar-ink:#fff;--warn:#f59e0b;--bad:#f87171;--ok:#4ade80}}
 *{box-sizing:border-box}body{margin:0;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-header strong{margin-right:auto}header a{color:var(--ink);text-decoration:none;font-size:15px}
+header{background:var(--bar);color:var(--bar-ink);padding:10px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-bottom:3px solid var(--brand)}
+header strong{margin-right:auto;letter-spacing:.02em}header a{color:var(--bar-ink);text-decoration:none;font-size:15px;opacity:.9}header a:hover{opacity:1}
+header button.secondary{color:var(--bar-ink);border-color:rgba(255,255,255,.5)}
+a{color:var(--brand)}.btn.small{margin:0;padding:4px 12px;font-size:14px}
 main{max-width:860px;margin:0 auto;padding:16px}
 h1{font-size:22px;margin:4px 0 14px}h2{font-size:18px;margin:22px 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
@@ -38,9 +40,9 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;p
 export function layout(title: string, user: User | null, body: H | string, flash?: { type: "ok" | "error"; text: string }) {
   return html`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} · Vocalzz Appointments</title><style>${raw(CSS)}</style></head>
+<title>${title} · Vocalzz Appointments</title><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22s%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23E4EAF2%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238C9BB0%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%22b%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%235AA9FF%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231E6FD9%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%230B1220%22/%3E%3Cpath%20d%3D%22M8%2013h12l13%2033-6%209z%22%20fill%3D%22url%28%23s%29%22/%3E%3Cpath%20d%3D%22M27%2013h30l-4%209L37%2055h-9l15-33H31z%22%20fill%3D%22url%28%23b%29%22/%3E%3C/svg%3E"><style>${raw(CSS)}</style></head>
 <body>
-<header><strong>Vocalzz Appointments</strong>
+<header><strong style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 64 64" width="26" height="26" aria-hidden="true"><defs><linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E4EAF2"/><stop offset="1" stop-color="#8C9BB0"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5AA9FF"/><stop offset="1" stop-color="#1E6FD9"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="#0B1220"/><path d="M8 13h12l13 33-6 9z" fill="url(#s)"/><path d="M27 13h30l-4 9L37 55h-9l15-33H31z" fill="url(#b)"/></svg>VOCALZZ <span style="color:var(--brand);font-weight:600">Appointments</span></strong>
 <a class="site-link" href="https://vocalzz.com/">← Website</a>
 ${user
   ? html`<a href="/">Schedule</a>${user.role === "admin"
@@ -231,7 +233,7 @@ They agreed to get appointment messages on WhatsApp</label>
 <div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th></th></tr>
 ${patients.map((p) => html`<tr><td>${p.name}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
-<td><a href="/appointments/new?patient_id=${p.id}">Book</a></td></tr>`)}
+<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">Book</a></td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
 `, flash);
 }
@@ -248,11 +250,43 @@ export function therapistsPage(user: User, therapists: TherapistRow[], flash?: {
 <input id="password" name="password" type="password" minlength="8" autocomplete="new-password">
 <p class="muted">With a password, the therapist logs in with their phone number and sees only their own schedule.</p>
 <button>Add therapist</button></form></details>
-<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Specialty</th><th>WhatsApp</th><th>Login</th><th>Active</th></tr>
+<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Specialty</th><th>WhatsApp</th><th>Login</th><th>Active</th><th></th></tr>
 ${therapists.map((t) => html`<tr><td>${t.name}</td><td>${t.specialty ?? ""}</td><td>+${t.phone}</td><td>${t.has_login ? "Yes" : "No"}</td>
-<td><form method="post" action="/therapists/${t.id}/active" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${t.active ? "0" : "1"}">${t.active ? "Active" : "Inactive"}</button></form></td></tr>`)}
+<td><form method="post" action="/therapists/${t.id}/active" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${t.active ? "0" : "1"}">${t.active ? "Active" : "Inactive"}</button></form></td>
+<td><a class="btn secondary small" href="/therapists/${t.id}/edit">Edit</a></td></tr>`)}
 </table>${therapists.length === 0 ? html`<p class="muted">No therapists yet.</p>` : ""}</div>
 `, flash);
+}
+
+export function patientEditPage(user: User, p: PatientRow, flash?: { type: "ok" | "error"; text: string }) {
+  return layout("Edit patient", user, html`
+<p><a href="/patients">← Patients</a></p>
+<h1>Edit patient</h1>
+<form class="card" method="post" action="/patients/${p.id}">
+<label for="name">Patient name</label><input id="name" name="name" required maxlength="80" value="${p.name}">
+<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80" value="${p.guardian_name ?? ""}">
+<label for="phone">WhatsApp number</label><input id="phone" name="phone" inputmode="tel" required value="${p.phone.slice(2)}">
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${p.whatsapp_consent ? "checked" : ""}>
+They agreed to get appointment messages on WhatsApp</label>
+<label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${p.notes ?? ""}">
+<p class="muted">Changes apply to future messages. Messages already sent are not changed.</p>
+<button>Save changes</button> <a class="btn secondary" href="/patients">Cancel</a>
+</form>`, flash);
+}
+
+export function therapistEditPage(user: User, t: TherapistRow, flash?: { type: "ok" | "error"; text: string }) {
+  return layout("Edit therapist", user, html`
+<p><a href="/therapists">← Therapists</a></p>
+<h1>Edit therapist</h1>
+<form class="card" method="post" action="/therapists/${t.id}">
+<label for="name">Name</label><input id="name" name="name" required maxlength="80" value="${t.name}">
+<label for="phone">WhatsApp number${t.has_login ? " (also their login)" : ""}</label><input id="phone" name="phone" inputmode="tel" required value="${t.phone.slice(2)}">
+<label for="specialty">Specialty</label><input id="specialty" name="specialty" maxlength="80" value="${t.specialty ?? ""}">
+<label for="password">${t.has_login ? "New login password (leave empty to keep the current one)" : "Create a login password (optional, at least 8 characters)"}</label>
+<input id="password" name="password" type="password" minlength="8" autocomplete="new-password">
+<p class="muted">${t.has_login ? "Setting a new password logs the therapist out of all devices." : "With a password, the therapist logs in with their phone number and sees only their own schedule."}</p>
+<button>Save changes</button> <a class="btn secondary" href="/therapists">Cancel</a>
+</form>`, flash);
 }
 
 export function messagesPage(user: User, messages: MessageRow[]) {
