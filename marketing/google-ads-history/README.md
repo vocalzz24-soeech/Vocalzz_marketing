@@ -11,3 +11,15 @@ Google Ads (Campaigns, Keywords, Search terms) while access lasts and add them t
 - 7 phrase-match keywords, all about speech therapy, in one ad group
 
 See keywords.csv and search_terms.csv.
+
+## Findings (14 Nov 2026)
+- Conversions by day (conversions_by_day_2026-06-27_to_2026-11-14.csv, exported from Google Ads): only
+  7-21 Oct 2026, 51 in total; none before or after.
+- Daily data via Windsor: spend/clicks stop after 21 Oct 2026 (campaign still "Enabled" but not serving,
+  likely budget or billing ended).
+- Every conversion was "Local actions - Directions" (Get directions taps on the Google listing). Calls,
+  WhatsApp chats and form leads were not tracked.
+- Lessons for the new account: track calls and WhatsApp clicks as conversions; add negative keywords for
+  competitor clinic names (Holding Hope, Sonakshi, Meenakshi, The Wings, Continua, Brain Light), other
+  cities (Gurgaon, Delhi, Faridabad, Mumbai, Bahadurgarh) and government hospitals (AIIMS, Safdarjung,
+  govt); include Greater Noida in targeting.
