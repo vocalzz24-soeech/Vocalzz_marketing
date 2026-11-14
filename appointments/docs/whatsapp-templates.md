@@ -14,7 +14,7 @@ Manager too, and wait for it to be approved again.
 ## vocalzz_appt_confirmed
 
 ```
-Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz is confirmed for {{5}}.
+Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio is confirmed for {{5}}.
 
 Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
 To cancel or change the time, just reply to this message.
@@ -31,7 +31,7 @@ Sample values:
 ## vocalzz_appt_reminder
 
 ```
-Hello {{1}}, a reminder that the {{2}} session for {{3}} with {{4}} at Vocalzz is {{5}}.
+Hello {{1}}, a reminder that the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio is {{5}}.
 
 To cancel or change the time, just reply to this message.
 ```
@@ -47,7 +47,7 @@ Sample values:
 ## vocalzz_appt_rescheduled
 
 ```
-Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz has been moved to {{5}}.
+Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio has been moved to {{5}}.
 
 To cancel or change the time, just reply to this message.
 ```
@@ -63,7 +63,7 @@ Sample values:
 ## vocalzz_appt_cancelled
 
 ```
-Hello {{1}}, the {{2}} session for {{3}} on {{4}} at Vocalzz has been cancelled.
+Hello {{1}}, the {{2}} session for {{3}} on {{4}} at Vocalzz Speech & Audio has been cancelled.
 
 To book a new time, just reply to this message.
 ```
@@ -117,7 +117,7 @@ Sample values:
 ## vocalzz_series_confirmed
 
 ```
-Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz are booked for {{5}} on these dates: {{6}}.
+Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz Speech & Audio are booked for {{5}} on these dates: {{6}}.
 
 Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
 To cancel or change a session, just reply to this message.
@@ -148,7 +148,7 @@ Sample values:
 ## vocalzz_series_cancelled
 
 ```
-Hello {{1}}, these {{2}} sessions for {{3}} at Vocalzz have been cancelled: {{4}}.
+Hello {{1}}, these {{2}} sessions for {{3}} at Vocalzz Speech & Audio have been cancelled: {{4}}.
 
 To book new times, just reply to this message.
 ```
@@ -175,7 +175,7 @@ Sample values:
 ## vocalzz_series_moved
 
 ```
-Hello {{1}}, the weekly {{2}} sessions for {{3}} at Vocalzz have new times. They are now with {{4}} on: {{5}}.
+Hello {{1}}, the weekly {{2}} sessions for {{3}} at Vocalzz Speech & Audio have new times. They are now with {{4}} on: {{5}}.
 
 To cancel or change a session, just reply to this message.
 ```

@@ -4,7 +4,7 @@ The skill reads this before every run. The full brand context is in the repo-roo
 `CLAUDE.md`; this file keeps only what the ad search needs.
 
 ## Business
-- **Name**: Vocalzz
+- **Name**: Vocalzz Speech & Audio
 - **Business type**: Multi-therapy clinic: speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy for children, adults and seniors
 - **Location**: Tower E-004, Logix Blossom County, Sector 137, Noida 201304
 - **Website**: vocalzz.com

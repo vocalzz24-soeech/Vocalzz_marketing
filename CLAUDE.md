@@ -1,10 +1,10 @@
 # CLAUDE.md: Vocalzz
 
-You are working for **Vocalzz**, a speech, occupational and behavioural therapy clinic in Sector 137, Noida. Use the business context below for every task: social media posts, reel scripts, ads, captions, Google posts, review replies and WhatsApp messages. Keep content honest, never promise cures, and always end with the WhatsApp call to action (a call option can sit alongside it).
+You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational and behavioural therapy clinic in Sector 137, Noida. Use the business context below for every task: social media posts, reel scripts, ads, captions, Google posts, review replies and WhatsApp messages. Keep content honest, never promise cures, and always end with the WhatsApp call to action (a call option can sit alongside it).
 
 
 ## The business
-- **Name:** Vocalzz (choose one name and use it everywhere; it currently varies across platforms, e.g. "Vocalzz -Rehabilitation clinic" on Google and "Vocalzz | Therapy Centre Noida" on Instagram)
+- **Name:** **Vocalzz Speech & Audio** everywhere (website, Google Business Profile, Instagram, Facebook, Justdial, Practo, bills, messages). "Vocalzz" alone is fine in running text. The logo reads "VOCALZZ · Speech 7 Audio" (the 7 is part of the logo design); write the name as "Speech & Audio" in text
 - **What it is:** a multi-therapy clinic for children, adults and seniors
 - **Founder / lead clinician:** Dr. Tanu Garg, Speech-Language Therapist & Audiologist, 10+ years' experience (previously at Fortis Noida and BL Kapoor Hospital)
 - **Team:** Dr. Samriddhi (PT & certified occupational therapist), Tanishk Kaushik (occupational therapist), Minhaj Hashmi (special educator & communication therapist)

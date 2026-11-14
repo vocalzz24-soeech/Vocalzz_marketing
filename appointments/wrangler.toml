@@ -18,7 +18,7 @@ database_name = "vocalzz-appointments"
 migrations_dir = "migrations"
 
 [vars]
-CLINIC_NAME = "Vocalzz"
+CLINIC_NAME = "Vocalzz Speech & Audio"
 CLINIC_ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida 201304"
 CLINIC_WHATSAPP = "918800230240"
 CLINIC_EMAIL = "contactus@vocalzz.com"

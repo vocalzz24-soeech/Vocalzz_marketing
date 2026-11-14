@@ -70,7 +70,7 @@ test("phone numbers", () => {
 test("templates render and follow Meta's basic rules", () => {
   assert.equal(
     renderTemplate("vocalzz_appt_cancelled", ["Priya", "Speech therapy", "Aarav", "Fri, 20 Nov 2026, 5:00 PM"]).split("\n")[0],
-    "Hello Priya, the Speech therapy session for Aarav on Fri, 20 Nov 2026, 5:00 PM at Vocalzz has been cancelled.",
+    "Hello Priya, the Speech therapy session for Aarav on Fri, 20 Nov 2026, 5:00 PM at Vocalzz Speech & Audio has been cancelled.",
   );
   for (const [name, body] of Object.entries(TEMPLATES)) {
     const t = body.trim();

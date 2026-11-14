@@ -74,7 +74,7 @@ def page(path: str, title: str, description: str, crumbs: list[tuple[str, str]],
     out.write_text(doc, encoding="utf-8")
 
 
-CLINIC = {"@type": "MedicalClinic", "name": "Vocalzz", "url": f"{SITE}/", "telephone": "+91-88002-30240",
+CLINIC = {"@type": "MedicalClinic", "name": "Vocalzz Speech & Audio", "alternateName": "Vocalzz", "url": f"{SITE}/", "telephone": "+91-88002-30240",
           "address": {"@type": "PostalAddress", "streetAddress": "Tower E-004, Logix Blossom County, Sector 137",
                       "addressLocality": "Noida", "addressRegion": "Uttar Pradesh", "postalCode": "201304", "addressCountry": "IN"}}
 
@@ -106,7 +106,7 @@ def faq_schema(faqs):
 SERVICES = [
     {
         "slug": "speech-language-therapy", "name": "Speech & Language Therapy", "short": "Speech therapy",
-        "title": "Speech Therapy in Sector 137, Noida | Children & Adults | Vocalzz",
+        "title": "Speech Therapy in Sector 137, Noida | Children & Adults | Vocalzz Speech & Audio",
         "desc": "Speech and language therapy in Sector 137, Noida for late talkers, autism, stammering, unclear speech and adults after stroke. Assessment-led, with home practice after every session.",
         "h1": "Speech & Language Therapy in Sector 137, Noida",
         "lead": "Support for children and adults who find it hard to talk, understand, be understood or swallow, led by Dr. Tanu Garg, Speech-Language Therapist with 10+ years' experience.",
@@ -136,7 +136,7 @@ SERVICES = [
     },
     {
         "slug": "occupational-therapy", "name": "Occupational Therapy", "short": "Occupational therapy",
-        "title": "Occupational Therapy for Children in Sector 137, Noida | Vocalzz",
+        "title": "Occupational Therapy for Children in Sector 137, Noida | Vocalzz Speech & Audio",
         "desc": "Paediatric occupational therapy in Sector 137, Noida: sensory integration, fine motor skills, handwriting, attention and daily living skills, with guidance for parents.",
         "h1": "Occupational Therapy in Sector 137, Noida",
         "lead": "Helping children build the everyday skills that make home and school easier, from holding a pencil to managing busy, noisy places.",
@@ -162,7 +162,7 @@ SERVICES = [
     },
     {
         "slug": "behavioral-therapy", "name": "Behavioural Therapy", "short": "Behavioural therapy",
-        "title": "Behavioural Therapy for Children in Sector 137, Noida | ADHD & Autism | Vocalzz",
+        "title": "Behavioural Therapy for Children in Sector 137, Noida | ADHD & Autism | Vocalzz Speech & Audio",
         "desc": "Behavioural therapy in Sector 137, Noida for ADHD, autism behaviour support, tantrums and emotional regulation. Calm, practical strategies for children and parents.",
         "h1": "Behavioural Therapy in Sector 137, Noida",
         "lead": "Calm, practical support for big feelings and behaviour that is hard to manage, for your child and for you as a parent.",
@@ -188,7 +188,7 @@ SERVICES = [
     },
     {
         "slug": "special-education", "name": "Special Education", "short": "Special education",
-        "title": "Special Education & Learning Support in Sector 137, Noida | Vocalzz",
+        "title": "Special Education & Learning Support in Sector 137, Noida | Vocalzz Speech & Audio",
         "desc": "One-on-one special education in Sector 137, Noida for learning difficulties, dyslexia and academic support, planned alongside speech and occupational therapy.",
         "h1": "Special Education in Sector 137, Noida",
         "lead": "One-on-one support for children who learn differently, so they can build skills and confidence at their own pace.",
@@ -214,7 +214,7 @@ SERVICES = [
     },
     {
         "slug": "audiology", "name": "Audiology & Hearing Tests", "short": "Audiology",
-        "title": "Hearing Test & Audiologist in Sector 137, Noida | Children & Adults | Vocalzz",
+        "title": "Hearing Test & Audiologist in Sector 137, Noida | Children & Adults | Vocalzz Speech & Audio",
         "desc": "Hearing tests for children and adults and hearing aid consultations in Sector 137, Noida, by an experienced audiologist.",
         "h1": "Audiology & Hearing Tests in Sector 137, Noida",
         "lead": "Hearing checks for every age and hearing aid consultations, with Dr. Tanu Garg, Speech-Language Therapist & Audiologist.",
@@ -240,7 +240,7 @@ SERVICES = [
     },
     {
         "slug": "physiotherapy", "name": "Paediatric Physiotherapy", "short": "Paediatric physiotherapy",
-        "title": "Paediatric Physiotherapy in Sector 137, Noida | Vocalzz",
+        "title": "Paediatric Physiotherapy in Sector 137, Noida | Vocalzz Speech & Audio",
         "desc": "Paediatric physiotherapy in Sector 137, Noida to help children build movement, strength, balance and coordination, alongside occupational and speech therapy.",
         "h1": "Paediatric Physiotherapy in Sector 137, Noida",
         "lead": "Helping little bodies move with more strength and confidence, with Dr. Samriddhi, Physiotherapist and certified Occupational Therapist.",
@@ -324,7 +324,7 @@ def build_services_index():
 </div>"""
     schema = [{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}/{s['slug']}/", "name": s["name"]} for i, s in enumerate(SERVICES)]}]
-    page("/services/", "Therapy Services in Sector 137, Noida | Vocalzz",
+    page("/services/", "Therapy Services in Sector 137, Noida | Vocalzz Speech & Audio",
          "Speech therapy, occupational therapy, behavioural therapy, special education, audiology and paediatric physiotherapy in Sector 137, Noida, all under one roof.",
          [("Home", "/"), ("Services", "/services/")], body, schema)
 
@@ -344,8 +344,8 @@ def build_about():
 <h3>{esc(name)}</h3><div class="role">{esc(role)}</div><p>{esc(bio)}</p></article>""" for ini, name, role, bio, lead in TEAM)
     body = f"""<header class="page-hero">
 <span class="eyebrow">About us</span>
-<h1>About Vocalzz</h1>
-<p class="lead">Vocalzz is a multi-therapy clinic in Sector 137, Noida for children, adults and seniors. Our promise is simple: <strong>Better Communication, Better Life</strong>.</p>
+<h1>About Vocalzz Speech &amp; Audio</h1>
+<p class="lead">Vocalzz Speech &amp; Audio is a multi-therapy clinic in Sector 137, Noida for children, adults and seniors. Our promise is simple: <strong>Better Communication, Better Life</strong>.</p>
 </header>
 <div class="content" style="grid-template-columns:1fr">
 <article class="prose">
@@ -371,7 +371,7 @@ def build_about():
     schema = [{"@context": "https://schema.org", "@type": "AboutPage", "url": f"{SITE}/about/", "mainEntity": dict(CLINIC, **{
         "@context": "https://schema.org",
         "employee": [{"@type": "Person", "name": name, "jobTitle": role} for _, name, role, _, _ in TEAM]})}]
-    page("/about/", "About Vocalzz | Therapy Team in Sector 137, Noida",
+    page("/about/", "About Vocalzz Speech & Audio | Therapy Team in Sector 137, Noida",
          "Meet the Vocalzz team in Sector 137, Noida: speech therapy, audiology, occupational therapy, physiotherapy and special education, planned together around each child.",
          [("Home", "/"), ("About us", "/about/")], body, schema)
 
@@ -406,8 +406,8 @@ src="https://maps.google.com/maps?q=Vocalzz%2C%20Tower%20E-004%2C%20Logix%20Blos
     schema = [{"@context": "https://schema.org", "@type": "ContactPage", "url": f"{SITE}/contact-us/", "mainEntity": dict(CLINIC, **{
         "@context": "https://schema.org", "email": "contactus@vocalzz.com", "hasMap": "https://maps.google.com/maps?cid=5557810347074861479",
         "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "10:00", "closes": "21:00"}]})}]
-    page("/contact-us/", "Contact Vocalzz | Sector 137, Noida | +91 88002 30240",
-         "Contact Vocalzz therapy clinic: Tower E-004, Logix Blossom County, Sector 137, Noida 201304. Open every day 10 am to 9 pm. WhatsApp or call +91 88002 30240.",
+    page("/contact-us/", "Contact Vocalzz Speech & Audio | Sector 137, Noida",
+         "Contact Vocalzz Speech & Audio, therapy clinic: Tower E-004, Logix Blossom County, Sector 137, Noida 201304. Open every day 10 am to 9 pm. WhatsApp or call +91 88002 30240.",
          [("Home", "/"), ("Contact", "/contact-us/")], body, schema)
 
 
@@ -461,8 +461,8 @@ def build_post(post):
 </article>"""
     schema = [{"@context": "https://schema.org", "@type": "Article", "headline": post["title"], "description": post["description"],
                "datePublished": post["date"], "url": f'{SITE}/blog/{post["slug"]}/', "inLanguage": "en-IN",
-               "author": {"@type": "Organization", "name": "Vocalzz", "url": f"{SITE}/"},
-               "publisher": {"@type": "Organization", "name": "Vocalzz", "url": f"{SITE}/"}}]
+               "author": {"@type": "Organization", "name": "Vocalzz Speech & Audio", "url": f"{SITE}/"},
+               "publisher": {"@type": "Organization", "name": "Vocalzz Speech & Audio", "url": f"{SITE}/"}}]
     if post.get("reviewed_on"):
         schema[0]["reviewedBy"] = {"@type": "Person", "name": "Dr. Tanu Garg", "jobTitle": "Speech-Language Therapist & Audiologist"}
     path = f'/blog/{post["slug"]}/'
@@ -499,7 +499,7 @@ def build_blog_index():
 <p class="lead">Simple, practical guidance on speech, language, learning and behaviour, reviewed by our therapists.</p>
 </header>
 <div class="related services-index" style="margin:12px 0 64px">{cards}</div>"""
-    page("/blog/", "Parent Tips on Speech, Learning & Behaviour | Vocalzz Noida",
+    page("/blog/", "Parent Tips on Speech, Learning & Behaviour | Vocalzz Speech & Audio",
          "Practical tips for parents on speech delay, stammering, sensory needs, learning and behaviour, from the Vocalzz therapy team in Sector 137, Noida.",
          [("Home", "/"), ("Parent tips", "/blog/")], body, [])
 

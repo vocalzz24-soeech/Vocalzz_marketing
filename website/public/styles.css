@@ -328,3 +328,6 @@ p { margin: 0 0 1em; }
 .article h2 { font-size: 1.45rem; }
 
 .site-footer .logo img { background: rgba(255, 255, 255, .92); border-radius: 8px; padding: 2px; }
+
+.logo span small { display: block; font-family: var(--font-body); font-weight: 700; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); margin-top: 1px; }
+.site-footer .logo span small { color: var(--teal-2); }
