@@ -24,7 +24,7 @@ const CSS = `
 .bill-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}.bill-actions .btn{margin:0}
 .bill{background:#fff;color:#111;max-width:800px;margin:0 auto;padding:28px 30px;border:1px solid #dfe6ef;border-radius:10px;font-size:14px;line-height:1.45;position:relative}
 .bill-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:3px solid #1e6fd9;padding-bottom:14px}
-.bill-brand{display:flex;gap:12px;align-items:center}.bill-brand img{width:56px;height:56px}
+.bill-brand{display:flex;gap:14px;align-items:center}.bill-brand img.full{width:118px;height:auto}
 .bill-brand .nm{font-weight:800;font-size:22px;letter-spacing:.06em;color:#0b1220}.bill-brand .tg{color:#1e6fd9;font-size:12px;font-weight:700}
 .bill-clinic{text-align:right;font-size:12px;color:#444}
 .bill-title{display:flex;justify-content:space-between;align-items:flex-end;margin:16px 0 10px}.bill-title h2{margin:0;font-size:20px;letter-spacing:.08em;color:#0b1220}
@@ -158,7 +158,7 @@ ${b.patient_id ? html`<a class="btn secondary" href="/patients/${b.patient_id}/s
 <div class="bill" id="bill">
 ${b.cancelled_at ? html`<div class="bill-stamp">CANCELLED</div>` : ""}
 <div class="bill-head">
-<div class="bill-brand"><img src="/logo.png" alt="Vocalzz logo"><div><div class="nm">${clinic.name.toUpperCase()}</div><div class="tg">Better Communication, Better Life</div></div></div>
+<div class="bill-brand"><img src="/logo-full.png" alt="Vocalzz Speech & Audio" class="full"><div class="tg">Better Communication,<br>Better Life</div></div>
 <div class="bill-clinic">${clinic.address}<br>Phone / WhatsApp: +${clinic.phone.slice(0, 2)} ${clinic.phone.slice(2, 7)} ${clinic.phone.slice(7)}<br>${clinic.email} · ${clinic.website}</div>
 </div>
 <div class="bill-title"><h2>BILL / RECEIPT</h2><div class="bill-meta">Bill no.: <strong>${b.number}</strong><br>Date: <strong>${niceDay(b.bill_date)}</strong></div></div>

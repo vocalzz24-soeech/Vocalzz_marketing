@@ -41,6 +41,14 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
   "Also include sessions that weren't marked completed" adds booked sessions in the month (including upcoming ones).
   Test or mistaken bills can be deleted permanently (type the bill number and tick to confirm); real bills issued
   wrongly should be cancelled instead, which keeps a record.
+- **Leave (HR Policy 2027):** therapists request leave from "Leave"; the admin approves or rejects (or adds approved leave
+  directly). Balances follow the policy: 1 leave on the 1st of each month from Jan 2027 (or the month after joining),
+  approved leave deducted straight away, up to 6 days carried into the next year, negative balance = unpaid days.
+  Sundays and clinic holidays aren't counted. Requests with less notice than the policy (3 days for 1-2 days,
+  15 days for longer; emergencies exempt) are flagged "short notice". Approved leave blocks bookings for that
+  therapist and shows "On leave" on the schedule; sessions already booked in the leave are listed to move.
+  Set each therapist's joining date and any opening balance on the Leave page.
+- **2027 clinic holidays** (Holiday Calendar 2027) are loaded by migration 0008; edit them on the Holidays page.
 
 Not built yet: cancelling by replying on WhatsApp, payments (Razorpay), daily schedule summary for therapists,
 reports.

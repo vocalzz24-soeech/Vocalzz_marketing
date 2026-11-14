@@ -7,6 +7,8 @@ import {
 } from "./auth.ts";
 import { addDays, checkClinicHours, findClashes, FOLLOW_UP_AFTER, MAX_SERIES, missedStreak, monthLabel, nextMonthDays, normalisePhone, seriesDays, seriesEnd, shortDay, weekday, weekWindow, type RepeatUntil, type Slot } from "./schedule.ts";
 import { billTotals, nextBillNumber, PAYMENT_MODES } from "./billing.ts";
+import { leaveBalance, leaveDays, noticeCheck } from "./leave.ts";
+import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
 import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
 import { dateToIstLocal, istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
 import {
@@ -133,7 +135,13 @@ app.get("/", async (c) => {
   const chips = win.days.map((d) => ({ day: d, booked: mine.filter((a) => a.status === "booked" && istDay(new Date(a.start_utc)) === d).length, holiday: holidayOf.get(d) }));
   const dayAppts = results.filter((a) => istDay(new Date(a.start_utc)) === win.selected);
   const therapists = (await therapistList(c.env)).filter((t) => t.active || dayAppts.some((a) => a.therapist_id === t.id));
-  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly, user.role === "admin" ? await followUps(c.env) : []));
+  const { results: leaves } = await c.env.DB.prepare(
+    "SELECT therapist_id FROM leave_requests WHERE status = 'approved' AND ? BETWEEN start_day AND end_day",
+  ).bind(win.selected).all<{ therapist_id: number }>();
+  const pendingLeave = user.role === "admin"
+    ? (await c.env.DB.prepare("SELECT COUNT(*) AS n FROM leave_requests WHERE status = 'pending'").first<{ n: number }>())?.n ?? 0 : 0;
+  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly,
+    user.role === "admin" ? await followUps(c.env) : [], new Set(leaves.map((l) => l.therapist_id)), pendingLeaveBanner(pendingLeave)));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -161,6 +169,10 @@ async function validateSlot(env: Env, f: ApptForm, excludeId?: number) {
   if (start.getTime() < Date.now() - 5 * 60_000) return { error: "That time is in the past." };
   const holiday = await env.DB.prepare("SELECT name FROM holidays WHERE day = ?").bind(istDay(start)).first<{ name: string }>();
   if (holiday) return { error: `The clinic is closed on ${shortDay(istDay(start))} (${holiday.name}).` };
+  const onLeave = await env.DB.prepare(
+    "SELECT t.name FROM leave_requests l JOIN therapists t ON t.id = l.therapist_id WHERE l.therapist_id = ? AND l.status = 'approved' AND ? BETWEEN l.start_day AND l.end_day",
+  ).bind(therapistId, istDay(start)).first<{ name: string }>();
+  if (onLeave) return { error: `${onLeave.name} is on leave on ${shortDay(istDay(start))}.` };
 
   const slot: Slot = { id: excludeId, start, durationMin, extraMin };
   const hoursError = checkClinicHours(slot, Number(env.OPEN_HOUR), Number(env.CLOSE_HOUR));
@@ -421,6 +433,111 @@ async function moveSeries(c: C, appt: ApptRow, form: ApptForm, first: SlotOk) {
     text: `Moved ${updated.length} session${updated.length === 1 ? "" : "s"}. One WhatsApp message lists the new times.${skipped.length ? ` Not moved (kept at the old time): ${skipped.slice(0, 3).join("; ")}${skipped.length > 3 ? "; …" : ""}.` : ""}`.slice(0, 600),
   });
 }
+
+// --- Leave (HR Policy 2027) --------------------------------------------------------------------------
+type LeaveTherapist = TherapistRow & { joined_on: string | null; leave_opening: number };
+const LEAVE_SELECT = `SELECT l.*, t.name AS therapist_name FROM leave_requests l JOIN therapists t ON t.id = l.therapist_id`;
+
+async function holidaySet(env: Env, from: string, to: string) {
+  const { results } = await env.DB.prepare("SELECT day FROM holidays WHERE day BETWEEN ? AND ?").bind(from, to).all<{ day: string }>();
+  return new Set(results.map((r) => r.day));
+}
+
+async function balanceFor(env: Env, t: LeaveTherapist, today: string): Promise<BalanceRow> {
+  const { results } = await env.DB.prepare("SELECT start_day, days, status FROM leave_requests WHERE therapist_id = ? AND status IN ('approved', 'pending')")
+    .bind(t.id).all<{ start_day: string; days: number; status: string }>();
+  const b = leaveBalance({ asOf: today, joinedOn: t.joined_on, opening: t.leave_opening ?? 0,
+    taken: results.filter((r) => r.status === "approved").map((r) => ({ start: r.start_day, days: r.days })) });
+  return { therapist: t, balance: b.balance, taken: b.takenThisYear, credited: b.creditedThisYear, carriedIn: b.carriedIn,
+    pending: results.filter((r) => r.status === "pending").reduce((x, r) => x + r.days, 0) };
+}
+
+async function withAffected(env: Env, rows: LeaveRow[]) {
+  for (const l of rows) {
+    if (l.status === "rejected" || l.status === "cancelled") continue;
+    const from = istDayRange(l.start_day)!.start.toISOString(), to = istDayRange(l.end_day)!.end.toISOString();
+    const { results } = await env.DB.prepare(
+      `SELECT a.id, a.start_utc, p.name AS patient_name FROM appointments a JOIN patients p ON p.id = a.patient_id
+        WHERE a.therapist_id = ? AND a.status = 'booked' AND a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`,
+    ).bind(l.therapist_id, from, to).all<{ id: number; start_utc: string; patient_name: string }>();
+    l.affected = results;
+  }
+  return rows;
+}
+
+app.get("/leave", async (c) => {
+  const user = c.get("user");
+  const today = istDay(new Date());
+  const isAdmin = user.role === "admin";
+  const own = isAdmin ? "" : " AND l.therapist_id = ?";
+  const bind = (sql: string, ...args: unknown[]) => c.env.DB.prepare(sql).bind(...args, ...(isAdmin ? [] : [user.therapist_id]));
+  const pending = (await bind(`${LEAVE_SELECT} WHERE l.status = 'pending'${own} ORDER BY l.start_day`).all<LeaveRow>()).results;
+  const upcoming = (await bind(`${LEAVE_SELECT} WHERE l.status = 'approved' AND l.end_day >= ?${own} ORDER BY l.start_day`, today).all<LeaveRow>()).results;
+  const past = (await bind(`${LEAVE_SELECT} WHERE (l.status IN ('rejected', 'cancelled') OR (l.status = 'approved' AND l.end_day < ?))${own} ORDER BY l.start_day DESC LIMIT 50`, today).all<LeaveRow>()).results;
+  const { results: ts } = await c.env.DB.prepare("SELECT * FROM therapists WHERE deleted_at IS NULL ORDER BY active DESC, name").all<LeaveTherapist>();
+  const shown = isAdmin ? ts.filter((t) => t.active) : ts.filter((t) => t.id === user.therapist_id);
+  const balances = await Promise.all(shown.map((t) => balanceFor(c.env, t, today)));
+  return c.html(leavePage(user, { today, therapists: ts, balances, pending: await withAffected(c.env, pending), upcoming: await withAffected(c.env, upcoming), past }, takeFlash(c)));
+});
+
+app.post("/leave", async (c) => {
+  const user = c.get("user");
+  const f = await c.req.parseBody();
+  const isAdmin = user.role === "admin";
+  const therapistId = isAdmin ? Number(str(f.therapist_id)) : user.therapist_id;
+  const t = therapistId ? await c.env.DB.prepare("SELECT * FROM therapists WHERE id = ? AND deleted_at IS NULL").bind(therapistId).first<LeaveTherapist>() : null;
+  if (!t) return redirectWith(c, "/leave", { type: "error", text: isAdmin ? "Choose a therapist." : "Your login isn't linked to a therapist." });
+  const start = str(f.start_day), end = str(f.end_day);
+  const today = istDay(new Date());
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) || end < start) return redirectWith(c, "/leave", { type: "error", text: "Choose a valid date range (the last day can't be before the first)." });
+  if (start < today && !isAdmin) return redirectWith(c, "/leave", { type: "error", text: "Leave can't start in the past. Ask the clinic admin to record it." });
+  if (end > addDays(start, 60)) return redirectWith(c, "/leave", { type: "error", text: "Leave longer than 60 days: please speak to the clinic admin." });
+  const kind = str(f.kind) === "emergency" ? "emergency" : "planned";
+  const days = leaveDays(start, end, await holidaySet(c.env, start, end));
+  if (days === 0) return redirectWith(c, "/leave", { type: "error", text: "Those dates are only Sundays or clinic holidays: no leave needed." });
+  const overlap = await c.env.DB.prepare("SELECT id FROM leave_requests WHERE therapist_id = ? AND status IN ('pending', 'approved') AND start_day <= ? AND end_day >= ?")
+    .bind(t.id, end, start).first();
+  if (overlap) return redirectWith(c, "/leave", { type: "error", text: "There's already a leave request covering some of these dates." });
+  const notice = noticeCheck(start, days, today, kind);
+  const approveNow = isAdmin && str(f.approve_now) === "1";
+  await c.env.DB.prepare(
+    `INSERT INTO leave_requests (therapist_id, start_day, end_day, days, kind, reason, status, short_notice, requested_by, decided_by, decided_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(t.id, start, end, days, kind, str(f.reason).slice(0, 200) || null, approveNow ? "approved" : "pending", notice.ok ? 0 : 1, user.id,
+    approveNow ? user.id : null, approveNow ? new Date().toISOString() : null).run();
+  const bal = await balanceFor(c.env, t, today);
+  const warn = [!notice.ok ? `short notice (policy asks ${notice.required} days, given ${Math.max(notice.given, 0)})` : "",
+    bal.balance - (approveNow ? 0 : days) < 0 ? `balance would go below zero, so ${Math.abs(bal.balance - (approveNow ? 0 : days))} day(s) would be unpaid` : ""].filter(Boolean);
+  return redirectWith(c, "/leave", { type: warn.length ? "error" : "ok",
+    text: `${approveNow ? "Leave added and approved" : "Leave request sent"}: ${days} working day${days === 1 ? "" : "s"}.${warn.length ? " Note: " + warn.join("; ") + "." : ""}${approveNow ? " Check below for sessions to move." : ""}` });
+});
+
+app.post("/leave/:id/decide", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const f = await c.req.parseBody();
+  const decision = str(f.decision) === "approved" ? "approved" : "rejected";
+  await c.env.DB.prepare("UPDATE leave_requests SET status = ?, decided_by = ?, decided_at = ?, decision_note = ? WHERE id = ? AND status = 'pending'")
+    .bind(decision, c.get("user").id, new Date().toISOString(), str(f.note).slice(0, 200) || null, id).run();
+  return redirectWith(c, "/leave", { type: "ok", text: decision === "approved" ? "Leave approved. Move or cancel any sessions listed under it." : "Leave request rejected." });
+});
+
+app.post("/leave/:id/cancel", async (c) => {
+  const user = c.get("user");
+  const l = await c.env.DB.prepare("SELECT * FROM leave_requests WHERE id = ?").bind(Number(c.req.param("id"))).first<LeaveRow>();
+  if (!l || (user.role !== "admin" && l.therapist_id !== user.therapist_id)) return c.notFound();
+  if (!(l.status === "pending" || (l.status === "approved" && l.start_day > istDay(new Date())))) return redirectWith(c, "/leave", { type: "error", text: "This leave can no longer be cancelled here." });
+  await c.env.DB.prepare("UPDATE leave_requests SET status = 'cancelled', decided_by = ?, decided_at = ? WHERE id = ?").bind(user.id, new Date().toISOString(), l.id).run();
+  return redirectWith(c, "/leave", { type: "ok", text: "Leave cancelled. The days are back in the balance." });
+});
+
+app.post("/leave/settings/:id", adminOnly, async (c) => {
+  const f = await c.req.parseBody();
+  const joined = str(f.joined_on);
+  const opening = Number(str(f.leave_opening)) || 0;
+  await c.env.DB.prepare("UPDATE therapists SET joined_on = ?, leave_opening = ? WHERE id = ?")
+    .bind(/^\d{4}-\d{2}-\d{2}$/.test(joined) ? joined : null, Math.max(Math.min(opening, 365), -365), Number(c.req.param("id"))).run();
+  return redirectWith(c, "/leave", { type: "ok", text: "Saved." });
+});
 
 // --- Billing -------------------------------------------------------------------------------------
 const clinicOf = (env: Env) => ({ name: env.CLINIC_NAME, address: env.CLINIC_ADDRESS, phone: env.CLINIC_WHATSAPP, email: env.CLINIC_EMAIL, website: env.CLINIC_WEBSITE });

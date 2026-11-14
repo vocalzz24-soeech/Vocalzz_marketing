@@ -46,7 +46,8 @@ def page(path: str, title: str, description: str, crumbs: list[tuple[str, str]],
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(description)}">
 <link rel="canonical" href="{url}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-96.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="theme-color" content="#0B1220">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{esc(title)}">

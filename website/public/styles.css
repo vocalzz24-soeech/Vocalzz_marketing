@@ -94,7 +94,7 @@ p { margin: 0 0 1em; }
 }
 .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
 .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--teal); }
-.logo svg { width: 38px; height: 38px; }
+.logo svg, .logo img { width: 40px; height: 40px; object-fit: contain; }
 .logo span { font-family: var(--font-body); font-weight: 800; font-size: 1.45rem; letter-spacing: .06em; color: var(--night); }
 .nav-links { display: none; gap: 26px; align-items: center; }
 .nav-links a { color: var(--ink); text-decoration: none; font-weight: 700; font-size: .95rem; }
@@ -326,3 +326,5 @@ p { margin: 0 0 1em; }
 .prose .steps li { list-style: none; }
 .article { max-width: 760px; }
 .article h2 { font-size: 1.45rem; }
+
+.site-footer .logo img { background: rgba(255, 255, 255, .92); border-radius: 8px; padding: 2px; }

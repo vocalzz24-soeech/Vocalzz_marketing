@@ -98,12 +98,12 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;p
 export function layout(title: string, user: User | null, body: H | string, flash?: { type: "ok" | "error"; text: string }) {
   return html`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} · Vocalzz Appointments</title><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22s%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23E4EAF2%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238C9BB0%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%22b%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%235AA9FF%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231E6FD9%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%230B1220%22/%3E%3Cpath%20d%3D%22M8%2013h12l13%2033-6%209z%22%20fill%3D%22url%28%23s%29%22/%3E%3Cpath%20d%3D%22M27%2013h30l-4%209L37%2055h-9l15-33H31z%22%20fill%3D%22url%28%23b%29%22/%3E%3C/svg%3E"><style>${raw(CSS)}</style></head>
+<title>${title} · Vocalzz Appointments</title><link rel="icon" href="/logo-mark.png" type="image/png"><style>${raw(CSS)}</style></head>
 <body>
-<header><strong style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 64 64" width="26" height="26" aria-hidden="true"><defs><linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E4EAF2"/><stop offset="1" stop-color="#8C9BB0"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5AA9FF"/><stop offset="1" stop-color="#1E6FD9"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="#0B1220"/><path d="M8 13h12l13 33-6 9z" fill="url(#s)"/><path d="M27 13h30l-4 9L37 55h-9l15-33H31z" fill="url(#b)"/></svg>VOCALZZ <span style="color:var(--brand);font-weight:600">Appointments</span></strong>
+<header><strong style="display:flex;align-items:center;gap:8px"><img src="/logo-mark.png" width="28" height="28" alt="" aria-hidden="true" style="background:#fff;border-radius:6px;padding:1px">VOCALZZ <span style="color:var(--brand);font-weight:600">Appointments</span></strong>
 <a class="site-link" href="https://vocalzz.com/">← Website</a>
 ${user
-  ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a>${user.role === "admin"
+  ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a><a href="/leave">Leave</a>${user.role === "admin"
       ? html`<a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/bills">Bills</a><a href="/messages">Messages</a>`
       : ""}
     <form method="post" action="/logout" style="margin:0"><button class="secondary" style="margin:0;padding:6px 12px">Log out</button></form>`
@@ -152,7 +152,7 @@ export interface PatientRow { id: number; name: string; guardian_name: string | 
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
 
-export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false, followUps: FollowUp[] = []) {
+export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false, followUps: FollowUp[] = [], onLeave: Set<number> = new Set(), leaveBanner: unknown = "") {
   const day = win.selected;
   const groups = therapists
     .map((t) => ({ t, list: appts.filter((a) => a.therapist_id === t.id) }))
@@ -174,6 +174,7 @@ export function schedulePage(user: User, win: { selected: string; start: string;
   return layout("Schedule", user, html`
 <h1>Schedule</h1>
 ${user.role === "admin" ? pendingBanner(pendingCount) : ""}
+${leaveBanner}
 ${followUps.length ? html`<div class="card followup-banner"><strong>⚠ Follow up: ${followUps.length} patient${followUps.length === 1 ? "" : "s"} missed ${FOLLOW_UP}+ sessions in a row</strong>
 <div>${followUps.slice(0, 5).map((f) => html`<a href="/patients/${f.id}/summary">${f.name}</a> <span class="muted">(${f.missed} missed)</span> `)}</div></div>` : ""}
 <div class="weeknav">
@@ -189,7 +190,7 @@ ${user.role === "therapist" ? html`<span class="seg"><a class="${mineOnly ? "" :
   sel.getUTCDay() === 0 || sel.getUTCDay() === 6 ? html` <span class="badge weekend-badge">Weekend</span>` : ""}${selHoliday ? html` <span class="badge holiday-badge">Closed: ${selHoliday}</span>` : ""}</h2>
 ${groups.length === 0 ? html`<div class="card muted">No therapists yet. ${user.role === "admin" ? html`<a href="/therapists">Add one</a>.` : ""}</div>` : ""}
 ${groups.map((g) => html`
-<h2>${g.t.name} <span class="muted">${g.list.filter((a) => a.status === "booked").length} booked</span></h2>
+<h2>${g.t.name} <span class="muted">${g.list.filter((a) => a.status === "booked").length} booked</span>${onLeave.has(g.t.id) ? html` <span class="badge holiday-badge">On leave</span>` : ""}</h2>
 ${g.list.length === 0 ? html`<div class="card muted">No appointments.</div>` : ""}
 ${g.list.map((a) => apptCard(a))}`)}
 `, flash);
