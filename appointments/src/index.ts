@@ -8,6 +8,7 @@ import {
 import { addDays, checkClinicHours, findClashes, FOLLOW_UP_AFTER, MAX_SERIES, missedStreak, monthLabel, nextMonthDays, normalisePhone, seriesDays, seriesEnd, shortDay, weekday, weekWindow, type RepeatUntil, type Slot } from "./schedule.ts";
 import { billTotals, nextBillNumber, PAYMENT_MODES } from "./billing.ts";
 import { leaveBalance, leaveDays, noticeCheck } from "./leave.ts";
+import { fromBase64, looksLikePdf, MAX_POLICY_BYTES, policiesPage, toBase64, unreadPoliciesBanner, type AckRow, type PolicyDoc, type StaffRow } from "./policies.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
 import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
 import { dateToIstLocal, istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
@@ -140,8 +141,13 @@ app.get("/", async (c) => {
   ).bind(win.selected).all<{ therapist_id: number }>();
   const pendingLeave = user.role === "admin"
     ? (await c.env.DB.prepare("SELECT COUNT(*) AS n FROM leave_requests WHERE status = 'pending'").first<{ n: number }>())?.n ?? 0 : 0;
+  const { results: unread } = user.role === "admin" ? { results: [] as { title: string }[] } : await c.env.DB.prepare(
+    `SELECT d.title FROM policy_docs d WHERE d.archived_at IS NULL
+       AND NOT EXISTS (SELECT 1 FROM policy_acks a WHERE a.doc_id = d.id AND a.user_id = ?) ORDER BY d.title`,
+  ).bind(user.id).all<{ title: string }>();
   return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly,
-    user.role === "admin" ? await followUps(c.env) : [], new Set(leaves.map((l) => l.therapist_id)), pendingLeaveBanner(pendingLeave)));
+    user.role === "admin" ? await followUps(c.env) : [], new Set(leaves.map((l) => l.therapist_id)),
+    user.role === "admin" ? pendingLeaveBanner(pendingLeave) : unreadPoliciesBanner(unread.map((u) => u.title))));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -433,6 +439,68 @@ async function moveSeries(c: C, appt: ApptRow, form: ApptForm, first: SlotOk) {
     text: `Moved ${updated.length} session${updated.length === 1 ? "" : "s"}. One WhatsApp message lists the new times.${skipped.length ? ` Not moved (kept at the old time): ${skipped.slice(0, 3).join("; ")}${skipped.length > 3 ? "; …" : ""}.` : ""}`.slice(0, 600),
   });
 }
+
+// --- Policies (staff only) -------------------------------------------------------------------------
+const POLICY_COLS = "id, title, version, filename, size, uploaded_at, archived_at";
+
+app.get("/policies", async (c) => {
+  const { results: docs } = await c.env.DB.prepare(`SELECT ${POLICY_COLS} FROM policy_docs WHERE archived_at IS NULL ORDER BY title`).all<PolicyDoc>();
+  const { results: acks } = await c.env.DB.prepare(
+    "SELECT doc_id, user_id, acked_at FROM policy_acks WHERE doc_id IN (SELECT id FROM policy_docs WHERE archived_at IS NULL)",
+  ).all<AckRow>();
+  const isAdmin = c.get("user").role === "admin";
+  const staff = isAdmin ? (await c.env.DB.prepare(
+    "SELECT u.id, t.name FROM users u JOIN therapists t ON t.id = u.therapist_id WHERE u.active = 1 AND t.deleted_at IS NULL ORDER BY t.name",
+  ).all<StaffRow>()).results : [];
+  const archived = isAdmin ? (await c.env.DB.prepare(`SELECT ${POLICY_COLS} FROM policy_docs WHERE archived_at IS NOT NULL ORDER BY title, version DESC LIMIT 50`).all<PolicyDoc>()).results : [];
+  return c.html(policiesPage(c.get("user"), docs, acks, staff, archived, takeFlash(c)));
+});
+
+app.get("/policies/:id/file", async (c) => {
+  const d = await c.env.DB.prepare("SELECT filename, data_b64 FROM policy_docs WHERE id = ?").bind(Number(c.req.param("id"))).first<{ filename: string; data_b64: string }>();
+  if (!d) return c.notFound();
+  const safe = d.filename.replace(/[^A-Za-z0-9._ -]/g, "_");
+  return new Response(fromBase64(d.data_b64), {
+    headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${safe}"`, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" },
+  });
+});
+
+app.post("/policies", adminOnly, async (c) => {
+  const body = await c.req.parseBody();
+  const title = str(body.title).slice(0, 100);
+  const file = body.file;
+  if (!title) return redirectWith(c, "/policies", { type: "error", text: "Give the policy a title." });
+  if (!(file instanceof File) || file.size === 0) return redirectWith(c, "/policies", { type: "error", text: "Choose a PDF file to upload." });
+  if (file.size > MAX_POLICY_BYTES) return redirectWith(c, "/policies", { type: "error", text: "That file is too large (max 1.4 MB). Export it as a smaller PDF and try again." });
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (!looksLikePdf(bytes)) return redirectWith(c, "/policies", { type: "error", text: "That file isn't a PDF." });
+  const prev = await c.env.DB.prepare("SELECT MAX(version) AS v FROM policy_docs WHERE title = ?").bind(title).first<{ v: number | null }>();
+  const version = (prev?.v ?? 0) + 1;
+  const now = new Date().toISOString();
+  await c.env.DB.batch([
+    c.env.DB.prepare("UPDATE policy_docs SET archived_at = ? WHERE title = ? AND archived_at IS NULL").bind(now, title),
+    c.env.DB.prepare("INSERT INTO policy_docs (title, version, filename, size, data_b64, uploaded_by) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(title, version, (file.name || `${title}.pdf`).slice(0, 120), bytes.length, toBase64(bytes), c.get("user").id),
+  ]);
+  return redirectWith(c, "/policies", { type: "ok", text: version > 1
+    ? `${title} updated to version ${version}. Staff will be asked to confirm it again.`
+    : `${title} uploaded. Staff will see it and be asked to confirm.` });
+});
+
+app.post("/policies/:id/ack", async (c) => {
+  const id = Number(c.req.param("id"));
+  const body = await c.req.parseBody();
+  const d = await c.env.DB.prepare("SELECT title FROM policy_docs WHERE id = ? AND archived_at IS NULL").bind(id).first<{ title: string }>();
+  if (!d) return c.notFound();
+  if (str(body.read) !== "1") return redirectWith(c, "/policies", { type: "error", text: "Tick the box to confirm you have read it." });
+  await c.env.DB.prepare("INSERT OR IGNORE INTO policy_acks (doc_id, user_id) VALUES (?, ?)").bind(id, c.get("user").id).run();
+  return redirectWith(c, "/policies", { type: "ok", text: `Thank you. You confirmed the ${d.title}.` });
+});
+
+app.post("/policies/:id/archive", adminOnly, async (c) => {
+  await c.env.DB.prepare("UPDATE policy_docs SET archived_at = ? WHERE id = ? AND archived_at IS NULL").bind(new Date().toISOString(), Number(c.req.param("id"))).run();
+  return redirectWith(c, "/policies", { type: "ok", text: "Removed from the Policies page. It's kept in the archive." });
+});
 
 // --- Leave (HR Policy 2027) --------------------------------------------------------------------------
 type LeaveTherapist = TherapistRow & { joined_on: string | null; leave_opening: number };

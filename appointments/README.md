@@ -49,6 +49,10 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
   therapist and shows "On leave" on the schedule; sessions already booked in the leave are listed to move.
   Set each therapist's joining date and any opening balance on the Leave page.
 - **2027 clinic holidays** (Holiday Calendar 2027) are loaded by migration 0008; edit them on the Holidays page.
+- **Policies** (staff only): the admin uploads PDFs (max 1.4 MB) on the Policies page; staff open them and tap
+  "I have read and agree"; the admin sees who has confirmed. Uploading with the same title creates a new version,
+  archives the old one and asks everyone to confirm again. Files are stored in the database and only served to
+  logged-in users. Therapists see a reminder banner on the Schedule until they confirm.
 
 Not built yet: cancelling by replying on WhatsApp, payments (Razorpay), daily schedule summary for therapists,
 reports.

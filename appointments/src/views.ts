@@ -103,7 +103,7 @@ export function layout(title: string, user: User | null, body: H | string, flash
 <header><strong style="display:flex;align-items:center;gap:8px"><img src="/logo-mark.png" width="28" height="28" alt="" aria-hidden="true" style="background:#fff;border-radius:6px;padding:1px">VOCALZZ <span style="color:var(--brand);font-weight:600">Appointments</span></strong>
 <a class="site-link" href="https://vocalzz.com/">← Website</a>
 ${user
-  ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a><a href="/leave">Leave</a>${user.role === "admin"
+  ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a><a href="/leave">Leave</a><a href="/policies">Policies</a>${user.role === "admin"
       ? html`<a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/bills">Bills</a><a href="/messages">Messages</a>`
       : ""}
     <form method="post" action="/logout" style="margin:0"><button class="secondary" style="margin:0;padding:6px 12px">Log out</button></form>`

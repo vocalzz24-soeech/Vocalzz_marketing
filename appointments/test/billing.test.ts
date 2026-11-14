@@ -38,3 +38,14 @@ test("bill totals", () => {
   assert.equal(t.balance, 4000);
   assert.equal(billTotals([{ description: "X", quantity: 1, rate: 100 }], 500, 999).total, 0, "discount capped at subtotal");
 });
+
+import { fromBase64, looksLikePdf, toBase64 } from "../src/policies.ts";
+test("policy files round-trip through base64 and are checked as PDF", () => {
+  const bytes = new Uint8Array(200_000).map((_, i) => i % 256);
+  bytes.set([0x25, 0x50, 0x44, 0x46, 0x2d], 0);
+  const back = fromBase64(toBase64(bytes));
+  assert.equal(back.length, bytes.length);
+  assert.ok(back.every((v, i) => v === bytes[i]));
+  assert.equal(looksLikePdf(bytes), true);
+  assert.equal(looksLikePdf(new TextEncoder().encode("hello")), false);
+});
