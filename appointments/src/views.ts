@@ -1,7 +1,7 @@
 // Server-rendered HTML pages. `html` escapes every interpolated value.
 import { html, raw } from "hono/html";
 import type { User } from "./auth.ts";
-import type { ApptRow } from "./notify.ts";
+import { CONSULTATION, isConsultation, type ApptRow } from "./notify.ts";
 import { dateToIstLocal, formatDateTime, formatTime, istDay } from "./time.ts";
 import { endOf, MAX_SERIES, timeSlots } from "./schedule.ts";
 
@@ -90,7 +90,7 @@ button.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 .appt{display:flex;gap:12px;align-items:flex-start;text-decoration:none;color:inherit}
 .appt .time{min-width:84px;font-weight:700}
 .badge{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line)}
-.badge.cancelled{color:var(--bad);border-color:var(--bad)}.badge.completed{color:var(--ok);border-color:var(--ok)}.badge.no_show{color:var(--warn);border-color:var(--warn)}
+.badge.cancelled{color:var(--bad);border-color:var(--bad)}.badge.completed{color:var(--ok);border-color:var(--ok)}.badge.no_show{color:var(--warn);border-color:var(--warn)}.badge.consult{color:var(--brand);border-color:var(--brand)}.consult-card{border-color:var(--brand)}
 table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 .chips{display:flex;gap:8px;flex-wrap:wrap}.chips label{font-weight:400;margin:0;display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:6px 12px}
 `;
@@ -147,7 +147,7 @@ export function setupPage(error?: string) {
 }
 
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number; deleted_at?: string | null }
-export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null }
+export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null; stage?: string }
 
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
@@ -207,7 +207,7 @@ ${a.extra_min ? html`<span class="badge">+${a.extra_min} min</span>` : ""}</div>
 }
 
 export const SERVICES = [
-  "Speech therapy", "Occupational therapy", "Behavioural therapy", "Special education",
+  CONSULTATION, "Speech therapy", "Occupational therapy", "Behavioural therapy", "Special education",
   "Audiology / hearing test", "Physiotherapy", "Assessment", "Online therapy",
 ];
 
@@ -216,20 +216,39 @@ const statusLabel = (s: string) => ({ booked: "Booked", cancelled: "Cancelled", 
 export interface ApptForm { patient_id?: string; therapist_id?: string; service?: string; start?: string; duration?: string; extra?: string; notes?: string;
   repeat?: string; repeat_days?: string[]; repeat_until?: string; repeat_until_date?: string }
 
-export function newAppointmentPage(user: User, patients: PatientRow[], therapists: TherapistRow[], defaultDuration: number, form: ApptForm = {}, error?: string) {
+export function newAppointmentPage(user: User, patients: PatientRow[], therapists: TherapistRow[], defaultDuration: number, form: ApptForm = {}, error?: string, flash?: { type: "ok" | "error"; text: string }) {
   return layout("Book appointment", user, html`
 <h1>Book an appointment</h1>
 ${patients.length === 0 ? html`<div class="card">${user.role === "admin" ? html`Add a patient first on the <a href="/patients">Patients</a> page.` : "No patients yet. Ask the clinic admin to add the patient first."}</div>` : ""}
 <form class="card" method="post" action="/appointments">
 <label for="patient_id">Patient</label>
 <select id="patient_id" name="patient_id" required><option value="">Choose…</option>
-${patients.map((p) => html`<option value="${p.id}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}</option>`)}
+${patients.filter((p) => p.stage !== "closed" || String(p.id) === form.patient_id).map((p) => html`<option value="${p.id}" data-stage="${p.stage ?? "active"}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}${p.stage === "consultation" ? " · NEW: consultation first" : ""}</option>`)}
 </select>
+<div id="consult-hint" class="card consult-card" style="margin:8px 0 0;padding:10px 12px" hidden>New patient: book their <strong>consultation</strong> first. Regular sessions open up once the consultation is confirmed.</div>
 <p class="muted">${user.role === "admin" ? html`New patient? <a href="/patients">Add them first</a>.` : "New patient? Ask the clinic admin to add them first."}</p>
 ${apptFields(therapists, defaultDuration, form, user.role === "therapist" ? therapists.find((t) => t.id === user.therapist_id) : undefined)}
 ${repeatFields(form)}
 <button>Book and send WhatsApp messages</button>
-</form>`, error ? { type: "error", text: error } : undefined);
+</form>
+<script>
+(function () {
+  var pick = document.getElementById("patient_id"), hint = document.getElementById("consult-hint"), svc = document.getElementById("service");
+  var rep = document.getElementById("repeat"), box = rep && rep.closest(".repeat-box");
+  function isNew() { var o = pick.options[pick.selectedIndex]; return !!o && o.getAttribute("data-stage") === "consultation"; }
+  function sync() {
+    hint.hidden = !isNew();
+    var consult = svc.value === "${CONSULTATION}";
+    if (box) box.hidden = consult;
+    if (consult && rep && rep.checked) rep.click();
+  }
+  // Choosing a new patient pre-selects Consultation; the server still blocks other therapies until it is confirmed.
+  pick.addEventListener("change", function () { if (isNew()) svc.value = "${CONSULTATION}"; sync(); });
+  svc.addEventListener("change", sync);
+  if (isNew() && !${raw(form.service ? "true" : "false")}) svc.value = "${CONSULTATION}";
+  sync();
+})();
+</script>`, error ? { type: "error", text: error } : flash);
 }
 
 function repeatFields(form: ApptForm) {
@@ -327,7 +346,7 @@ export const needsManualSend = (m: MessageRow) => (m.status === "dry_run" || m.s
 const KIND_LABEL: Record<string, string> = {
   confirmation: "booking confirmation", reminder_24h: "day-before reminder", reminder_2h: "2-hour reminder",
   rescheduled: "new time", cancelled: "cancellation",
-  series_confirmation: "weekly sessions booked", series_cancelled: "weekly sessions cancelled", series_moved: "weekly sessions moved",
+  series_confirmation: "weekly sessions booked", consult_confirmation: "consultation booked", series_cancelled: "weekly sessions cancelled", series_moved: "weekly sessions moved",
 };
 const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
 
@@ -366,6 +385,13 @@ ${!isAdmin ? html`<div class="muted" style="margin-top:6px">Only the clinic admi
 ${!a.whatsapp_consent ? html`<div class="flash error" style="margin-top:10px">No WhatsApp consent recorded, so this patient gets no messages. Update it on the Patients page.</div>` : ""}
 </div>
 ${isAdmin ? sendPanel(a, messages) : ""}
+${isAdmin && isConsultation(a) && a.patient_stage === "consultation" && a.status !== "cancelled" ? html`
+<div class="card consult-card"><h2 style="margin-top:0">Consultation outcome</h2>
+<p class="muted" style="margin-top:0">${a.patient_name} is a new patient. Regular therapy sessions can be booked once the family confirms after this consultation.</p>
+<form method="post" action="/appointments/${a.id}/consultation" class="row" style="gap:8px">
+<button name="outcome" value="confirmed" style="margin:0">✓ Confirmed: book therapy sessions</button>
+<button name="outcome" value="declined" class="secondary" style="margin:0" onclick="return confirm('Mark that ${a.patient_name} is not going ahead after the consultation?')">Not going ahead</button>
+</form></div>` : ""}
 ${series && (isAdmin || isOwn) ? html`
 <form class="card continue-card" method="post" action="/appointments/${a.id}/continue">
 <div><strong>🔁 Continue this weekly series</strong><div class="muted">Books the same days and time for ${series.nextMonth}. Clashes and clinic holidays are skipped.</div></div>
@@ -465,23 +491,71 @@ export function messageTable(messages: MessageRow[]) {
   })}</div>`;
 }
 
-export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set()) {
+export interface NewPatientForm { name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string;
+  is_new?: string; therapist_id?: string; date?: string; time?: string; duration?: string }
+
+/** Consultation state of new patients: the next booked consultation's start (UTC ISO), or null when none is booked yet. */
+export type ConsultState = Map<number, string | null>;
+
+export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set(),
+  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean } = {}) {
+  const f = opts.form ?? {};
+  const fresh = !opts.form;
+  const isNew = fresh || f.is_new === "1";
+  const consults = opts.consults ?? new Map();
+  const stageBadge = (p: PatientRow) => {
+    if (p.stage === "closed") return html` <span class="badge cancelled">Did not go ahead</span>`;
+    if (p.stage !== "consultation") return "";
+    const at = consults.get(p.id);
+    return at ? html` <span class="badge consult">New · consultation ${formatDateTime(new Date(at))}</span>` : html` <span class="badge no_show">New · book consultation</span>`;
+  };
   return layout("Patients", user, html`
 <h1>Patients</h1>
-<details class="card" ${flash?.type === "error" ? "open" : ""}><summary><strong>+ Add patient</strong></summary>
+<details class="card" ${opts.open || flash?.type === "error" ? "open" : ""}><summary><strong>+ Add patient</strong></summary>
 <form method="post" action="/patients">
-<label for="name">Patient name</label><input id="name" name="name" required maxlength="80">
-<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80">
-<label for="phone">WhatsApp number</label><input id="phone" name="phone" inputmode="tel" required placeholder="98XXXXXXXX">
-<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" checked>
+<label for="name">Patient name</label><input id="name" name="name" required maxlength="80" value="${f.name ?? ""}">
+<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80" value="${f.guardian_name ?? ""}">
+<label for="phone">WhatsApp number</label><input id="phone" name="phone" inputmode="tel" required placeholder="98XXXXXXXX" value="${f.phone ?? ""}">
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${fresh || f.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>
-<label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200">
-<button>Add patient</button></form></details>
+<label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${f.notes ?? ""}">
+<div class="repeat-box consult-box">
+<label class="repeat-toggle"><input type="checkbox" id="is_new" name="is_new" value="1" ${isNew ? "checked" : ""}> <span>New patient: first visit is a consultation</span></label>
+<p class="muted" style="margin:4px 0 0">Untick only for someone who is already in therapy with us.</p>
+<div id="consult-opts" ${isNew ? "" : "hidden"}>
+<h3 style="margin:12px 0 0">Book the consultation</h3>
+<label for="c_therapist">Consultation with</label>
+<select id="c_therapist" name="therapist_id"><option value="">Choose…</option>
+${(opts.therapists ?? []).filter((t) => t.active).map((t) => html`<option value="${t.id}" ${String(t.id) === f.therapist_id ? "selected" : ""}>${t.name}${t.specialty ? ` · ${t.specialty}` : ""}</option>`)}
+</select>
+<div class="row">
+<div><label for="c_date">Date</label><input id="c_date" name="date" type="date" value="${f.date ?? ""}"></div>
+<div><label for="c_time">Time</label><select id="c_time" name="time"><option value="">Choose time…</option>
+${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "selected" : ""}>${t.label}</option>`)}
+</select></div>
+<div><label for="c_duration">Length (minutes)</label><input id="c_duration" name="duration" type="number" min="15" max="180" step="5" value="${f.duration ?? String(opts.defaultDuration ?? 45)}"></div>
+</div>
+<p class="muted" style="margin:6px 0 0">The parent gets a consultation message on WhatsApp, and the therapist gets one too. Don't know the time yet? Leave the date empty and book it later: the patient shows as <em>New · book consultation</em>.</p>
+</div></div>
+<button id="add-btn">${isNew ? "Add patient and book consultation" : "Add patient"}</button></form></details>
+<script>
+(function () {
+  var cb = document.getElementById("is_new"), opts = document.getElementById("consult-opts"), btn = document.getElementById("add-btn");
+  var date = document.getElementById("c_date"), time = document.getElementById("c_time"), who = document.getElementById("c_therapist");
+  function sync() {
+    opts.hidden = !cb.checked;
+    var booking = cb.checked && !!date.value;
+    time.required = booking; who.required = booking;
+    btn.textContent = !cb.checked ? "Add patient" : booking ? "Add patient and book consultation" : "Add patient (book consultation later)";
+  }
+  cb.addEventListener("change", sync); date.addEventListener("change", sync); sync();
+})();
+</script>
 <form method="get" action="/patients" class="row" style="align-items:end"><div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div><button class="secondary">Search</button></form>
 <div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th></th></tr>
-${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
+${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
-<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">Book</a></td></tr>`)}
+<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a></td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
 `, flash);
 }
@@ -682,6 +756,12 @@ export function patientSummaryPage(user: User, p: PatientRow, month: string, app
   return layout("Patient summary", user, html`
 <p><a href="/patients">← Patients</a></p>
 <h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
+${user.role === "admin" && p.stage === "consultation" ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
+<p class="muted" style="margin:4px 0 8px">Regular sessions can be booked once the consultation is confirmed. Confirm it from the consultation appointment, or here if it happened outside the app.</p>
+<div class="row" style="gap:8px;flex:0 0 auto"><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a>
+<form method="post" action="/patients/${p.id}/stage" style="margin:0;flex:0 0 auto"><button class="secondary" name="stage" value="active">Consultation done: allow sessions</button></form></div></div>` : ""}
+${user.role === "admin" && p.stage === "closed" ? html`<div class="card"><strong>Did not go ahead after the consultation</strong>
+<form method="post" action="/patients/${p.id}/stage" style="margin:6px 0 0"><button class="secondary" name="stage" value="consultation">Reopen as a new patient</button></form></div>` : ""}
 ${flag ? html`<div class="card followup-banner"><strong>⚠ Missed ${flag.missed} sessions in a row</strong> <span class="muted">(last on ${formatDateTime(new Date(flag.lastMissed))})</span>
 <p style="margin:6px 0 0">A friendly check-in call or message can help. Every family's situation is different.</p>
 <div class="row" style="flex:0 0 auto;gap:8px">
@@ -707,4 +787,10 @@ ${appts.map((a) => html`<a class="card appt" href="/appointments/${a.id}">
 <div class="time" style="min-width:110px">${formatDateTime(new Date(a.start_utc)).replace(/ \d{4},/, ",")}</div>
 <div><div><strong>${a.service}</strong> · ${a.therapist_name}</div><span class="badge ${a.status}">${statusLabel(a.status)}</span></div></a>`)}
 `, flash);
+}
+
+/** Admin banner on the schedule: new patients whose consultation is not booked yet. */
+export function consultBanner(names: string[]) {
+  if (!names.length) return "";
+  return html`<a class="card send-banner" style="border-color:var(--brand)" href="/patients"><strong>${names.length} new patient${names.length === 1 ? "" : "s"} waiting for a consultation booking: ${names.slice(0, 3).join(", ")}${names.length > 3 ? "…" : ""}</strong><span>Open →</span></a>`;
 }

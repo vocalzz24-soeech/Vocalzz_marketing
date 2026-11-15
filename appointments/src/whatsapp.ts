@@ -41,6 +41,13 @@ export const TEMPLATES = {
     "To cancel or change a session, just reply to this message.",
   vocalzz_therapist_series_moved:
     "Weekly sessions updated: {{1}} ({{2}}) is now with you on {{3}}. Please check the schedule.",
+  vocalzz_consult_confirmed:
+    "Hello {{1}}, the first consultation for {{2}} with {{3}} at Vocalzz Speech & Audio is booked for {{4}}. It takes about {{5}} minutes.\n\n" +
+    "In this visit we listen to your concerns, observe, and suggest a plan. Please bring any earlier reports.\n\n" +
+    "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
+    "To cancel or change the time, just reply to this message.",
+  vocalzz_therapist_consult:
+    "New consultation for you: {{1}}, a new patient, on {{2}} for {{3}} minutes. Parent or contact: {{4}}. Please check the schedule for details.",
 } as const;
 
 export type TemplateName = keyof typeof TEMPLATES;

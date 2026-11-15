@@ -199,3 +199,39 @@ Sample values:
 - {{1}}: Aarav
 - {{2}}: Speech therapy
 - {{3}}: Mon 7 Dec 4:00 PM, Mon 14 Dec 4:00 PM
+
+## vocalzz_consult_confirmed
+
+Sent to the parent when a new patient's first consultation is booked.
+
+```
+Hello {{1}}, the first consultation for {{2}} with {{3}} at Vocalzz Speech & Audio is booked for {{4}}. It takes about {{5}} minutes.
+
+In this visit we listen to your concerns, observe, and suggest a plan. Please bring any earlier reports.
+
+Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
+To cancel or change the time, just reply to this message.
+```
+
+Sample values:
+
+- {{1}}: Priya
+- {{2}}: Aarav
+- {{3}}: Dr. Tanu Garg
+- {{4}}: Fri, 20 Nov 2026, 5:00 PM
+- {{5}}: 45
+
+## vocalzz_therapist_consult
+
+Sent to the therapist who will take the consultation.
+
+```
+New consultation for you: {{1}}, a new patient, on {{2}} for {{3}} minutes. Parent or contact: {{4}}. Please check the schedule for details.
+```
+
+Sample values:
+
+- {{1}}: Aarav
+- {{2}}: Fri, 20 Nov 2026, 5:00 PM
+- {{3}}: 45
+- {{4}}: Priya

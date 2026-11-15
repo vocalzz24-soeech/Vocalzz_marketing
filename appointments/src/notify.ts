@@ -25,10 +25,11 @@ export interface ApptRow {
   whatsapp_consent: number;
   therapist_name: string;
   therapist_phone: string;
+  patient_stage?: string;
 }
 
 export const APPT_SELECT = `
-  SELECT a.*, p.name AS patient_name, p.guardian_name, p.phone AS patient_phone, p.whatsapp_consent,
+  SELECT a.*, p.name AS patient_name, p.guardian_name, p.phone AS patient_phone, p.whatsapp_consent, p.stage AS patient_stage,
          t.name AS therapist_name, t.phone AS therapist_phone
     FROM appointments a
     JOIN patients p ON p.id = a.patient_id
@@ -39,20 +40,41 @@ export async function loadAppointment(env: Env, id: number): Promise<ApptRow | n
 }
 
 const greet = (a: ApptRow) => a.guardian_name || a.patient_name;
+
+/** The service name that sits in the shared templates ("the consultation session", not "the Consultation session"). */
+export const CONSULTATION = "Consultation";
+export const isConsultation = (a: { service: string }) => a.service === CONSULTATION;
+const svc = (a: ApptRow) => (isConsultation(a) ? "consultation" : a.service);
 const minutes = (a: ApptRow) => String(a.duration_min + a.extra_min);
 
 export async function notifyBooked(env: Env, a: ApptRow, opts: { skipTherapist?: boolean } = {}) {
   const when = formatDateTime(new Date(a.start_utc));
+  if (isConsultation(a)) return notifyConsultationBooked(env, a, when, opts);
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "confirmation",
     template: "vocalzz_appt_confirmed", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, a.therapist_name, when],
+    params: [greet(a), svc(a), a.patient_name, a.therapist_name, when],
   });
   if (opts.skipTherapist) return;
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "confirmation",
     template: "vocalzz_therapist_new",
-    params: [a.patient_name, a.service, when, minutes(a)],
+    params: [a.patient_name, svc(a), when, minutes(a)],
+  });
+}
+
+/** A new patient's first consultation has its own wording for the parent and the therapist. */
+async function notifyConsultationBooked(env: Env, a: ApptRow, when: string, opts: { skipTherapist?: boolean }) {
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "consult_confirmation",
+    template: "vocalzz_consult_confirmed", allowed: !!a.whatsapp_consent,
+    params: [greet(a), a.patient_name, a.therapist_name, when, minutes(a)],
+  });
+  if (opts.skipTherapist) return;
+  await sendWhatsApp(env, {
+    appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "consult_confirmation",
+    template: "vocalzz_therapist_consult",
+    params: [a.patient_name, when, minutes(a), greet(a)],
   });
 }
 
@@ -62,22 +84,22 @@ export async function notifyRescheduled(env: Env, a: ApptRow, previousStart: Dat
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "rescheduled",
     template: "vocalzz_appt_rescheduled", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, a.therapist_name, when],
+    params: [greet(a), svc(a), a.patient_name, a.therapist_name, when],
   });
   if (previousTherapistPhone && previousTherapistPhone !== a.therapist_phone) {
     // Moved to a different therapist: the old one gets a cancellation, the new one a new booking.
     await sendWhatsApp(env, {
       appointmentId: a.id, recipient: "therapist", to: previousTherapistPhone, kind: "cancelled",
-      template: "vocalzz_therapist_cancelled", params: [a.patient_name, a.service, before],
+      template: "vocalzz_therapist_cancelled", params: [a.patient_name, svc(a), before],
     });
     await sendWhatsApp(env, {
       appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "confirmation",
-      template: "vocalzz_therapist_new", params: [a.patient_name, a.service, when, minutes(a)],
+      template: "vocalzz_therapist_new", params: [a.patient_name, svc(a), when, minutes(a)],
     });
   } else {
     await sendWhatsApp(env, {
       appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "rescheduled",
-      template: "vocalzz_therapist_moved", params: [a.patient_name, a.service, when, minutes(a), before],
+      template: "vocalzz_therapist_moved", params: [a.patient_name, svc(a), when, minutes(a), before],
     });
   }
 }
@@ -87,11 +109,11 @@ export async function notifyCancelled(env: Env, a: ApptRow) {
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "cancelled",
     template: "vocalzz_appt_cancelled", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, when],
+    params: [greet(a), svc(a), a.patient_name, when],
   });
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "cancelled",
-    template: "vocalzz_therapist_cancelled", params: [a.patient_name, a.service, when],
+    template: "vocalzz_therapist_cancelled", params: [a.patient_name, svc(a), when],
   });
 }
 
@@ -104,12 +126,12 @@ export async function notifySeriesBooked(env: Env, appts: ApptRow[], opts: { ski
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "series_confirmation",
     template: "vocalzz_series_confirmed", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, a.therapist_name, time, dayList(appts)],
+    params: [greet(a), svc(a), a.patient_name, a.therapist_name, time, dayList(appts)],
   });
   if (opts.skipTherapist) return;
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "series_confirmation",
-    template: "vocalzz_therapist_series", params: [a.patient_name, a.service, time, dayList(appts)],
+    template: "vocalzz_therapist_series", params: [a.patient_name, svc(a), time, dayList(appts)],
   });
 }
 
@@ -122,16 +144,16 @@ export async function notifySeriesMoved(env: Env, moved: ApptRow[], previous: Ap
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "series_moved",
     template: "vocalzz_series_moved", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, a.therapist_name, dayTimeList(moved)],
+    params: [greet(a), svc(a), a.patient_name, a.therapist_name, dayTimeList(moved)],
   });
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "series_moved",
-    template: "vocalzz_therapist_series_moved", params: [a.patient_name, a.service, dayTimeList(moved)],
+    template: "vocalzz_therapist_series_moved", params: [a.patient_name, svc(a), dayTimeList(moved)],
   });
   if (oldTherapistPhone && oldTherapistPhone !== a.therapist_phone) {
     await sendWhatsApp(env, {
       appointmentId: a.id, recipient: "therapist", to: oldTherapistPhone, kind: "series_cancelled",
-      template: "vocalzz_therapist_series_cancelled", params: [a.patient_name, a.service, dayList(previous)],
+      template: "vocalzz_therapist_series_cancelled", params: [a.patient_name, svc(a), dayList(previous)],
     });
   }
 }
@@ -142,11 +164,11 @@ export async function notifySeriesCancelled(env: Env, appts: ApptRow[]) {
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind: "series_cancelled",
     template: "vocalzz_series_cancelled", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, dayList(appts)],
+    params: [greet(a), svc(a), a.patient_name, dayList(appts)],
   });
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "therapist", to: a.therapist_phone, kind: "series_cancelled",
-    template: "vocalzz_therapist_series_cancelled", params: [a.patient_name, a.service, dayList(appts)],
+    template: "vocalzz_therapist_series_cancelled", params: [a.patient_name, svc(a), dayList(appts)],
   });
 }
 
@@ -199,6 +221,6 @@ async function sendReminder(env: Env, a: ApptRow, kind: ReminderKind, start: Dat
   await sendWhatsApp(env, {
     appointmentId: a.id, recipient: "patient", to: a.patient_phone, kind,
     template: "vocalzz_appt_reminder", allowed: !!a.whatsapp_consent,
-    params: [greet(a), a.service, a.patient_name, a.therapist_name, reminderWhen(start, now)],
+    params: [greet(a), svc(a), a.patient_name, a.therapist_name, reminderWhen(start, now)],
   });
 }

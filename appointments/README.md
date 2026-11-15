@@ -6,12 +6,18 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
 
 - **Booking:** the admin chooses the patient, therapist, therapy, date and time, a standard length (45 min by default)
   and optional **+10 / +15 min** extra time.
+- **New patients start with a consultation:** when adding a patient, "New patient: first visit is a consultation"
+  is ticked by default and opens a panel to book it (therapist, date, time, length). The parent and the therapist
+  each get a consultation message. Leave the date empty to book it later; the schedule shows a reminder banner.
+  Other therapies stay blocked until the admin taps **Confirmed: book therapy sessions** on the consultation
+  (or **Not going ahead**). Untick the box for someone already in therapy.
 - **Clash check:** blocks a booking if the therapist or the patient is already booked then, or if the session
   falls outside clinic hours (10:00–21:00).
 - **WhatsApp messages** (from the clinic number, through Meta's WhatsApp Business Platform):
 
   | Event | Patient gets | Therapist gets |
   |---|---|---|
+  | Consultation booked (new patient) | Consultation details and what to bring | New consultation |
   | Booked | Confirmation | New appointment |
   | Day before (if booked at least a day ahead) | Reminder | – |
   | 2 hours before (if booked at least 2 hours ahead) | Reminder | – |

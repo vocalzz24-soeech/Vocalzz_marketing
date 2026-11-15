@@ -1,5 +1,6 @@
 import { Hono, type Context } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
+import { html } from "hono/html";
 import type { Env } from "./env.ts";
 import {
   SESSION_COOKIE, SESSION_MAX_AGE, createSession, deleteSession, hashPassword, userForSession,
@@ -13,12 +14,12 @@ import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from ".
 import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
 import { dateToIstLocal, istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
 import {
-  APPT_SELECT, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, notifySeriesBooked, notifySeriesCancelled, notifySeriesMoved, runReminders,
+  APPT_SELECT, CONSULTATION, isConsultation, loadAppointment, notifyBooked, notifyCancelled, notifyRescheduled, notifySeriesBooked, notifySeriesCancelled, notifySeriesMoved, runReminders,
   type ApptRow,
 } from "./notify.ts";
 import {
   appointmentPage, loginPage, messagesPage, newAppointmentPage, patientsPage, schedulePage,
-  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, type ApptForm, type CommentRow, type MessageRow, type PatientRow, type TherapistRow,
+  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, consultBanner, type ApptForm, type ConsultState, type NewPatientForm, type CommentRow, type MessageRow, type PatientRow, type TherapistRow,
 } from "./views.ts";
 
 type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -147,7 +148,7 @@ app.get("/", async (c) => {
   ).bind(user.id).all<{ title: string }>();
   return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly,
     user.role === "admin" ? await followUps(c.env) : [], new Set(leaves.map((l) => l.therapist_id)),
-    user.role === "admin" ? pendingLeaveBanner(pendingLeave) : unreadPoliciesBanner(unread.map((u) => u.title))));
+    user.role === "admin" ? html`${pendingLeaveBanner(pendingLeave)}${consultBanner(await consultsToBook(c.env))}` : unreadPoliciesBanner(unread.map((u) => u.title))));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -157,6 +158,33 @@ async function patientList(env: Env, q = "") {
     `SELECT * FROM patients WHERE ? = '' OR name LIKE ? OR guardian_name LIKE ? OR phone LIKE ? ORDER BY name LIMIT 500`,
   ).bind(q, like, like, like).all<PatientRow>();
   return results;
+}
+
+/** New patients start with a consultation; other sessions wait until it is confirmed. */
+function consultationGate(p: { name: string; stage: string }, service: string): string | null {
+  if (service === CONSULTATION) return null;
+  if (p.stage === "consultation") return `${p.name} is a new patient. Book their consultation first. Regular sessions open up once the consultation is confirmed (the "Confirmed: book therapy sessions" button on the consultation).`;
+  if (p.stage === "closed") return `${p.name} did not go ahead after the consultation. Reopen them on their patient page first.`;
+  return null;
+}
+
+/** New patients with no upcoming consultation booked. */
+async function consultsToBook(env: Env) {
+  const { results } = await env.DB.prepare(
+    `SELECT p.name FROM patients p WHERE p.stage = 'consultation'
+       AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.service = ? AND a.status IN ('booked','completed'))
+     ORDER BY p.id DESC LIMIT 20`,
+  ).bind(CONSULTATION).all<{ name: string }>();
+  return results.map((r) => r.name);
+}
+
+/** For the Patients list: each new patient's next booked consultation, or null when none is booked. */
+async function consultStates(env: Env): Promise<ConsultState> {
+  const { results } = await env.DB.prepare(
+    `SELECT p.id, (SELECT MIN(a.start_utc) FROM appointments a WHERE a.patient_id = p.id AND a.service = ? AND a.status = 'booked') AS next_at
+       FROM patients p WHERE p.stage = 'consultation'`,
+  ).bind(CONSULTATION).all<{ id: number; next_at: string | null }>();
+  return new Map(results.map((r) => [r.id, r.next_at]));
 }
 
 /** Validates the form and returns the slot, or an error message. */
@@ -210,7 +238,7 @@ const formFrom = (f: Record<string, unknown>): ApptForm => ({
 
 app.get("/appointments/new", async (c) => {
   const form: ApptForm = { patient_id: c.req.query("patient_id") };
-  return c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form));
+  return c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, undefined, takeFlash(c)));
 });
 
 app.post("/appointments", async (c) => {
@@ -220,11 +248,16 @@ app.post("/appointments", async (c) => {
   if (user.role === "therapist") form.therapist_id = String(user.therapist_id);
   const fail = async (msg: string) =>
     c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, msg), 400);
-  const patient = await c.env.DB.prepare("SELECT id FROM patients WHERE id = ?").bind(Number(form.patient_id)).first();
+  const patient = await c.env.DB.prepare("SELECT id, name, stage FROM patients WHERE id = ?").bind(Number(form.patient_id)).first<{ id: number; name: string; stage: string }>();
   if (!patient) return fail("Choose a patient.");
+  const stageError = consultationGate(patient, form.service ?? "");
+  if (stageError) return fail(stageError);
   const v = await validateSlot(c.env, form);
   if ("error" in v) return fail(v.error!);
-  if (form.repeat === "1") return bookSeries(c, form, v, fail);
+  if (form.repeat === "1") {
+    if (form.service === CONSULTATION) return fail("A consultation is a single visit. Untick \"Repeat every week\".");
+    return bookSeries(c, form, v, fail);
+  }
   const res = await c.env.DB.prepare(
     `INSERT INTO appointments (patient_id, therapist_id, service, start_utc, duration_min, extra_min, notes, created_by)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -387,6 +420,8 @@ app.post("/appointments/:id/reschedule", adminOnly, async (c) => {
   if (appt.status !== "booked") return c.redirect(`/appointments/${appt.id}`, 303);
   const body = await c.req.parseBody();
   const form = { ...formFrom(body), patient_id: String(appt.patient_id) };
+  const stageError = consultationGate({ name: appt.patient_name, stage: appt.patient_stage ?? "active" }, form.service ?? "");
+  if (stageError) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: stageError });
   const v = await validateSlot(c.env, form, appt.id);
   if ("error" in v) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: v.error! });
   if (str(body.scope) === "following" && appt.series_id) return moveSeries(c, appt, form, v);
@@ -784,18 +819,78 @@ async function followUps(env: Env) {
 }
 
 // --- Patients ------------------------------------------------------------------------------------
-app.get("/patients", adminOnly, async (c) => {
-  const q = (c.req.query("q") ?? "").trim().slice(0, 80);
-  return c.html(patientsPage(c.get("user"), await patientList(c.env, q), q, takeFlash(c), new Set((await followUps(c.env)).map((f) => f.id))));
-});
+async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientForm, status = 200) {
+  return c.html(patientsPage(c.get("user"), await patientList(c.env, q), q, flash, new Set((await followUps(c.env)).map((f) => f.id)), {
+    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consults: await consultStates(c.env), form, open: !!form,
+  }), status as 200);
+}
+
+app.get("/patients", adminOnly, async (c) => renderPatients(c, (c.req.query("q") ?? "").trim().slice(0, 80), takeFlash(c)));
 
 app.post("/patients", adminOnly, async (c) => {
-  const f = await c.req.parseBody();
-  const phone = normalisePhone(str(f.phone));
-  if (!str(f.name) || !phone) return redirectWith(c, "/patients", { type: "error", text: "Enter the patient's name and a valid 10-digit mobile number." });
-  const res = await c.env.DB.prepare("INSERT INTO patients (name, guardian_name, phone, whatsapp_consent, notes) VALUES (?, ?, ?, ?, ?)")
-    .bind(str(f.name).slice(0, 80), str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null).run();
-  return redirectWith(c, `/appointments/new?patient_id=${res.meta.last_row_id}`, { type: "ok", text: `${str(f.name)} added. Book their appointment below.` });
+  const body = await c.req.parseBody();
+  const f: NewPatientForm = Object.fromEntries(
+    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
+  );
+  const again = (text: string) => renderPatients(c, "", { type: "error", text }, f, 400);
+  const phone = normalisePhone(f.phone ?? "");
+  if (!f.name || !phone) return again("Enter the patient's name and a valid 10-digit mobile number.");
+  const isNew = f.is_new === "1";
+  const bookNow = isNew && !!f.date;
+
+  // Check the consultation slot before saving anything, so a clash doesn't leave a half-added patient.
+  const consultForm: ApptForm = { patient_id: "0", therapist_id: f.therapist_id, service: CONSULTATION, start: f.date && f.time ? `${f.date}T${f.time}` : "", duration: f.duration, extra: "0" };
+  let slot: Awaited<ReturnType<typeof validateSlot>> | null = null;
+  if (bookNow) {
+    if (!f.therapist_id) return again("Choose who the consultation is with.");
+    if (!f.time) return again("Choose a time for the consultation.");
+    slot = await validateSlot(c.env, consultForm);
+    if ("error" in slot) return again(`Consultation not booked: ${slot.error}`);
+  }
+
+  const res = await c.env.DB.prepare(
+    "INSERT INTO patients (name, guardian_name, phone, whatsapp_consent, notes, stage, stage_changed_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+  ).bind(f.name.slice(0, 80), (f.guardian_name ?? "").slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, (f.notes ?? "").slice(0, 200) || null,
+    isNew ? "consultation" : "active", new Date().toISOString()).run();
+  const patientId = Number(res.meta.last_row_id);
+
+  if (!isNew) return redirectWith(c, `/appointments/new?patient_id=${patientId}`, { type: "ok", text: `${f.name} added. Book their sessions below.` });
+  if (!bookNow || !slot || "error" in slot) {
+    return redirectWith(c, "/patients", { type: "ok", text: `${f.name} added as a new patient. Book their consultation when you have a time: tap "Book consultation" next to their name.` });
+  }
+  const ins = await c.env.DB.prepare(
+    `INSERT INTO appointments (patient_id, therapist_id, service, start_utc, duration_min, extra_min, notes, created_by)
+     VALUES (?, ?, ?, ?, ?, 0, NULL, ?)`,
+  ).bind(patientId, slot.therapistId, CONSULTATION, slot.slot.start.toISOString(), slot.slot.durationMin, c.get("user").id).run();
+  const appt = (await loadAppointment(c.env, Number(ins.meta.last_row_id)))!;
+  await notifyBooked(c.env, appt);
+  return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: `${f.name} added and their consultation is booked. Consultation messages are ready for the parent and the therapist.` });
+});
+
+app.post("/patients/:id/stage", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const stage = str((await c.req.parseBody()).stage);
+  if (!["active", "consultation"].includes(stage)) return c.text("Bad request", 400);
+  await c.env.DB.prepare("UPDATE patients SET stage = ?, stage_changed_at = ? WHERE id = ?").bind(stage, new Date().toISOString(), id).run();
+  return redirectWith(c, stage === "active" ? `/appointments/new?patient_id=${id}` : `/patients/${id}/summary`, {
+    type: "ok", text: stage === "active" ? "Consultation marked as done. You can now book therapy sessions." : "Reopened as a new patient: book their consultation.",
+  });
+});
+
+/** After the consultation: the family confirmed (sessions open up) or is not going ahead. */
+app.post("/appointments/:id/consultation", adminOnly, async (c) => {
+  const appt = await loadAppointment(c.env, Number(c.req.param("id")));
+  if (!appt || !isConsultation(appt)) return c.notFound();
+  const outcome = str((await c.req.parseBody()).outcome);
+  if (!["confirmed", "declined"].includes(outcome)) return c.text("Bad request", 400);
+  const now = new Date().toISOString();
+  await c.env.DB.batch([
+    c.env.DB.prepare("UPDATE patients SET stage = ?, stage_changed_at = ? WHERE id = ?").bind(outcome === "confirmed" ? "active" : "closed", now, appt.patient_id),
+    // A consultation whose time has passed took place; a future one stays booked (and keeps its slot).
+    c.env.DB.prepare("UPDATE appointments SET status = 'completed' WHERE id = ? AND status = 'booked' AND start_utc <= ?").bind(appt.id, now),
+  ]);
+  if (outcome === "declined") return redirectWith(c, `/patients/${appt.patient_id}/summary`, { type: "ok", text: `Noted: ${appt.patient_name} is not going ahead for now.` });
+  return redirectWith(c, `/appointments/new?patient_id=${appt.patient_id}`, { type: "ok", text: `Consultation confirmed for ${appt.patient_name}. Book their therapy sessions below.` });
 });
 
 app.get("/patients/:id/summary", adminOnly, async (c) => {

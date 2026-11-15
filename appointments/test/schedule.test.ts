@@ -131,3 +131,14 @@ test("continue next month, month labels and missed streaks", () => {
   assert.equal(missedStreak(["completed", "no_show", "no_show"]), 0);
   assert.equal(missedStreak([]), 0);
 });
+
+test("consultation messages", () => {
+  assert.equal(
+    renderTemplate("vocalzz_consult_confirmed", ["Priya", "Aarav", "Dr. Tanu Garg", "Fri, 20 Nov 2026, 5:00 PM", "45"]).split("\n")[0],
+    "Hello Priya, the first consultation for Aarav with Dr. Tanu Garg at Vocalzz Speech & Audio is booked for Fri, 20 Nov 2026, 5:00 PM. It takes about 45 minutes.",
+  );
+  assert.equal(
+    renderTemplate("vocalzz_therapist_consult", ["Aarav", "Fri, 20 Nov 2026, 5:00 PM", "45", "Priya"]),
+    "New consultation for you: Aarav, a new patient, on Fri, 20 Nov 2026, 5:00 PM for 45 minutes. Parent or contact: Priya. Please check the schedule for details.",
+  );
+});
