@@ -11,6 +11,11 @@
     var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var current = 0, timer = null, paused = false, resumeAt = 0;
 
+    slides.forEach(function (s, i) {
+      s.setAttribute("aria-roledescription", "slide");
+      s.setAttribute("aria-label", (i + 1) + " of " + slides.length);
+    });
+
     var dots = slides.map(function (_, i) {
       var b = document.createElement("button");
       b.type = "button";
