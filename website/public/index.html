@@ -82,7 +82,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="wrap hero-grid">
-    <div>
+    <div class="hero-text">
       <span class="eyebrow">Therapy clinic · Sector 137, Noida</span>
       <h1>Helping every voice find its <em>way</em>, one small step at a time.</h1>
       <p class="lead">Speech, occupational and behavioural therapy for children, adults and seniors, all under one roof. Our team plans together, and after every session you go home knowing exactly what to practise.</p>
@@ -100,29 +100,29 @@
       </ul>
     </div>
 
-    <div class="hero-art" aria-hidden="true">
-      <svg viewBox="0 0 460 420">
-        <circle cx="240" cy="220" r="170" fill="#E3EEFB"/>
-        <circle cx="370" cy="90" r="34" fill="#A9B8CC"/>
-        <circle cx="70" cy="330" r="22" fill="#1E6FD9" opacity=".8"/>
-        <path d="M60 120c10-6 22 0 22 12" stroke="#1E6FD9" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <path d="M400 300l12 12m0-12l-12 12" stroke="#0B1220" stroke-width="5" stroke-linecap="round"/>
-
-        <g class="bubble-float">
-          <path d="M70 70h170a26 26 0 0 1 26 26v52a26 26 0 0 1-26 26H124l-30 26 6-26H70a26 26 0 0 1-26-26V96a26 26 0 0 1 26-26z" fill="#FFFFFF" stroke="#0B1220" stroke-width="3"/>
-          <text x="155" y="132" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="30" font-weight="700" fill="#0B1220">Mumma!</text>
-        </g>
-
-        <g class="bubble-float b2">
-          <path d="M240 190h150a24 24 0 0 1 24 24v50a24 24 0 0 1-24 24h-24l6 26-30-26H240a24 24 0 0 1-24-24v-50a24 24 0 0 1 24-24z" fill="#1E6FD9"/>
-          <text x="315" y="250" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="28" font-weight="700" fill="#FFF8F1">नमस्ते 👋</text>
-        </g>
-
-        <g class="bubble-float b3">
-          <path d="M110 260h110a22 22 0 0 1 22 22v40a22 22 0 0 1-22 22h-80l-26 22 4-22h-8a22 22 0 0 1-22-22v-40a22 22 0 0 1 22-22z" fill="#A9B8CC"/>
-          <circle cx="135" cy="302" r="7" fill="#1F2A2E"/><circle cx="165" cy="302" r="7" fill="#1F2A2E"/><circle cx="195" cy="302" r="7" fill="#1F2A2E"/>
-        </g>
-      </svg>
+    <!-- PHOTO SLIDER: to add a photo, copy one <figure class="slide"> block and change the image, alt text and caption. -->
+    <div class="slider" data-interval="3000" role="region" aria-roledescription="carousel" aria-label="Photos from the Vocalzz clinic">
+      <div class="slider-track" tabindex="0">
+        <figure class="slide" aria-roledescription="slide" aria-label="1 of 3">
+          <img src="/photos/session.jpg" width="1400" height="1400" fetchpriority="high" decoding="async"
+            alt="Children proudly holding up their colouring work with their therapists in the Vocalzz play room">
+          <figcaption>Learning through play, one small step at a time</figcaption>
+        </figure>
+        <figure class="slide" aria-roledescription="slide" aria-label="2 of 3">
+          <img src="/photos/team.jpg" width="1600" height="1205" loading="lazy" decoding="async"
+            alt="The Vocalzz team smiling together in the clinic's rainbow-painted room">
+          <figcaption>Speech, OT and behaviour therapists who plan together</figcaption>
+        </figure>
+        <figure class="slide" aria-roledescription="slide" aria-label="3 of 3">
+          <img src="/photos/clinic.jpg" width="1200" height="1200" loading="lazy" decoding="async"
+            alt="The Vocalzz reception desk with the clinic's illuminated logo sign">
+          <figcaption>Our clinic at Logix Blossom County, Sector 137</figcaption>
+        </figure>
+      </div>
+      <button class="slider-arrow prev" type="button" aria-label="Previous photo">&#8249;</button>
+      <button class="slider-arrow next" type="button" aria-label="Next photo">&#8250;</button>
+      <div class="slider-dots" role="group" aria-label="Choose a photo"></div>
+    </div>
     </div>
   </div>
 </section>
@@ -413,5 +413,6 @@ document.getElementById("year").textContent = new Date().getFullYear();
   if (app) document.getElementById("staff-link").href = "https://" + app + "/";
 })();
 </script>
+<script src="/slider.js" defer></script>
 </body>
 </html>
