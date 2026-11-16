@@ -14,9 +14,24 @@ const CSS = `
 :root{--bg:#f4f7fb;--card:#fff;--ink:#0b1220;--muted:#5b6474;--line:#dfe6ef;--brand:#1f6fd1;--brand-ink:#fff;--bar:#0b1220;--bar-ink:#fff;--wk-bg:#fff1e6;--wk-line:#f5b27a;--wk-ink:#c2410c;--warn:#b45309;--bad:#b91c1c;--ok:#15803d}
 @media (prefers-color-scheme:dark){:root{--bg:#070b14;--card:#111827;--ink:#e8eef7;--muted:#9aa6b8;--line:#243044;--brand:#5aa2f0;--brand-ink:#04101f;--bar:#000;--bar-ink:#fff;--wk-bg:#2a1608;--wk-line:#9a4d18;--wk-ink:#fdba74;--warn:#f59e0b;--bad:#f87171;--ok:#4ade80}}
 *{box-sizing:border-box}body{margin:0;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:var(--bar);color:var(--bar-ink);padding:10px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-bottom:3px solid var(--brand)}
-header strong{margin-right:auto;letter-spacing:.02em}header a{color:var(--bar-ink);text-decoration:none;font-size:15px;opacity:.9}header a:hover{opacity:1}
-header button.secondary{color:var(--bar-ink);border-color:rgba(255,255,255,.5)}
+header{position:sticky;top:0;z-index:20;background:var(--bar);color:var(--bar-ink);padding:8px 12px 8px 16px;display:flex;gap:10px;align-items:center;border-bottom:3px solid var(--brand)}
+.home-link{display:flex;align-items:center;gap:8px;margin-right:auto;color:var(--bar-ink);text-decoration:none;font-weight:800;letter-spacing:.02em;min-width:0;border-radius:8px;padding:4px 6px 4px 0}
+.home-link img{background:#fff;border-radius:6px;padding:1px;flex:none}.home-link span{color:var(--brand);font-weight:600}
+.home-link:focus-visible,.menu summary:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.top-book{margin:0!important;padding:7px 14px!important;font-size:15px;white-space:nowrap}
+.menu{position:relative}
+.menu summary{list-style:none;cursor:pointer;display:grid;place-items:center;width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.35);color:var(--bar-ink)}
+.menu summary::-webkit-details-marker{display:none}
+.menu summary svg{width:22px;height:22px}.menu .i-close{display:none}.menu[open] .i-open{display:none}.menu[open] .i-close{display:block}
+.menu[open] summary{background:rgba(255,255,255,.12)}
+.menu-panel{position:absolute;right:0;top:calc(100% + 10px);width:260px;max-width:calc(100vw - 24px);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.22);padding:8px;display:flex;flex-direction:column}
+.menu-panel a,.menu-panel button{display:flex;align-items:center;gap:10px;width:100%;margin:0;padding:11px 12px;border:0;border-radius:9px;background:none;color:var(--ink);font:inherit;font-weight:600;font-size:16px;text-align:left;text-decoration:none;cursor:pointer}
+.menu-panel a:hover,.menu-panel button:hover{background:var(--bg)}
+.menu-panel a[aria-current="page"]{background:var(--brand);color:var(--brand-ink)}
+.menu-panel .sep{height:1px;background:var(--line);margin:6px 4px}
+.menu-panel .label{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px 2px}
+.menu-panel form{margin:0}.menu-panel .logout{color:var(--bad)}
+@media (max-width:420px){.home-link .app-word{display:none}}
 a{color:var(--brand)}.btn.small{margin:0;padding:4px 12px;font-size:14px}
 main{max-width:860px;margin:0 auto;padding:16px}
 h1{font-size:22px;margin:4px 0 14px}h2{font-size:18px;margin:22px 0 10px}
@@ -100,20 +115,41 @@ export function layout(title: string, user: User | null, body: H | string, flash
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} · Vocalzz Appointments</title><link rel="icon" href="/logo-mark.png" type="image/png"><style>${raw(CSS)}</style></head>
 <body>
-<header><strong style="display:flex;align-items:center;gap:8px"><img src="/logo-mark.png" width="28" height="28" alt="" aria-hidden="true" style="background:#fff;border-radius:6px;padding:1px">VOCALZZ <span style="color:var(--brand);font-weight:600">Appointments</span></strong>
-<a class="site-link" href="https://vocalzz.com/">← Website</a>
-${user
-  ? html`<a href="/">Schedule</a><a href="/appointments/new">+ Book</a><a href="/leave">Leave</a><a href="/policies">Policies</a>${user.role === "admin"
-      ? html`<a href="/patients">Patients</a><a href="/therapists">Therapists</a><a href="/bills">Bills</a><a href="/messages">Messages</a>`
-      : ""}
-    <form method="post" action="/logout" style="margin:0"><button class="secondary" style="margin:0;padding:6px 12px">Log out</button></form>`
-  : ""}
+<header>
+<a class="home-link" href="${user ? "/" : "/login"}" aria-label="Vocalzz Appointments: go to the schedule"><img src="/logo-mark.png" width="28" height="28" alt="">VOCALZZ <span class="app-word">Appointments</span></a>
+${user ? html`<a class="btn top-book" href="/appointments/new">+ Book</a>
+<details class="menu"><summary aria-label="Menu"><svg class="i-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></summary>
+<nav class="menu-panel" aria-label="Main menu">
+<a href="/">📅 Schedule</a>
+<a href="/appointments/new">＋ Book appointment</a>
+<a href="/leave">🌴 Leave</a>
+<a href="/policies">📄 Policies</a>
+${user.role === "admin" ? html`<div class="sep"></div><div class="label">Admin</div>
+<a href="/patients">👨‍👩‍👧 Patients</a>
+<a href="/therapists">🧑‍⚕️ Therapists</a>
+<a href="/bills">🧾 Bills</a>
+<a href="/messages">💬 Messages</a>` : ""}
+<div class="sep"></div>
+<a class="site-link" href="https://vocalzz.com/">🌐 Website</a>
+<form method="post" action="/logout"><button class="logout">↩ Log out</button></form>
+</nav></details>` : html`<a class="site-link" href="https://vocalzz.com/" style="color:var(--bar-ink);text-decoration:none">← Website</a>`}
 </header>
 <main>
 ${flash ? html`<div class="flash ${flash.type}">${flash.text}</div>` : ""}
 ${body}
 </main>
 <script>
+(function () {
+  var menu = document.querySelector("details.menu"); if (!menu) return;
+  var path = location.pathname, best = null;
+  menu.querySelectorAll(".menu-panel a[href^='/']").forEach(function (a) {
+    var h = a.getAttribute("href");
+    if ((h === "/" && path === "/") || (h !== "/" && (path === h || path.indexOf(h + "/") === 0))) { if (!best || h.length > best.getAttribute("href").length) best = a; }
+  });
+  if (best) best.setAttribute("aria-current", "page");
+  document.addEventListener("click", function (e) { if (menu.open && !menu.contains(e.target)) menu.open = false; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && menu.open) { menu.open = false; menu.querySelector("summary").focus(); } });
+})();
 // "Website" link: same Cloudflare account on workers.dev, vocalzz.com on the real domain.
 (function () {
   var h = location.hostname, site = null;
