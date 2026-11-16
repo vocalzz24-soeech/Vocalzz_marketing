@@ -10,6 +10,7 @@ import { addDays, checkClinicHours, findClashes, FOLLOW_UP_AFTER, MAX_SERIES, mi
 import { billTotals, nextBillNumber, PAYMENT_MODES } from "./billing.ts";
 import { leaveBalance, leaveDays, noticeCheck } from "./leave.ts";
 import { fromBase64, looksLikePdf, MAX_POLICY_BYTES, policiesPage, toBase64, unreadPoliciesBanner, type AckRow, type PolicyDoc, type StaffRow } from "./policies.ts";
+import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
 import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
 import { dateToIstLocal, istDay, istDayRange, istLocalToDate, formatTime } from "./time.ts";
@@ -987,6 +988,17 @@ app.post("/patients/:id/consent", adminOnly, async (c) => {
   const value = str((await c.req.parseBody()).value) === "1" ? 1 : 0;
   await c.env.DB.prepare("UPDATE patients SET whatsapp_consent = ? WHERE id = ?").bind(value, Number(c.req.param("id"))).run();
   return redirectWith(c, "/patients", { type: "ok", text: "WhatsApp consent updated." });
+});
+
+// --- One-time database move (USA -> Asia) ----------------------------------------------------
+app.get("/admin/move-database", adminOnly, async (c) =>
+  c.html(movePage(c.get("user"), await moveStatus(c.env), !!c.env.DB_NEW, false)));
+
+app.post("/admin/move-database/step", adminOnly, async (c) => {
+  const body = await c.req.json<{ table?: string; after?: number }>().catch(() => ({} as { table?: string; after?: number }));
+  if (!c.env.DB_NEW) return c.text("The new database is not connected yet.", 400);
+  if (!MOVE_TABLES.some((t) => t.name === body.table)) return c.text("Unknown table.", 400);
+  return c.json(await moveStep(c.env, body.table!, Math.max(0, Number(body.after) || 0)));
 });
 
 // --- Therapists ----------------------------------------------------------------------------------

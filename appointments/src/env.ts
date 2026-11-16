@@ -1,5 +1,7 @@
 export interface Env {
   DB: D1Database;
+  /** The new database in Asia, connected only while moving the data across. */
+  DB_NEW?: D1Database;
   CLINIC_NAME: string;
   CLINIC_ADDRESS: string;
   CLINIC_WHATSAPP: string;
