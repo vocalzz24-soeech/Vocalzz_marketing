@@ -12,6 +12,12 @@ export interface Env {
   CLOSE_HOUR: string;
   WHATSAPP_TEMPLATE_LANG: string;
   WHATSAPP_TOKEN?: string;
+  /** Resend (resend.com) API key, a secret. Without it, report emails are logged as "not_configured". */
+  RESEND_API_KEY?: string;
+  /** Where the weekly report goes (comma-separated for several), e.g. the owner's email. Set in the Cloudflare dashboard. */
+  REPORT_EMAIL_TO?: string;
+  /** Sender, on a domain verified in Resend, e.g. "Vocalzz Reports <reports@vocalzz.com>". */
+  REPORT_EMAIL_FROM?: string;
   WHATSAPP_PHONE_NUMBER_ID?: string;
 }
 

@@ -13,7 +13,8 @@ directory = "./public"
 mode = "smart"
 
 [triggers]
-crons = ["*/5 * * * *"]
+# Every 5 minutes: WhatsApp reminders. Sundays 16:00 UTC (9:30 PM IST): weekly report email.
+crons = ["*/5 * * * *", "0 16 * * SUN"]
 
 [[d1_databases]]
 binding = "DB"
@@ -33,8 +34,12 @@ DEFAULT_DURATION_MIN = "45"
 OPEN_HOUR = "10"
 CLOSE_HOUR = "21"
 WHATSAPP_TEMPLATE_LANG = "en"
+# Sender of report emails; the domain must be verified in Resend.
+REPORT_EMAIL_FROM = "Vocalzz Reports <reports@vocalzz.com>"
 # Secrets (set with `npx wrangler secret put NAME`, never commit them):
 #   WHATSAPP_TOKEN            Meta permanent access token
 #   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id of the sending number, +91 99106 71188
 #                             (automatic messages only; parents reply on +91 88002 30240)
 # Without them, messages are recorded as "dry_run" and not sent.
+#   RESEND_API_KEY            resend.com API key for the weekly report email (secret)
+#   REPORT_EMAIL_TO           where the weekly report goes (a secret too, so the address stays out of this file)

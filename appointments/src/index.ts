@@ -10,6 +10,10 @@ import { addDays, checkClinicHours, findClashes, FOLLOW_UP_AFTER, MAX_SERIES, mi
 import { billTotals, nextBillNumber, PAYMENT_MODES } from "./billing.ts";
 import { leaveBalance, leaveDays, noticeCheck } from "./leave.ts";
 import { fromBase64, looksLikePdf, MAX_POLICY_BYTES, policiesPage, toBase64, unreadPoliciesBanner, type AckRow, type PolicyDoc, type StaffRow } from "./policies.ts";
+import { buildReport, periodFor, rangeLabel } from "./report.ts";
+import { reportPdf } from "./report-pdf.ts";
+import { emailReady, emailReport, sendWeeklyReport, WEEKLY_CRON } from "./report-email.ts";
+import { dashboardPage } from "./dashboard-views.ts";
 import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
 import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
@@ -515,7 +519,7 @@ app.get("/policies/:id/file", async (c) => {
   const d = await c.env.DB.prepare("SELECT filename, data_b64 FROM policy_docs WHERE id = ?").bind(Number(c.req.param("id"))).first<{ filename: string; data_b64: string }>();
   if (!d) return c.notFound();
   const safe = d.filename.replace(/[^A-Za-z0-9._ -]/g, "_");
-  return new Response(fromBase64(d.data_b64), {
+  return new Response(fromBase64(d.data_b64) as Uint8Array<ArrayBuffer>, {
     headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${safe}"`, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" },
   });
 });
@@ -990,6 +994,38 @@ app.post("/patients/:id/consent", adminOnly, async (c) => {
   return redirectWith(c, "/patients", { type: "ok", text: "WhatsApp consent updated." });
 });
 
+// --- Dashboard and reports (admin) ----------------------------------------------------------------
+async function reportFromQuery(c: C, q: URLSearchParams) {
+  const therapists = await therapistList(c.env);
+  const tid = Number(q.get("therapist")) || undefined;
+  const therapist = tid ? therapists.find((t) => t.id === tid) : undefined;
+  const period = periodFor(q.get("period") ?? undefined, istDay(new Date()), q.get("from") ?? undefined, q.get("to") ?? undefined);
+  const report = await buildReport(c.env, period, therapist?.id);
+  if (therapist) report.therapistName = therapist.name;
+  const query = new URLSearchParams({ period: period.key, ...(period.key === "custom" ? { from: period.from, to: period.to } : {}), ...(therapist ? { therapist: String(therapist.id) } : {}) }).toString();
+  return { therapists, therapist, report, query };
+}
+
+app.get("/dashboard", adminOnly, async (c) => {
+  const { therapists, therapist, report, query } = await reportFromQuery(c, new URL(c.req.url).searchParams);
+  return c.html(dashboardPage(c.get("user"), report, { therapists, therapistId: therapist?.id, query, emailReady: emailReady(c.env), flash: takeFlash(c) }));
+});
+
+app.get("/dashboard/report.pdf", adminOnly, async (c) => {
+  const { report } = await reportFromQuery(c, new URL(c.req.url).searchParams);
+  const title = `${report.period.label} report, ${rangeLabel(report.period.from, report.period.to)}`;
+  const pdf = await reportPdf([report], title, c.env.CLINIC_NAME);
+  const name = `Vocalzz-report-${report.period.from}-to-${report.period.to}.pdf`;
+  return new Response(pdf as Uint8Array<ArrayBuffer>, { headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="${name}"`, "Cache-Control": "no-store" } });
+});
+
+app.post("/dashboard/email", adminOnly, async (c) => {
+  const q = new URLSearchParams(str((await c.req.parseBody()).q));
+  const { report, query } = await reportFromQuery(c, q);
+  const res = await emailReport(c.env, "on_demand", [report], `${report.period.label} report, ${rangeLabel(report.period.from, report.period.to)}`);
+  return redirectWith(c, `/dashboard?${query}`, { type: res.ok ? "ok" : "error", text: res.message });
+});
+
 // --- One-time database move (USA -> Asia) ----------------------------------------------------
 app.get("/admin/move-database", adminOnly, async (c) =>
   c.html(movePage(c.get("user"), await moveStatus(c.env), !!c.env.DB_NEW, false)));
@@ -1140,7 +1176,8 @@ app.get("/messages/:id/send", adminOnly, async (c) => {
 
 export default {
   fetch: app.fetch,
-  async scheduled(_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) {
-    ctx.waitUntil(runReminders(env));
+  async scheduled(event: { cron: string }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) {
+    if (event.cron === WEEKLY_CRON) ctx.waitUntil(sendWeeklyReport(env));
+    else ctx.waitUntil(runReminders(env));
   },
 };

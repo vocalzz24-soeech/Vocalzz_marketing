@@ -125,6 +125,7 @@ ${user ? html`<a class="btn top-book" href="/appointments/new">+ Book</a>
 <a href="/leave">🌴 Leave</a>
 <a href="/policies">📄 Policies</a>
 ${user.role === "admin" ? html`<div class="sep"></div><div class="label">Admin</div>
+<a href="/dashboard">📊 Dashboard</a>
 <a href="/patients">👨‍👩‍👧 Patients</a>
 <a href="/therapists">🧑‍⚕️ Therapists</a>
 <a href="/bills">🧾 Bills</a>

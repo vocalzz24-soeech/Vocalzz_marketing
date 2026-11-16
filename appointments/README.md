@@ -11,6 +11,10 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
   each get a consultation message. Leave the date empty to book it later; the schedule shows a reminder banner.
   Other therapies stay blocked until the admin taps **Confirmed: book therapy sessions** on the consultation
   (or **Not going ahead**). Untick the box for someone already in therapy.
+- **Dashboard (admin, menu → 📊 Dashboard):** sessions by status, per day, by therapist and by patient for last
+  week, this week, the upcoming week, last month, this month or any dates, for all therapists or one. Download as
+  PDF or email it. Every Sunday at 9:30 PM IST the week just ending plus next week's bookings are emailed as a PDF
+  (needs the `RESEND_API_KEY` and `REPORT_EMAIL_TO` secrets; until then attempts are logged as not configured).
 - **Clash check:** blocks a booking if the therapist or the patient is already booked then, or if the session
   falls outside clinic hours (10:00–21:00).
 - **WhatsApp messages** (from the clinic number, through Meta's WhatsApp Business Platform):

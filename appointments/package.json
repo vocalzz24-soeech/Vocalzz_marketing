@@ -12,7 +12,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply vocalzz-db-asia --remote"
   },
   "dependencies": {
-    "hono": "4.13.18"
+    "hono": "4.13.18",
+    "pdf-lib": "1.17.1"
   },
   "devDependencies": {
     "wrangler": "4.161.0"
