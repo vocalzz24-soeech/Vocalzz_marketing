@@ -99,7 +99,7 @@ Import a repository**, pick this GitHub repository and set:
 - **Root directory:** `appointments`
 - **Deploy command:** `npm run deploy`
 
-`npm run deploy` publishes the app, creates the `vocalzz-appointments` database on the first run, and sets up
+`npm run deploy` publishes the app, uses the `vocalzz-db-asia` database (Asia-Pacific; the original US database `vocalzz-appointments` is kept as a backup), and sets up
 its tables. Cloudflare redeploys automatically on every push to the chosen branch.
 
 From a computer instead: `npx wrangler login`, then `npm run deploy`.

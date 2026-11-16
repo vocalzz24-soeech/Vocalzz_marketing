@@ -17,15 +17,8 @@ crons = ["*/5 * * * *"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "vocalzz-appointments"
-# No database_id: on the first deploy, Wrangler creates this database automatically
-# and links it. To use an existing database instead, add its database_id here.
-migrations_dir = "migrations"
-
-# New database in Asia-Pacific (created in the dashboard). Bound as DB_NEW only while the data is
-# copied across with /admin/move-database; after that it becomes DB and the old one is retired.
-[[d1_databases]]
-binding = "DB_NEW"
+# Asia-Pacific database, live since 16 Nov 2026 (moved from the old US one, "vocalzz-appointments",
+# which is kept untouched in the Cloudflare dashboard as a backup).
 database_name = "vocalzz-db-asia"
 database_id = "bf36ceff-45fe-419b-83de-8c122bc51d0e"
 migrations_dir = "migrations"
