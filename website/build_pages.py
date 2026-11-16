@@ -20,6 +20,7 @@ ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 2
 index = (ROOT / "index.html").read_text(encoding="utf-8")
 HEADER = index[index.index('<header class="site-header">'): index.index("</header>") + len("</header>")]
 FOOTER = index[index.index('<footer class="site-footer">'): index.index("</body>")]
+FOOTER = FOOTER.replace('<script src="/slider.js" defer></script>\n', "")  # the photo slider is only on the home page
 
 
 def wa(text: str) -> str:
@@ -349,7 +350,7 @@ def build_about():
 </header>
 <div class="content" style="grid-template-columns:1fr">
 <article class="prose">
-<figure class="team-photo" style="margin:0 0 8px"><img src="/photos/team.jpg" width="1600" height="1205" loading="lazy" decoding="async" alt="The Vocalzz team in the clinic's rainbow-painted room"><figcaption>Our team at the clinic in Sector 137</figcaption></figure>
+<figure class="team-photo" style="margin:0 0 8px"><img src="/photos/team-1200.webp" srcset="/photos/team-640.webp 640w, /photos/team-1200.webp 1200w" sizes="(min-width: 900px) 50vw, 100vw" width="1600" height="1205" loading="lazy" decoding="async" alt="The Vocalzz team in the clinic's rainbow-painted room"><figcaption>Our team at the clinic in Sector 137</figcaption></figure>
 <h2>Why families choose Vocalzz</h2>
 <ul>
 <li><strong>Every therapy under one roof:</strong> speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy.</li>

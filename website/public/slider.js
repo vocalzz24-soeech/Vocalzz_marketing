@@ -16,6 +16,23 @@
       s.setAttribute("aria-label", (i + 1) + " of " + slides.length);
     });
 
+    // Only the first photo loads with the page; the rest wait until the page has finished loading,
+    // so they never slow down the first view. Tapping or swiping early loads them straight away.
+    var loaded = false;
+    function loadRest() {
+      if (loaded) return;
+      loaded = true;
+      root.querySelectorAll("img[data-src]").forEach(function (img) {
+        if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+        img.src = img.dataset.src;
+        img.removeAttribute("data-src"); img.removeAttribute("data-srcset");
+      });
+    }
+    if (document.readyState === "complete") setTimeout(loadRest, 300);
+    else window.addEventListener("load", function () { setTimeout(loadRest, 300); });
+    root.addEventListener("pointerdown", loadRest, { once: true });
+    root.addEventListener("touchstart", loadRest, { once: true, passive: true });
+
     var dots = slides.map(function (_, i) {
       var b = document.createElement("button");
       b.type = "button";
