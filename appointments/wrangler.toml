@@ -35,5 +35,6 @@ CLOSE_HOUR = "21"
 WHATSAPP_TEMPLATE_LANG = "en"
 # Secrets (set with `npx wrangler secret put NAME`, never commit them):
 #   WHATSAPP_TOKEN            Meta permanent access token
-#   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id for +91 88002 30240
+#   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id of the sending number, +91 99106 71188
+#                             (automatic messages only; parents reply on +91 88002 30240)
 # Without them, messages are recorded as "dry_run" and not sent.

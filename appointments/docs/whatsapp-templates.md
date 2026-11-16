@@ -8,6 +8,9 @@ Create each template in **WhatsApp Manager → Message templates → Create temp
 - **Body:** copy the text exactly, including the {{1}}, {{2}}… placeholders
 - **Sample values:** Meta asks for an example of each placeholder. Use the samples below.
 
+**Sending number:** +91 99106 71188, used only for these automatic messages. Parents chat with the clinic on
++91 88002 30240, so every message asks them to WhatsApp that number to cancel or change a time.
+
 This file is generated from `src/whatsapp.ts`. If you change wording there, update the template in WhatsApp
 Manager too, and wait for it to be approved again.
 
@@ -17,7 +20,7 @@ Manager too, and wait for it to be approved again.
 Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio is confirmed for {{5}}.
 
 Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
-To cancel or change the time, just reply to this message.
+To cancel or change the time, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -33,7 +36,7 @@ Sample values:
 ```
 Hello {{1}}, a reminder that the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio is {{5}}.
 
-To cancel or change the time, just reply to this message.
+To cancel or change the time, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -49,7 +52,7 @@ Sample values:
 ```
 Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio has been moved to {{5}}.
 
-To cancel or change the time, just reply to this message.
+To cancel or change the time, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -65,7 +68,7 @@ Sample values:
 ```
 Hello {{1}}, the {{2}} session for {{3}} on {{4}} at Vocalzz Speech & Audio has been cancelled.
 
-To book a new time, just reply to this message.
+To book a new time, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -120,7 +123,7 @@ Sample values:
 Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz Speech & Audio are booked for {{5}} on these dates: {{6}}.
 
 Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
-To cancel or change a session, just reply to this message.
+To cancel or change a session, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -150,7 +153,7 @@ Sample values:
 ```
 Hello {{1}}, these {{2}} sessions for {{3}} at Vocalzz Speech & Audio have been cancelled: {{4}}.
 
-To book new times, just reply to this message.
+To book new times, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -177,7 +180,7 @@ Sample values:
 ```
 Hello {{1}}, the weekly {{2}} sessions for {{3}} at Vocalzz Speech & Audio have new times. They are now with {{4}} on: {{5}}.
 
-To cancel or change a session, just reply to this message.
+To cancel or change a session, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
@@ -210,7 +213,7 @@ Hello {{1}}, the first consultation for {{2}} with {{3}} at Vocalzz Speech & Aud
 In this visit we listen to your concerns, observe, and suggest a plan. Please bring any earlier reports.
 
 Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.
-To cancel or change the time, just reply to this message.
+To cancel or change the time, please WhatsApp us on +91 88002 30240.
 ```
 
 Sample values:
