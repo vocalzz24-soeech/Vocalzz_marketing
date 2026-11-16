@@ -22,6 +22,14 @@ database_name = "vocalzz-appointments"
 # and links it. To use an existing database instead, add its database_id here.
 migrations_dir = "migrations"
 
+# New database in Asia-Pacific (created in the dashboard). Bound as DB_NEW only while the data is
+# copied across with /admin/move-database; after that it becomes DB and the old one is retired.
+[[d1_databases]]
+binding = "DB_NEW"
+database_name = "vocalzz-db-asia"
+database_id = "bf36ceff-45fe-419b-83de-8c122bc51d0e"
+migrations_dir = "migrations"
+
 [vars]
 CLINIC_NAME = "Vocalzz Speech & Audio"
 CLINIC_ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida 201304"
