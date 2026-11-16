@@ -115,40 +115,62 @@ app.post("/logout", async (c) => {
 });
 
 // --- Schedule -----------------------------------------------------------------------------------
+const therapistStmt = (env: Env) => env.DB.prepare(
+  `SELECT t.*, EXISTS(SELECT 1 FROM users u WHERE u.therapist_id = t.id AND u.active = 1) AS has_login
+     FROM therapists t ORDER BY t.active DESC, t.name`,
+);
 async function therapistList(env: Env) {
-  const { results } = await env.DB.prepare(
-    `SELECT t.*, EXISTS(SELECT 1 FROM users u WHERE u.therapist_id = t.id AND u.active = 1) AS has_login
-       FROM therapists t ORDER BY t.active DESC, t.name`,
-  ).all<TherapistRow>();
-  return results;
+  return (await therapistStmt(env).all<TherapistRow>()).results;
 }
 
 app.get("/", async (c) => {
   const user = c.get("user");
+  const isAdmin = user.role === "admin";
   const today = istDay(new Date());
   const win = weekWindow(today, c.req.query("day"), c.req.query("start"));
   const from = istDayRange(win.days[0])!.start, to = istDayRange(win.days[6])!.end;
-  const { results } = await c.env.DB.prepare(`${APPT_SELECT} WHERE a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`)
-    .bind(from.toISOString(), to.toISOString()).all<ApptRow>();
+  const db = c.env.DB;
+  // Everything the schedule needs goes to the database in ONE round trip (a batch), not one trip per query.
+  // The whole week is loaded, so switching days within the week happens on the phone without a reload.
+  const stmts = [
+    db.prepare(`${APPT_SELECT} WHERE a.start_utc >= ? AND a.start_utc < ? ORDER BY a.start_utc`).bind(from.toISOString(), to.toISOString()),
+    db.prepare("SELECT day, name FROM holidays WHERE day >= ? AND day <= ?").bind(win.days[0], win.days[6]),
+    therapistStmt(c.env),
+    db.prepare("SELECT therapist_id, start_day, end_day FROM leave_requests WHERE status = 'approved' AND start_day <= ? AND end_day >= ?").bind(win.days[6], win.days[0]),
+    ...(isAdmin ? [
+      db.prepare("SELECT COUNT(*) AS n FROM leave_requests WHERE status = 'pending'"),
+      db.prepare(`SELECT COUNT(*) AS n FROM messages m JOIN appointments a ON a.id = m.appointment_id WHERE ${PENDING_WHERE}`).bind(...pendingArgs()),
+      followUpsStmt(c.env),
+      consultsToBookStmt(c.env),
+    ] : [
+      db.prepare(`SELECT d.title FROM policy_docs d WHERE d.archived_at IS NULL
+         AND NOT EXISTS (SELECT 1 FROM policy_acks a WHERE a.doc_id = d.id AND a.user_id = ?) ORDER BY d.title`).bind(user.id),
+    ]),
+  ];
+  const out = await db.batch(stmts);
+  const rows = <T>(i: number) => (out[i].results ?? []) as T[];
+  const appts = rows<ApptRow>(0);
+  const holidayOf = new Map(rows<{ day: string; name: string }>(1).map((h) => [h.day, h.name]));
+  const allTherapists = rows<TherapistRow>(2);
+  const leaves = rows<{ therapist_id: number; start_day: string; end_day: string }>(3);
+
   const mineOnly = user.role === "therapist" && c.req.query("mine") === "1";
-  const mine = mineOnly ? results.filter((a) => a.therapist_id === user.therapist_id) : results;
-  const { results: hols } = await c.env.DB.prepare("SELECT day, name FROM holidays WHERE day >= ? AND day <= ?").bind(win.days[0], win.days[6]).all<{ day: string; name: string }>();
-  const holidayOf = new Map(hols.map((h) => [h.day, h.name]));
+  const mine = mineOnly ? appts.filter((a) => a.therapist_id === user.therapist_id) : appts;
+  const days = win.days.map((d) => {
+    const dayAppts = appts.filter((a) => istDay(new Date(a.start_utc)) === d);
+    return {
+      day: d,
+      appts: dayAppts,
+      therapists: allTherapists.filter((t) => t.active || dayAppts.some((a) => a.therapist_id === t.id)),
+      onLeave: new Set(leaves.filter((l) => l.start_day <= d && l.end_day >= d).map((l) => l.therapist_id)),
+    };
+  });
   const chips = win.days.map((d) => ({ day: d, booked: mine.filter((a) => a.status === "booked" && istDay(new Date(a.start_utc)) === d).length, holiday: holidayOf.get(d) }));
-  const dayAppts = results.filter((a) => istDay(new Date(a.start_utc)) === win.selected);
-  const therapists = (await therapistList(c.env)).filter((t) => t.active || dayAppts.some((a) => a.therapist_id === t.id));
-  const { results: leaves } = await c.env.DB.prepare(
-    "SELECT therapist_id FROM leave_requests WHERE status = 'approved' AND ? BETWEEN start_day AND end_day",
-  ).bind(win.selected).all<{ therapist_id: number }>();
-  const pendingLeave = user.role === "admin"
-    ? (await c.env.DB.prepare("SELECT COUNT(*) AS n FROM leave_requests WHERE status = 'pending'").first<{ n: number }>())?.n ?? 0 : 0;
-  const { results: unread } = user.role === "admin" ? { results: [] as { title: string }[] } : await c.env.DB.prepare(
-    `SELECT d.title FROM policy_docs d WHERE d.archived_at IS NULL
-       AND NOT EXISTS (SELECT 1 FROM policy_acks a WHERE a.doc_id = d.id AND a.user_id = ?) ORDER BY d.title`,
-  ).bind(user.id).all<{ title: string }>();
-  return c.html(schedulePage(user, win, chips, today, dayAppts, therapists, takeFlash(c), user.role === "admin" ? await pendingCount(c.env) : 0, mineOnly,
-    user.role === "admin" ? await followUps(c.env) : [], new Set(leaves.map((l) => l.therapist_id)),
-    user.role === "admin" ? html`${pendingLeaveBanner(pendingLeave)}${consultBanner(await consultsToBook(c.env))}` : unreadPoliciesBanner(unread.map((u) => u.title))));
+  const banner = isAdmin
+    ? html`${pendingLeaveBanner(rows<{ n: number }>(4)[0]?.n ?? 0)}${consultBanner(rows<{ name: string }>(7).map((r) => r.name))}`
+    : unreadPoliciesBanner(rows<{ title: string }>(4).map((u) => u.title));
+  return c.html(schedulePage(user, win, chips, today, days, takeFlash(c), isAdmin ? rows<{ n: number }>(5)[0]?.n ?? 0 : 0, mineOnly,
+    isAdmin ? followUpsFrom(rows(6)) : [], banner));
 });
 
 // --- Appointments ------------------------------------------------------------------------------
@@ -169,14 +191,11 @@ function consultationGate(p: { name: string; stage: string }, service: string): 
 }
 
 /** New patients with no upcoming consultation booked. */
-async function consultsToBook(env: Env) {
-  const { results } = await env.DB.prepare(
-    `SELECT p.name FROM patients p WHERE p.stage = 'consultation'
-       AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.service = ? AND a.status IN ('booked','completed'))
-     ORDER BY p.id DESC LIMIT 20`,
-  ).bind(CONSULTATION).all<{ name: string }>();
-  return results.map((r) => r.name);
-}
+const consultsToBookStmt = (env: Env) => env.DB.prepare(
+  `SELECT p.name FROM patients p WHERE p.stage = 'consultation'
+     AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.service = ? AND a.status IN ('booked','completed'))
+   ORDER BY p.id DESC LIMIT 20`,
+).bind(CONSULTATION);
 
 /** For the Patients list: each new patient's next booked consultation, or null when none is booked. */
 async function consultStates(env: Env): Promise<ConsultState> {
@@ -799,13 +818,18 @@ app.post("/holidays/:day/delete", adminOnly, async (c) => {
 });
 
 // --- Follow-ups for missed sessions -----------------------------------------------------------------
+type FollowUpRow = { patient_id: number; status: string; start_utc: string; name: string; guardian_name: string | null; followed_up_at: string | null };
+// Only the last 90 days matter for a "missed in a row" streak, which keeps this query small as history grows.
+const followUpsStmt = (env: Env) => env.DB.prepare(
+  `SELECT a.patient_id, a.status, a.start_utc, p.name, p.guardian_name, p.followed_up_at
+     FROM appointments a JOIN patients p ON p.id = a.patient_id
+    WHERE a.status IN ('completed', 'no_show') AND a.start_utc < ? AND a.start_utc > ?
+    ORDER BY a.patient_id, a.start_utc DESC`,
+).bind(new Date().toISOString(), new Date(Date.now() - 90 * 86_400_000).toISOString());
 async function followUps(env: Env) {
-  const { results } = await env.DB.prepare(
-    `SELECT a.patient_id, a.status, a.start_utc, p.name, p.guardian_name, p.followed_up_at
-       FROM appointments a JOIN patients p ON p.id = a.patient_id
-      WHERE a.status IN ('completed', 'no_show') AND a.start_utc < ?
-      ORDER BY a.patient_id, a.start_utc DESC`,
-  ).bind(new Date().toISOString()).all<{ patient_id: number; status: string; start_utc: string; name: string; guardian_name: string | null; followed_up_at: string | null }>();
+  return followUpsFrom((await followUpsStmt(env).all<FollowUpRow>()).results);
+}
+function followUpsFrom(results: FollowUpRow[]) {
   const byPatient = new Map<number, typeof results>();
   for (const r of results) byPatient.set(r.patient_id, [...(byPatient.get(r.patient_id) ?? []), r]);
   const out: { id: number; name: string; missed: number; lastMissed: string }[] = [];

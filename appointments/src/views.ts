@@ -152,10 +152,12 @@ export interface PatientRow { id: number; name: string; guardian_name: string | 
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
 
-export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, appts: ApptRow[], therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false, followUps: FollowUp[] = [], onLeave: Set<number> = new Set(), leaveBanner: unknown = "") {
+export interface DayPanel { day: string; appts: ApptRow[]; therapists: TherapistRow[]; onLeave: Set<number> }
+
+export function schedulePage(user: User, win: { selected: string; start: string; prevStart: string; nextStart: string }, chips: DayChip[], today: string, days: DayPanel[], flash?: { type: "ok" | "error"; text: string }, pendingCount = 0, mineOnly = false, followUps: FollowUp[] = [], leaveBanner: unknown = "") {
   const day = win.selected;
-  const groups = therapists
-    .map((t) => ({ t, list: appts.filter((a) => a.therapist_id === t.id) }))
+  const groupsOf = (p: DayPanel) => p.therapists
+    .map((t) => ({ t, list: p.appts.filter((a) => a.therapist_id === t.id) }))
     .filter((g) => !mineOnly || g.t.id === user.therapist_id)
     .sort((x, y) => Number(y.t.id === user.therapist_id) - Number(x.t.id === user.therapist_id));
   const q = (extra: string) => `/?${extra}${mineOnly ? "&mine=1" : ""}`;
@@ -165,12 +167,24 @@ export function schedulePage(user: User, win: { selected: string; start: string;
     const d = new Date(`${c.day}T00:00:00Z`);
     const wd = d.getUTCDay();
     const cls = ["day-chip", wd === 0 || wd === 6 ? "weekend" : "", c.holiday ? "holiday" : "", c.day === day ? "selected" : "", c.day === today ? "today" : ""].join(" ");
-    return html`<a class="${cls}" href="${q(`day=${c.day}&start=${win.start}`)}" aria-current="${c.day === day ? "date" : "false"}">
+    return html`<a class="${cls}" data-day="${c.day}" href="${q(`day=${c.day}&start=${win.start}`)}" aria-current="${c.day === day ? "date" : "false"}">
 <span class="wd">${c.day === today ? "Today" : WD[wd]}</span><span class="dn">${d.getUTCDate()}</span><span class="mo">${MON[d.getUTCMonth()]}</span>
 <span class="cnt">${c.holiday ? html`<b>Closed</b>` : c.booked ? html`<b>${c.booked}</b><span class="cnt-word"> booked</span>` : "free"}</span></a>`;
   };
-  const sel = new Date(`${day}T00:00:00Z`);
-  const selHoliday = chips.find((c) => c.day === day)?.holiday;
+  const panel = (p: DayPanel) => {
+    const sel = new Date(`${p.day}T00:00:00Z`);
+    const hol = chips.find((c) => c.day === p.day)?.holiday;
+    const groups = groupsOf(p);
+    return html`<section class="day-panel" data-day="${p.day}" ${p.day === day ? "" : "hidden"}>
+<h2 style="margin-top:8px">${WD[sel.getUTCDay()]}, ${sel.getUTCDate()} ${MON[sel.getUTCMonth()]} ${sel.getUTCFullYear()}${
+  sel.getUTCDay() === 0 || sel.getUTCDay() === 6 ? html` <span class="badge weekend-badge">Weekend</span>` : ""}${hol ? html` <span class="badge holiday-badge">Closed: ${hol}</span>` : ""}</h2>
+${groups.length === 0 ? html`<div class="card muted">No therapists yet. ${user.role === "admin" ? html`<a href="/therapists">Add one</a>.` : ""}</div>` : ""}
+${groups.map((g) => html`
+<h2>${g.t.name} <span class="muted">${g.list.filter((a) => a.status === "booked").length} booked</span>${p.onLeave.has(g.t.id) ? html` <span class="badge holiday-badge">On leave</span>` : ""}</h2>
+${g.list.length === 0 ? html`<div class="card muted">No appointments.</div>` : ""}
+${g.list.map((a) => apptCard(a))}`)}
+</section>`;
+  };
   return layout("Schedule", user, html`
 <h1>Schedule</h1>
 ${user.role === "admin" ? pendingBanner(pendingCount) : ""}
@@ -186,13 +200,27 @@ ${user.role === "therapist" ? html`<span class="seg"><a class="${mineOnly ? "" :
 </div>
 <div class="week">${chips.map(chip)}</div>
 <p class="muted legend"><span><span class="sw weekend"></span> Sat &amp; Sun</span><span><span class="sw holiday"></span> Closed</span>${user.role === "admin" ? html`<a href="/holidays">Clinic holidays →</a>` : ""}</p>
-<h2 style="margin-top:8px">${WD[sel.getUTCDay()]}, ${sel.getUTCDate()} ${MON[sel.getUTCMonth()]} ${sel.getUTCFullYear()}${
-  sel.getUTCDay() === 0 || sel.getUTCDay() === 6 ? html` <span class="badge weekend-badge">Weekend</span>` : ""}${selHoliday ? html` <span class="badge holiday-badge">Closed: ${selHoliday}</span>` : ""}</h2>
-${groups.length === 0 ? html`<div class="card muted">No therapists yet. ${user.role === "admin" ? html`<a href="/therapists">Add one</a>.` : ""}</div>` : ""}
-${groups.map((g) => html`
-<h2>${g.t.name} <span class="muted">${g.list.filter((a) => a.status === "booked").length} booked</span>${onLeave.has(g.t.id) ? html` <span class="badge holiday-badge">On leave</span>` : ""}</h2>
-${g.list.length === 0 ? html`<div class="card muted">No appointments.</div>` : ""}
-${g.list.map((a) => apptCard(a))}`)}
+${days.map(panel)}
+<script>
+// Days in this week are already on the page: switch instantly, without asking the server.
+(function () {
+  var chips = document.querySelectorAll(".week .day-chip[data-day]");
+  var panels = document.querySelectorAll(".day-panel");
+  var jump = document.querySelector('.weeknav input[name="day"]');
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      var d = chip.getAttribute("data-day");
+      panels.forEach(function (p) { p.hidden = p.getAttribute("data-day") !== d; });
+      chips.forEach(function (c) { var on = c === chip; c.classList.toggle("selected", on); c.setAttribute("aria-current", on ? "date" : "false"); });
+      if (jump) jump.value = d;
+      document.querySelectorAll(".weeknav .seg a").forEach(function (a) { a.href = a.href.replace(/day=[0-9-]+/, "day=" + d); });
+      history.replaceState(null, "", chip.getAttribute("href"));
+    });
+  });
+})();
+</script>
 `, flash);
 }
 

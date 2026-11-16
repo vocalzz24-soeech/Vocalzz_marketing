@@ -7,6 +7,11 @@ compatibility_date = "2025-10-01"
 [assets]
 directory = "./public"
 
+# Smart Placement: Cloudflare runs the app close to the database when that is faster,
+# so each page's database work does not travel back and forth across the world.
+[placement]
+mode = "smart"
+
 [triggers]
 crons = ["*/5 * * * *"]
 
