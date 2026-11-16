@@ -19,7 +19,7 @@ ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 2
 
 index = (ROOT / "index.html").read_text(encoding="utf-8")
 HEADER = index[index.index('<header class="site-header">'): index.index("</header>") + len("</header>")]
-FOOTER = index[index.index('<footer class="site-footer">'): index.index("</body>")]
+FOOTER = index[index.index('<footer class="site-footer"'): index.index("</body>")]
 FOOTER = FOOTER.replace('<script src="/slider.js" defer></script>\n', "")  # the photo slider is only on the home page
 
 
@@ -418,7 +418,7 @@ def sync_simple_pages():
         f = ROOT / name
         doc = f.read_text(encoding="utf-8")
         doc = re.sub(r'<header class="site-header">.*?</header>', lambda m: HEADER, doc, count=1, flags=re.S)
-        doc = re.sub(r'<footer class="site-footer">.*?</body>', lambda m: FOOTER + "</body>", doc, count=1, flags=re.S)
+        doc = re.sub(r'<footer class="site-footer".*?</body>', lambda m: FOOTER + "</body>", doc, count=1, flags=re.S)
         f.write_text(doc, encoding="utf-8")
 
 
