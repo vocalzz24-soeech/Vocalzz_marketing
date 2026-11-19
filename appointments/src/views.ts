@@ -129,7 +129,8 @@ ${user.role === "admin" ? html`<div class="sep"></div><div class="label">Admin</
 <a href="/patients">👨‍👩‍👧 Patients</a>
 <a href="/therapists">🧑‍⚕️ Therapists</a>
 <a href="/bills">🧾 Bills</a>
-<a href="/messages">💬 Messages</a>` : ""}
+<a href="/messages">💬 Messages</a>
+<a href="/admin/whatsapp">⚙️ WhatsApp setup</a>` : ""}
 <div class="sep"></div>
 <a class="site-link" href="https://vocalzz.com/">🌐 Website</a>
 <form method="post" action="/logout"><button class="logout">↩ Log out</button></form>

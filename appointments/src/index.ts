@@ -14,6 +14,7 @@ import { buildReport, periodFor, rangeLabel } from "./report.ts";
 import { reportPdf } from "./report-pdf.ts";
 import { emailReady, emailReport, sendWeeklyReport, WEEKLY_CRON } from "./report-email.ts";
 import { dashboardPage } from "./dashboard-views.ts";
+import { numberStatus, registerNumber, sendTest, whatsappSetupPage } from "./whatsapp-admin.ts";
 import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
 import { billPage, billsListPage, newBillPage, patientBillsCard, type BillItemRow, type BillRow, type DraftLine } from "./billing-views.ts";
@@ -1024,6 +1025,23 @@ app.post("/dashboard/email", adminOnly, async (c) => {
   const { report, query } = await reportFromQuery(c, q);
   const res = await emailReport(c.env, "on_demand", [report], `${report.period.label} report, ${rangeLabel(report.period.from, report.period.to)}`);
   return redirectWith(c, `/dashboard?${query}`, { type: res.ok ? "ok" : "error", text: res.message });
+});
+
+// --- WhatsApp Cloud API setup (admin) --------------------------------------------------------------
+app.get("/admin/whatsapp", adminOnly, async (c) => c.html(whatsappSetupPage(c.get("user"), await numberStatus(c.env), takeFlash(c))));
+
+app.post("/admin/whatsapp/register", adminOnly, async (c) => {
+  if (!c.env.WHATSAPP_TOKEN || !c.env.WHATSAPP_PHONE_NUMBER_ID) return redirectWith(c, "/admin/whatsapp", { type: "error", text: "Add the two keys in Cloudflare first." });
+  const r = await registerNumber(c.env, str((await c.req.parseBody()).pin));
+  return redirectWith(c, "/admin/whatsapp", { type: r.ok ? "ok" : "error", text: r.message });
+});
+
+app.post("/admin/whatsapp/test", adminOnly, async (c) => {
+  if (!c.env.WHATSAPP_TOKEN || !c.env.WHATSAPP_PHONE_NUMBER_ID) return redirectWith(c, "/admin/whatsapp", { type: "error", text: "Add the two keys in Cloudflare first." });
+  const to = normalisePhone(str((await c.req.parseBody()).to));
+  if (!to) return redirectWith(c, "/admin/whatsapp", { type: "error", text: "Enter a valid 10-digit mobile number." });
+  const r = await sendTest(c.env, to);
+  return redirectWith(c, "/admin/whatsapp", { type: r.ok ? "ok" : "error", text: r.message });
 });
 
 // --- One-time database move (USA -> Asia) ----------------------------------------------------

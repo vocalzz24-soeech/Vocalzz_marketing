@@ -3,7 +3,8 @@
 // what is submitted in WhatsApp Manager (see docs/whatsapp-templates.md).
 import type { Env } from "./env.ts";
 
-const GRAPH_URL = "https://graph.facebook.com/v21.0";
+// Meta Graph API version. v21.0 is switched off on 21 Jan 2027; v26.0 is current (Jul 2026). Bump every year or so.
+export const GRAPH_URL = "https://graph.facebook.com/v26.0";
 
 export const TEMPLATES = {
   vocalzz_appt_confirmed:
