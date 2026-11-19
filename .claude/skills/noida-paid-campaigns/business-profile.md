@@ -63,6 +63,16 @@ Add one per line: Name | website domain | Facebook page URL
 - BRAIN-O-BITS NEURO CARE | |
 - The Wings Learning Center (Dr Rishi Pal) | |
 - TWLC | |
+- Continua Kids | continuakids.com |
+- Mom's Belief | momsbelief.com |
+- Pinnacle Blooms Network | pinnacleblooms.org |
+- Listening Ears | listeningears.in |
+- MAX@Home | maxathome.in |
+- Centre for Autism | centreforautism.in |
+- Holding Hope Centre for Speech & Hearing | |
+- Sonakshi Speech & Hearing Clinic | |
+- Brain Light Child Development Center | |
+- My Therapist Child Development Center | mytherapists.in |
 
 ## Competitor notes
 Details from public directory listings (Nov 2026); check before relying on them.
@@ -71,7 +81,8 @@ Not read by the script.
 * **Sunshine by Lissun**: offline child-development centres run by LISSUN (Mindeye Solutions Pvt Ltd).
   Team covers developmental paediatrics, psychology, speech, OT, special education and ABA. The first
   centre is in East Patel Nagar, Delhi, with more planned across Delhi NCR; Noida location not confirmed.
-  Website lissun.app. Funded startup, so likely the biggest ad spender.
+  Website lissun.app. Raised about Rs 48 crore Series A (Aug 2026); ~25 centres, aiming for 50. Noida centres at
+  **Sector 141 (about 2 km from Vocalzz)** and Sector 121. Likely the biggest ad spender.
 * **The Learning Hub (Mr Shishu Pal)**: **Sector 137, Noida, same sector as Vocalzz.** Speech
   therapy, behavioural therapy/ABA, special education, group classes. May also have a branch in
   Vikaspuri, Delhi. No website found. Closest direct competitor.
@@ -83,3 +94,6 @@ Not read by the script.
 * **The Wings Learning Center (Dr Rishi Pal)**: speech therapist and audiologist (BASLP). D-27 basement,
   Sector 36, Noida; also listed at Metro Hospital, Sector 11. Offers speech, autism and hearing
   services. Fee about ₹1,500. The name is shared with unrelated centres in Ghaziabad and Delhi.
+* **Continua Kids**: Gurugram chain, 36+ OPD centres. Noida: Sector 19, Sector 122, Noida Extension. SEO pages for
+  "speech therapy in Noida" and "child developmental centre in Noida".
+* **Listening Ears / MAX@Home**: both near Sector 128 on the Expressway.
