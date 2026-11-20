@@ -6,6 +6,11 @@
 | **+91 99106 71188** | The clinic's public number: chats, calls, Instagram/Facebook ad clicks, website, Google | WhatsApp Business app (free) |
 | **+91 88002 30240** | Personal; not linked to the business anywhere | Normal WhatsApp |
 
+## Status
+- 20 Nov 2026: steps 1 and 2 done (99106 71188 on WhatsApp Business, connected to Instagram and Facebook).
+  Website, booking app, docs and CLAUDE.md switched to 99106 71188. Owner to update Google Business Profile
+  and directories the same day. New API SIM not bought yet.
+
 ## Order of work
 1. 99106 71188 on the WhatsApp Business app, with profile, greeting and away messages.
 2. Connect 99106 71188 to Instagram (@vocalzz_4u) and the Facebook page; then remove the old 88002 30240

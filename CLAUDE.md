@@ -10,7 +10,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - **Team:** Dr. Samriddhi (PT & certified occupational therapist), Tanishk Kaushik (occupational therapist), Minhaj Hashmi (special educator & communication therapist)
 - **Address:** Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304 (same format everywhere: website, Google, directories; PIN kept as 201304 to match the verified Google Business Profile)
 - **Hours:** 10 am to 9 pm, 7 days a week
-- **Phone / WhatsApp:** +91 88002 30240
+- **Phone / WhatsApp:** +91 99106 71188 (from 20 Nov 2026; the old +91 88002 30240 is now a personal number and not used for the business)
 - **Website:** https://vocalzz.com
 - **Email:** contactus@vocalzz.com (the only email to publish; help@ is not used)
 - **Instagram:** @vocalzz_4u
@@ -41,7 +41,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - Show faces: Dr. Tanu and the therapists on camera, plus real therapy clips (with written parent consent)
 - Never promise cures, timelines or guarantees. Use "may help", "every child is different".
 - No diagnosing in comments or DMs; invite people to an assessment instead
-- Call to action: WhatsApp first (wa.me/918800230240); a call option (tel:+918800230240) is fine as the second choice, e.g. on the website
+- Call to action: WhatsApp first (wa.me/919910671188); a call option (tel:+919910671188) is fine as the second choice, e.g. on the website
 
 ## What works (Instagram data, Jul–Nov 2026)
 - **Best:** tips and red-flag lists (e.g. "10 Speech Therapy Mistakes Parents Make" reached 1,460 people and got 21 saves), real therapy-in-action clips, team intros, and light Hinglish humour (the Karwa Chauth reel reached 1,212 with a 30% skip rate)

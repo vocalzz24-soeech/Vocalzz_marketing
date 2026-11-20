@@ -1,10 +1,10 @@
 # WhatsApp automatic messages: step-by-step setup
 
-**Goal:** booking confirmations, reminders and consultation messages go out automatically from **+91 99106 71188**.
-Parents keep chatting with the clinic on **+91 88002 30240** (nothing changes there).
+**Goal:** booking confirmations, reminders and consultation messages go out automatically from **a separate API number** (a new SIM bought only for this).
+Parents chat with and call the clinic on **+91 99106 71188** (WhatsApp Business app; nothing changes there).
 
 **Time:** about 1–1.5 hours, plus Meta's approval wait (minutes to a day).
-**You need:** a laptop with Chrome, the phone with the **99106 71188** SIM (to receive an SMS code), the Facebook login
+**You need:** a laptop with Chrome, the phone with the **new API SIM** (to receive an SMS code), the Facebook login
 that owns the Vocalzz business, a debit/credit card, and the template file `appointments/docs/whatsapp-templates.md`.
 
 Send a screenshot to Claude at any ✅ checkpoint, or if a screen looks different from this guide (Meta changes its
@@ -13,12 +13,12 @@ screens often; the names may be slightly different).
 ---
 
 ## Phase 0: Prepare the number (5 min)
-1. Take the phone with the 99106 71188 SIM.
+1. Take the phone with the new API SIM.
 2. If **WhatsApp or WhatsApp Business** is installed with this number: open it → **Settings → Account → Delete my
    account** → enter the number → **Delete**. (Meta refuses numbers that are still on the WhatsApp app.)
 3. Keep this phone next to you; it will get an SMS code.
 
-✅ Checkpoint: 99106 71188 is not on any WhatsApp app.
+✅ Checkpoint: the new API number is not on any WhatsApp app.
 
 ## Phase 1: Check your Business portfolio (5 min)
 1. On the laptop go to **business.facebook.com** and log in with your own Facebook account.
@@ -26,7 +26,7 @@ screens often; the names may be slightly different).
    the old marketer's portfolio. If you have none, click **Create a business portfolio** → name *Vocalzz Speech &
    Audio* → your name → **contactus@vocalzz.com** → Create.
 3. Click **⚙ Settings → Business info** and fill: legal name, address (Tower E-004, Logix Blossom County, Sector 137,
-   Noida 201304), phone **+91 88002 30240**, website **https://vocalzz.com**.
+   Noida 201304), phone **+91 99106 71188**, website **https://vocalzz.com**.
 
 ✅ Checkpoint: screenshot of Business info.
 
@@ -46,15 +46,15 @@ screens often; the names may be slightly different).
 
 ✅ Checkpoint: screenshot of API Setup page.
 
-## Phase 3: Add the sending number 99106 71188 (10 min)
+## Phase 3: Add the sending number (the new API SIM) (10 min)
 1. **WhatsApp → API Setup** → under "Step 5" / "Send messages with the API" click **Add phone number** (or open
    **WhatsApp Manager → Phone numbers → Add phone number**).
 2. **Display name:** `Vocalzz Speech & Audio` (must match your business name and website).
 3. **Category:** *Medical and health*. **Description:** "Speech, occupational and behavioural therapy clinic in Sector
    137, Noida. Appointment confirmations and reminders."
-4. **Phone number:** country **India (+91)**, number **9910671188**. Method: **Text message** → Next.
+4. **Phone number:** country **India (+91)**, number **the new SIM's 10-digit number**. Method: **Text message** → Next.
 5. Type the 6-digit code from the SMS → **Verify**.
-6. Back on **API Setup**, in the **From** drop-down choose **+91 99106 71188**. Underneath you'll see:
+6. Back on **API Setup**, in the **From** drop-down choose the **new API number**. Underneath you'll see:
    - **Phone number ID** (15 digits): copy it into a note. **This is what the app needs.**
    - WhatsApp Business Account ID (16 digits): not needed now.
 
@@ -106,7 +106,7 @@ Meta now reviews the display name (minutes to 2 days). Messages can still be tes
 3. Section 3 **Register the number**: choose a 6-digit PIN, **write it down somewhere safe**, tap **Register number**.
    "Connected to Cloud API" should show **CLOUD_API**.
 4. Section 4 **Send a test**: enter your own WhatsApp number → **Send test**. You should receive the sample booking
-   confirmation from 99106 71188 within seconds.
+   confirmation from the new API number within seconds.
 5. Real test: add yourself as a patient on the Patients page, book an appointment, and check that the confirmation
    arrives. On the **Messages** page it should say **"Sent automatically"**.
 

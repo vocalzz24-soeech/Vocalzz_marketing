@@ -92,7 +92,7 @@ ${row("Quality", i.quality_rating, i.quality_rating === "GREEN")}
 <h2 style="margin-top:0">4 · Send a test message</h2>
 <p class="muted" style="margin-top:0">Sends the booking-confirmation template (it must be <strong>approved</strong> in WhatsApp Manager first) with sample details:</p>
 <div class="msg-full" style="margin-bottom:8px">${renderTemplate(TEST_TEMPLATE, testParams())}</div>
-<label for="to">Send to (your own WhatsApp number)</label><input id="to" name="to" inputmode="tel" required placeholder="88002 30240" style="max-width:240px">
+<label for="to">Send to (your own WhatsApp number)</label><input id="to" name="to" inputmode="tel" required placeholder="99106 71188" style="max-width:240px">
 <button>Send test</button></form>` : ""}
 
 <div class="card"><h2 style="margin-top:0">Templates to create (${Object.keys(TEMPLATES).length})</h2>

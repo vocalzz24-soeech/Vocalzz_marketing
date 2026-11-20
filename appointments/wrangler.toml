@@ -27,7 +27,7 @@ migrations_dir = "migrations"
 [vars]
 CLINIC_NAME = "Vocalzz Speech & Audio"
 CLINIC_ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida 201304"
-CLINIC_WHATSAPP = "918800230240"
+CLINIC_WHATSAPP = "919910671188"
 CLINIC_EMAIL = "contactus@vocalzz.com"
 CLINIC_WEBSITE = "vocalzz.com"
 DEFAULT_DURATION_MIN = "45"
@@ -38,8 +38,8 @@ WHATSAPP_TEMPLATE_LANG = "en"
 REPORT_EMAIL_FROM = "Vocalzz Reports <reports@vocalzz.com>"
 # Secrets (set with `npx wrangler secret put NAME`, never commit them):
 #   WHATSAPP_TOKEN            Meta permanent access token
-#   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id of the sending number, +91 99106 71188
-#                             (automatic messages only; parents reply on +91 88002 30240)
+#   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id of the sending number (a separate API SIM;
+#                             automatic messages only; parents reply on +91 99106 71188)
 # Without them, messages are recorded as "dry_run" and not sent.
 #   RESEND_API_KEY            resend.com API key for the weekly report email (secret)
 #   REPORT_EMAIL_TO           where the weekly report goes (a secret too, so the address stays out of this file)

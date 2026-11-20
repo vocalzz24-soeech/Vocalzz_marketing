@@ -50,4 +50,4 @@ when you add the domain under **Domains**.
 - **Team photos:** put a square photo in `public/team/` (e.g. `tanu.jpg`) and replace the initials inside the
   matching `<div class="avatar">` with `<img src="/team/tanu.jpg" alt="Dr. Tanu Garg">`.
 - **Rating / review count:** search `4.9` and `129` in `index.html`.
-- **WhatsApp message text:** each button's `wa.me/918800230240?text=…` link carries a pre-filled message.
+- **WhatsApp message text:** each button's `wa.me/919910671188?text=…` link carries a pre-filled message.

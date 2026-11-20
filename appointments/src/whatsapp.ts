@@ -10,16 +10,16 @@ export const TEMPLATES = {
   vocalzz_appt_confirmed:
     "Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio is confirmed for {{5}}.\n\n" +
     "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
-    "To cancel or change the time, please WhatsApp us on +91 88002 30240.",
+    "To cancel or change the time, please WhatsApp us on +91 99106 71188.",
   vocalzz_appt_reminder:
     "Hello {{1}}, a reminder that the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio is {{5}}.\n\n" +
-    "To cancel or change the time, please WhatsApp us on +91 88002 30240.",
+    "To cancel or change the time, please WhatsApp us on +91 99106 71188.",
   vocalzz_appt_rescheduled:
     "Hello {{1}}, the {{2}} session for {{3}} with {{4}} at Vocalzz Speech & Audio has been moved to {{5}}.\n\n" +
-    "To cancel or change the time, please WhatsApp us on +91 88002 30240.",
+    "To cancel or change the time, please WhatsApp us on +91 99106 71188.",
   vocalzz_appt_cancelled:
     "Hello {{1}}, the {{2}} session for {{3}} on {{4}} at Vocalzz Speech & Audio has been cancelled.\n\n" +
-    "To book a new time, please WhatsApp us on +91 88002 30240.",
+    "To book a new time, please WhatsApp us on +91 99106 71188.",
   vocalzz_therapist_new:
     "New appointment for you: {{1}} ({{2}}) on {{3}}, for {{4}} minutes. Please check the schedule for details.",
   vocalzz_therapist_moved:
@@ -29,24 +29,24 @@ export const TEMPLATES = {
   vocalzz_series_confirmed:
     "Hello {{1}}, the weekly {{2}} sessions for {{3}} with {{4}} at Vocalzz Speech & Audio are booked for {{5}} on these dates: {{6}}.\n\n" +
     "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
-    "To cancel or change a session, please WhatsApp us on +91 88002 30240.",
+    "To cancel or change a session, please WhatsApp us on +91 99106 71188.",
   vocalzz_therapist_series:
     "New weekly sessions for you: {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.",
   vocalzz_series_cancelled:
     "Hello {{1}}, these {{2}} sessions for {{3}} at Vocalzz Speech & Audio have been cancelled: {{4}}.\n\n" +
-    "To book new times, please WhatsApp us on +91 88002 30240.",
+    "To book new times, please WhatsApp us on +91 99106 71188.",
   vocalzz_therapist_series_cancelled:
     "Sessions cancelled: {{1}} ({{2}}) on {{3}}. Please check the schedule.",
   vocalzz_series_moved:
     "Hello {{1}}, the weekly {{2}} sessions for {{3}} at Vocalzz Speech & Audio have new times. They are now with {{4}} on: {{5}}.\n\n" +
-    "To cancel or change a session, please WhatsApp us on +91 88002 30240.",
+    "To cancel or change a session, please WhatsApp us on +91 99106 71188.",
   vocalzz_therapist_series_moved:
     "Weekly sessions updated: {{1}} ({{2}}) is now with you on {{3}}. Please check the schedule.",
   vocalzz_consult_confirmed:
     "Hello {{1}}, the first consultation for {{2}} with {{3}} at Vocalzz Speech & Audio is booked for {{4}}. It takes about {{5}} minutes.\n\n" +
     "In this visit we listen to your concerns, observe, and suggest a plan. Please bring any earlier reports.\n\n" +
     "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
-    "To cancel or change the time, please WhatsApp us on +91 88002 30240.",
+    "To cancel or change the time, please WhatsApp us on +91 99106 71188.",
   vocalzz_therapist_consult:
     "New consultation for you: {{1}}, a new patient, on {{2}} for {{3}} minutes. Parent or contact: {{4}}. Please check the schedule for details.",
 } as const;

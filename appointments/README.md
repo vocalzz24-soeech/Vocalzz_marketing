@@ -113,7 +113,7 @@ admin. Optional: add the custom domain `book.vocalzz.com` in the dashboard.
 
 ## Connect WhatsApp
 
-1. Finish Meta's setup (business verification, connecting +91 88002 30240 in WhatsApp Manager).
+1. Finish Meta's setup (business verification, connecting +91 99106 71188 in WhatsApp Manager).
 2. Submit the message templates in `docs/whatsapp-templates.md` in WhatsApp Manager and wait for approval.
 3. Save the two secrets (they are never put in the code):
 

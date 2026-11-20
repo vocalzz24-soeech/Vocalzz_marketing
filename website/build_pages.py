@@ -13,8 +13,8 @@ from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent / "public"
 SITE = "https://vocalzz.com"
-WA = "https://wa.me/918800230240"
-TEL = "tel:+918800230240"
+WA = "https://wa.me/919910671188"
+TEL = "tel:+919910671188"
 ADDRESS = "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304"
 
 index = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -75,7 +75,7 @@ def page(path: str, title: str, description: str, crumbs: list[tuple[str, str]],
     out.write_text(doc, encoding="utf-8")
 
 
-CLINIC = {"@type": "MedicalClinic", "name": "Vocalzz Speech & Audio", "alternateName": "Vocalzz", "url": f"{SITE}/", "telephone": "+91-88002-30240",
+CLINIC = {"@type": "MedicalClinic", "name": "Vocalzz Speech & Audio", "alternateName": "Vocalzz", "url": f"{SITE}/", "telephone": "+91-99106-71188",
           "address": {"@type": "PostalAddress", "streetAddress": "Tower E-004, Logix Blossom County, Sector 137",
                       "addressLocality": "Noida", "addressRegion": "Uttar Pradesh", "postalCode": "201304", "addressCountry": "IN"}}
 
@@ -85,7 +85,7 @@ def aside(service: str, wa_text: str) -> str:
 <h2>Talk to our team</h2>
 <p>Tell us your concern and the age of the person who needs support. We'll suggest a time for an assessment.</p>
 <a class="btn btn-wa" href="{esc(wa(wa_text))}" target="_blank" rel="noopener">Book on WhatsApp</a>
-<a class="btn btn-ghost" href="{TEL}">Call +91 88002 30240</a>
+<a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 <ul>
 <li>Open every day, 10 am to 9 pm</li>
 <li>Tower E-004, Logix Blossom County, Sector 137, Noida</li>
@@ -282,7 +282,7 @@ def build_service(s):
 <p class="lead">{esc(s["lead"])}</p>
 <div class="cta-row">
 <a class="btn btn-wa" href="{esc(wa(s["wa"]))}" target="_blank" rel="noopener">Book an assessment</a>
-<a class="btn btn-ghost" href="{TEL}">Call +91 88002 30240</a>
+<a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 </div>
 </header>
 <div class="content">
@@ -321,7 +321,7 @@ def build_services_index():
 <p class="callout">Not sure which service you need? That's completely normal. Message us with your concern and we'll suggest where to start, usually with an assessment.</p>
 <div class="cta-row" style="margin:18px 0 64px">
 <a class="btn btn-wa" href="{esc(wa("Hi Vocalzz, I'm not sure which therapy my child needs. Can you help?"))}" target="_blank" rel="noopener">Ask us on WhatsApp</a>
-<a class="btn btn-ghost" href="{TEL}">Call +91 88002 30240</a>
+<a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 </div>"""
     schema = [{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}/{s['slug']}/", "name": s["name"]} for i, s in enumerate(SERVICES)]}]
@@ -365,7 +365,7 @@ def build_about():
 <p>{esc(ADDRESS)}. <a href="/contact-us/">Directions, hours and contact details →</a></p>
 <div class="cta-row" style="margin:18px 0 64px">
 <a class="btn btn-wa" href="{esc(wa("Hi Vocalzz, I'd like to book an assessment."))}" target="_blank" rel="noopener">Book an assessment</a>
-<a class="btn btn-ghost" href="{TEL}">Call +91 88002 30240</a>
+<a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 </div>
 </article>
 </div>"""
@@ -388,8 +388,8 @@ def build_contact():
 <ul class="info-list contact-light">
 <li><span class="ic" aria-hidden="true">📍</span><span><strong>Address</strong><br>Tower E-004, Logix Blossom County,<br>Sector 137, Noida, Uttar Pradesh 201304</span></li>
 <li><span class="ic" aria-hidden="true">🕙</span><span><strong>Hours</strong><br>Open every day, 10 am to 9 pm</span></li>
-<li><span class="ic" aria-hidden="true">💬</span><span><strong>WhatsApp</strong><br><a href="{WA}" target="_blank" rel="noopener">+91 88002 30240</a></span></li>
-<li><span class="ic" aria-hidden="true">📞</span><span><strong>Phone</strong><br><a href="{TEL}">+91 88002 30240</a></span></li>
+<li><span class="ic" aria-hidden="true">💬</span><span><strong>WhatsApp</strong><br><a href="{WA}" target="_blank" rel="noopener">+91 99106 71188</a></span></li>
+<li><span class="ic" aria-hidden="true">📞</span><span><strong>Phone</strong><br><a href="{TEL}">+91 99106 71188</a></span></li>
 <li><span class="ic" aria-hidden="true">✉️</span><span><strong>Email</strong><br><a href="mailto:contactus@vocalzz.com">contactus@vocalzz.com</a></span></li>
 <li><span class="ic" aria-hidden="true">📸</span><span><strong>Instagram</strong><br><a href="https://www.instagram.com/vocalzz_4u/" target="_blank" rel="noopener">@vocalzz_4u</a></span></li>
 </ul>
@@ -408,7 +408,7 @@ src="https://maps.google.com/maps?q=Vocalzz%2C%20Tower%20E-004%2C%20Logix%20Blos
         "@context": "https://schema.org", "email": "contactus@vocalzz.com", "hasMap": "https://maps.google.com/maps?cid=5557810347074861479",
         "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "10:00", "closes": "21:00"}]})}]
     page("/contact-us/", "Contact Vocalzz Speech & Audio | Sector 137, Noida",
-         "Contact Vocalzz Speech & Audio, therapy clinic: Tower E-004, Logix Blossom County, Sector 137, Noida 201304. Open every day 10 am to 9 pm. WhatsApp or call +91 88002 30240.",
+         "Contact Vocalzz Speech & Audio, therapy clinic: Tower E-004, Logix Blossom County, Sector 137, Noida 201304. Open every day 10 am to 9 pm. WhatsApp or call +91 99106 71188.",
          [("Home", "/"), ("Contact", "/contact-us/")], body, schema)
 
 
@@ -455,7 +455,7 @@ def build_post(post):
 <p class="callout">This article is general information, not a diagnosis. Every child is different. If you're worried, an assessment is the best way to get advice for your child.</p>
 <div class="cta-row" style="margin:18px 0">
 <a class="btn btn-wa" href="{esc(wa(post["wa"]))}" target="_blank" rel="noopener">Ask us on WhatsApp</a>
-<a class="btn btn-ghost" href="{TEL}">Call +91 88002 30240</a>
+<a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 </div>
 <p>Learn more about <a href="{svc_url}">{esc(svc_name)} at Vocalzz</a> · <a href="/blog/">More parent tips</a></p>
 <div style="height:48px"></div>
