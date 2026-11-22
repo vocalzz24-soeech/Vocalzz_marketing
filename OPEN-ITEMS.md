@@ -34,6 +34,12 @@ section. Last updated: 22 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [ ] Mon 23 Nov: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
+      ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
+      in account 164-628-8199 in 2026? Ask for email confirmation. If not eligible, go back to the ₹130/day plan
+- [ ] Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
+      OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
+- [ ] Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
 - [ ] Create the clinic's own Google Ads account (Expert mode, INR, India time zone) + billing
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)

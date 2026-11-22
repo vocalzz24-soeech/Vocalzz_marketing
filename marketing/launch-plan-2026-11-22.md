@@ -1,5 +1,10 @@
 # Paid ads launch kit: Sunday 22 Nov 2026
 
+> **Update 22 Nov:** the new Google Ads account (898-392-0631) has the ₹20,000 new-advertiser offer (spend ₹20,000,
+> excl. GST, within 60 days → ₹20,000 credit, if Google confirms eligibility). For these 60 days: **all budget on Google
+> Search, ₹335/day**, 15 km radius, two extra ad groups (Autism & behaviour; Hearing), Meta ads paused. The rest of this
+> kit still applies.
+
 **Goal of the first 4 weeks (22 Nov – 20 Dec):** learn what brings real parents, at about **₹6,000 in total**,
 then move to ~₹10,000/month from late December if the numbers are good (see the forecast report).
 
