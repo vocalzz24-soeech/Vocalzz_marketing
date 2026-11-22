@@ -67,6 +67,7 @@ section. Last updated: 22 Nov 2026.
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
 - [x] Label confirmed by owner (23 Nov)
 - [ ] Check Goals → Conversions shows "Recording conversions" after a test tap
+- [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
 - [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
 - [ ] Website About page: "Serving Noida families since …" (waiting for the opening date)
