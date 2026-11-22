@@ -24,7 +24,7 @@ section. Last updated: 22 Nov 2026.
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
 - [ ] Opening date (month/year the clinic opened), and tell Claude so the website About page says the same
 - [ ] Check attributes "women-owned" / "LGBTQ+ friendly" are intended
-- [ ] Remove the duplicate (audiology) listings
+- [ ] Remove the duplicate (audiology) listings. Note 23 Nov: Google Ads search-ad preview showed location "Vocalzz Audiology… 5.0★ (100)"; check Admin → Linked accounts that Ads is linked to the main "Vocalzz Speech & Audio" profile
 
 ### Number switch (88002 30240 → 99106 71188)
 - [ ] Until Google shows the new number: answer 88002 30240 for clinic calls, or forward its calls to 99106 71188
