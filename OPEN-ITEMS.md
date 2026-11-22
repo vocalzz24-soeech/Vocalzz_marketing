@@ -49,7 +49,8 @@ section. Last updated: 22 Nov 2026.
 - [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
 - [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
 - [ ] Call asset schedule 10:00–20:00 (Assets → Calls)
-- [ ] Later: more ad groups (OT, autism/behaviour, hearing) with their own landing pages
+- [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
+- [ ] "Behaviour & Autism" ad group not created (owner declined the create prompt) — confirm whether to add
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
 - [ ] Check the Meta ad account is inside the Vocalzz portfolio, with payment (card or UPI)
