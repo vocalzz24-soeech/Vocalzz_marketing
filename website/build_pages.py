@@ -87,7 +87,7 @@ def aside(service: str, wa_text: str) -> str:
 <a class="btn btn-wa" href="{esc(wa(wa_text))}" target="_blank" rel="noopener">Book on WhatsApp</a>
 <a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 <ul>
-<li>Open every day, 10 am to 9 pm</li>
+<li>Mon–Sat, 10 am to 8 pm · WhatsApp 7 days</li>
 <li>Tower E-004, Logix Blossom County, Sector 137, Noida</li>
 <li>In-clinic and online sessions</li>
 </ul>
@@ -357,7 +357,7 @@ def build_about():
 <li><strong>One team, one plan:</strong> our therapists share notes and agree goals together, so nothing pulls in different directions.</li>
 <li><strong>Parents are part of therapy:</strong> after every session you get simple activities to practise at home.</li>
 <li><strong>Honest guidance:</strong> every person is different, so we set realistic goals and review progress with you, without promising fixed results or timelines.</li>
-<li><strong>Flexible:</strong> one-on-one, group and online sessions, open every day from 10 am to 9 pm.</li>
+<li><strong>Flexible:</strong> one-on-one, group and online sessions, Monday to Saturday, 10 am to 8 pm, by appointment.</li>
 </ul>
 <h2>Our team</h2>
 <div class="team-grid" style="margin-top:12px">{members}</div>
@@ -387,7 +387,7 @@ def build_contact():
 <article class="prose">
 <ul class="info-list contact-light">
 <li><span class="ic" aria-hidden="true">📍</span><span><strong>Address</strong><br>Tower E-004, Logix Blossom County,<br>Sector 137, Noida, Uttar Pradesh 201304</span></li>
-<li><span class="ic" aria-hidden="true">🕙</span><span><strong>Hours</strong><br>Open every day, 10 am to 9 pm</span></li>
+<li><span class="ic" aria-hidden="true">🕙</span><span><strong>Hours</strong><br>Mon–Sat, 10 am to 8 pm (by appointment)<br>Calls and WhatsApp: 7 days</span></li>
 <li><span class="ic" aria-hidden="true">💬</span><span><strong>WhatsApp</strong><br><a href="{WA}" target="_blank" rel="noopener">+91 99106 71188</a></span></li>
 <li><span class="ic" aria-hidden="true">📞</span><span><strong>Phone</strong><br><a href="{TEL}">+91 99106 71188</a></span></li>
 <li><span class="ic" aria-hidden="true">✉️</span><span><strong>Email</strong><br><a href="mailto:contactus@vocalzz.com">contactus@vocalzz.com</a></span></li>
@@ -406,9 +406,9 @@ src="https://maps.google.com/maps?q=Vocalzz%2C%20Tower%20E-004%2C%20Logix%20Blos
 </div>"""
     schema = [{"@context": "https://schema.org", "@type": "ContactPage", "url": f"{SITE}/contact-us/", "mainEntity": dict(CLINIC, **{
         "@context": "https://schema.org", "email": "contactus@vocalzz.com", "hasMap": "https://maps.google.com/maps?cid=5557810347074861479",
-        "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "10:00", "closes": "21:00"}]})}]
+        "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "10:00", "closes": "20:00"}]})}]
     page("/contact-us/", "Contact Vocalzz Speech & Audio | Sector 137, Noida",
-         "Contact Vocalzz Speech & Audio, therapy clinic: Tower E-004, Logix Blossom County, Sector 137, Noida 201304. Open every day 10 am to 9 pm. WhatsApp or call +91 99106 71188.",
+         "Contact Vocalzz Speech & Audio, therapy clinic: Tower E-004, Logix Blossom County, Sector 137, Noida 201304. Visits Mon–Sat 10 am to 8 pm; WhatsApp any day. WhatsApp or call +91 99106 71188.",
          [("Home", "/"), ("Contact", "/contact-us/")], body, schema)
 
 

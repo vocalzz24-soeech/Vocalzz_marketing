@@ -9,7 +9,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - **Founder / lead clinician:** Dr. Tanu Garg, Speech-Language Therapist & Audiologist, 10+ years' experience (previously at Fortis Noida and BL Kapoor Hospital)
 - **Team:** Dr. Samriddhi (PT & certified occupational therapist), Tanishk Kaushik (occupational therapist), Minhaj Hashmi (special educator & communication therapist)
 - **Address:** Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304 (same format everywhere: website, Google, directories; PIN kept as 201304 to match the verified Google Business Profile)
-- **Hours:** 10 am to 9 pm, 7 days a week
+- **Hours:** clinic visits Monday to Saturday, 10 am to 8 pm, by appointment (Sunday closed; special cases only). Calls and WhatsApp are answered 7 days a week. In marketing say "WhatsApp us 7 days a week", never "open 7 days"
 - **Phone / WhatsApp:** +91 99106 71188 (from 20 Nov 2026; the old +91 88002 30240 is now a personal number and not used for the business)
 - **Website:** https://vocalzz.com
 - **Email:** contactus@vocalzz.com (the only email to publish; help@ is not used)

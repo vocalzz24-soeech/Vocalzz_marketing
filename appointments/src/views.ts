@@ -5,8 +5,8 @@ import { CONSULTATION, isConsultation, type ApptRow } from "./notify.ts";
 import { dateToIstLocal, formatDateTime, formatTime, istDay } from "./time.ts";
 import { endOf, MAX_SERIES, timeSlots } from "./schedule.ts";
 
-// Clinic hours 10:00–21:00 (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
-const TIME_SLOTS = timeSlots(10, 21);
+// Clinic hours 10:00–20:00, Mon–Sat (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
+const TIME_SLOTS = timeSlots(10, 20);
 
 type H = ReturnType<typeof html>;
 

@@ -16,7 +16,7 @@ Book therapy appointments and automatically send WhatsApp messages to the patien
   PDF or email it. Every Sunday at 9:30 PM IST the week just ending plus next week's bookings are emailed as a PDF
   (needs the `RESEND_API_KEY` and `REPORT_EMAIL_TO` secrets; until then attempts are logged as not configured).
 - **Clash check:** blocks a booking if the therapist or the patient is already booked then, or if the session
-  falls outside clinic hours (10:00–21:00).
+  falls outside clinic hours (10:00–20:00).
 - **WhatsApp messages** (from the clinic number, through Meta's WhatsApp Business Platform):
 
   | Event | Patient gets | Therapist gets |

@@ -93,7 +93,7 @@ syllabus, pdf, worksheet, books, app
 ```
 Speech Therapy in Noida | Sector 137, Noida Expressway | Child Not Talking Yet? |
 Late Talker? Book Assessment | 10+ Years' Experience | Rated 4.9 on Google | Chat With Us on WhatsApp |
-Open 7 Days, 10 am to 9 pm | Speech, OT & Behaviour Therapy | Home Practice Plan Every Visit |
+WhatsApp Us 7 Days a Week | Speech, OT & Behaviour Therapy | Home Practice Plan Every Visit |
 For Noida & Greater Noida | Unclear Speech? We Can Help | Book a Speech Assessment | Speech Therapist Dr. Tanu Garg
 ```
 Descriptions (≤90 characters):
@@ -101,27 +101,27 @@ Descriptions (≤90 characters):
 Speech therapy for late talkers, autism, stammering and unclear speech in Noida.
 Led by Dr. Tanu Garg, speech therapist & audiologist with 10+ years' experience.
 Parents get a home-practice plan after every session. Book an assessment today.
-Speech, occupational & behavioural therapy under one roof. Open 7 days, 10am-9pm.
+Speech, occupational & behavioural therapy under one roof. WhatsApp us 7 days.
 ```
 Final URL: `https://vocalzz.com/speech-language-therapy/`
 
 Ad group 2 headlines: `Stammering Therapy in Noida | Speech Therapy for Adults | Voice & Fluency Therapy |
-Sector 137, Noida Expressway | Chat With Us on WhatsApp | Open 7 Days, 10 am to 9 pm | 10+ Years' Experience |
+Sector 137, Noida Expressway | Chat With Us on WhatsApp | WhatsApp Us 7 Days a Week | 10+ Years' Experience |
 Book a Fluency Assessment`. Descriptions: "Therapy for stammering and voice problems for teens and adults in Sector 137,
-Noida." / "Practical fluency techniques with home practice after every session. Open 7 days."
+Noida." / "Practical fluency techniques with home practice after every session. WhatsApp any day."
 Final URL: `https://vocalzz.com/speech-language-therapy/`
 
 Ad group 3 headlines: `Occupational Therapy Noida | Sensory & Fine Motor Support | Handwriting & Attention Help |
 Sector 137, Noida Expressway | Chat With Us on WhatsApp | Speech, OT & Behaviour Therapy | Book an OT Assessment`.
 Descriptions: "Occupational therapy for sensory issues, fine motor skills, handwriting & attention." / "Our speech, OT
-and behaviour therapists plan together. Open 7 days, 10am-9pm." Final URL: `https://vocalzz.com/occupational-therapy/`
+and behaviour therapists plan together. Visits Mon-Sat, 10am-8pm." Final URL: `https://vocalzz.com/occupational-therapy/`
 
 **Assets** (campaign level)
-- Call: **+91 99106 71188**, scheduled **10 am – 8:30 pm** only.
+- Call: **+91 99106 71188**, scheduled **every day, 10 am – 8 pm** (someone must answer on Sundays too).
 - Location: link the Google Business Profile.
 - Sitelinks: Speech therapy (`/speech-language-therapy/`), About Dr. Tanu & team (`/about/`),
   Signs of a late talker (`/blog/late-talker-signs/`), Contact & directions (`/contact-us/`).
-- Callouts: Open 7 days · 4.9★ on Google · Online therapy available · Home-practice plan every visit.
+- Callouts: WhatsApp 7 days a week · Mon–Sat, by appointment · 4.9★ on Google · Online therapy available · Home-practice plan every visit.
 - Structured snippet "Services": Speech therapy, Occupational therapy, Behavioural therapy, Special education, Audiology.
 
 Never use: "best", "#1", "cure", "guaranteed", "in X weeks" (policy and brand rules).
