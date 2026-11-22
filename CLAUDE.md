@@ -59,7 +59,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - One natural local keyword line per caption, e.g. "Speech therapy in Sector 137, Noida"
 
 ## Open items
-- The running to-do list is in `OPEN-ITEMS.md`. When the owner asks about open, pending or remaining items, read it,
+- The running to-do list is in `OPEN-ITEMS.md`; the latest day plan is the newest `ACTION-PLAN-*.md` in the repo root. When the owner asks about open, pending or remaining items, read it,
   remind them of what's open (their items first, including the WhatsApp Business items they deliberately left open),
   and tick items off there as they're done.
 - Standing reminder: whenever the owner changes ads, asks about ad performance or a performance boost, or plans
