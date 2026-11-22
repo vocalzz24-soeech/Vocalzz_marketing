@@ -50,6 +50,8 @@ section. Last updated: 22 Nov 2026.
 - [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
 - [ ] Call asset schedule 10:00–20:00 (Assets → Calls)
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
+- [x] 23 Nov: "Home Therapy" ad group live (id 202193002773): 7 keywords, 15-headline ad → vocalzz.com/therapy-at-home/ (new page). Total 4 live ad groups, 41 keywords
+- [ ] Owner to confirm home-visit details (which therapies, areas, extra charge, which therapists) so the page and replies can be exact
 - [ ] PARKED, REMIND OWNER: Behaviour & ADHD ad group (id 203852092002) left PAUSED and empty on 23 Nov — no behaviour therapist on the team right now. Revisit when one joins
 - [ ] Ad text still says "Speech, OT & Behaviour Therapy" / "behavioural therapy" in the Speech and OT ads — owner to decide whether to remove while there is no behaviour therapist
 - [ ] PARKED, REMIND OWNER: Autism / ABA ad group ("autism therapy noida", "autism centre noida", "aba therapy noida") skipped on 23 Nov because clicks are costly (funded chains bid there). Raise it whenever ads, budget, performance or marketing plans are discussed

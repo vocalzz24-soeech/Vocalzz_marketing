@@ -24,7 +24,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - **Special education:** learning difficulties, dyslexia, academic support
 - **Audiology:** hearing tests for children and adults, hearing aid consultation
 - **Physiotherapy:** paediatric
-- **Formats:** one-on-one sessions, group sessions, online therapy
+- **Formats:** one-on-one sessions, group sessions, online therapy, home sessions of speech therapy and occupational therapy in parts of Noida and Greater Noida (subject to therapist availability; page vocalzz.com/therapy-at-home/)
 
 **Main selling point:** every therapy under one roof, with a team that plans together and parents who get guidance on what to practise at home after every session.
 
