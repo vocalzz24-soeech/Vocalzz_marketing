@@ -45,7 +45,10 @@ section. Last updated: 22 Nov 2026.
       ₹20,000 offer selected (deadline 21 Jan 2027), ₹200/day Performance Max campaign submitted for review
 - [x] Search campaign "Search - Speech Therapy Noida" published 23 Nov: 19 phrase/exact keywords, 15 km Presence, Search only, 07:00–23:45, Maximize clicks ₹40 cap, ₹200/day, 6 sitelinks, 5 callouts
 - [x] 38 negative keywords added; Performance Max "Campaign #1" paused (23 Nov, ₹0 spent)
-- [ ] Confirm ₹40 max CPC in Search campaign settings
+- [x] Verified via Windsor (23 Nov): Search campaign ENABLED, ₹200/day, max CPC ₹40, Google Search only, Presence, 15 km, Mon–Sun 07:00–23:45, 38 negatives; PMax paused
+- [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
+- [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
+- [ ] Call asset schedule 10:00–20:00 (Assets → Calls)
 - [ ] Later: more ad groups (OT, autism/behaviour, hearing) with their own landing pages
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
