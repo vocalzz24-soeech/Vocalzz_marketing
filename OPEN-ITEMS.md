@@ -65,7 +65,8 @@ section. Last updated: 22 Nov 2026.
 ## Claude
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
-- [ ] Owner to confirm the label by pasting it; check Goals → Conversions shows "Recording conversions" after a test tap
+- [x] Label confirmed by owner (23 Nov)
+- [ ] Check Goals → Conversions shows "Recording conversions" after a test tap
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
 - [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
 - [ ] Website About page: "Serving Noida families since …" (waiting for the opening date)
