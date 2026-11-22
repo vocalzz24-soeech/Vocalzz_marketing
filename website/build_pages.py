@@ -42,6 +42,13 @@ def page(path: str, title: str, description: str, crumbs: list[tuple[str, str]],
     doc = f"""<!doctype html>
 <html lang="en-IN">
 <head>
+<!-- Google tag (Google Ads conversion measurement) -->
+<script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KSX477XK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>

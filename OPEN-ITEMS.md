@@ -41,7 +41,9 @@ section. Last updated: 22 Nov 2026.
 - [ ] Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
 - [ ] Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
-- [ ] Create the clinic's own Google Ads account (Expert mode, INR, India time zone) + billing
+- [x] Google Ads account 898-392-0631 created 22 Nov (vocalzz24@gmail.com), Organisation payments profile, prepay UPI,
+      ₹20,000 offer selected (deadline 21 Jan 2027), ₹200/day Performance Max campaign submitted for review
+- [ ] Switch to Expert Mode, pause the Performance Max campaign, build the Search campaign
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
 - [ ] Check the Meta ad account is inside the Vocalzz portfolio, with payment (card or UPI)
@@ -61,7 +63,8 @@ section. Last updated: 22 Nov 2026.
 - [ ] Optional: change your admin login from 8800230240 to 9910671188 (ask Claude)
 
 ## Claude
-- [ ] Add the Google tag + WhatsApp/call conversion events to the website (waiting for the AW- ID and labels)
+- [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
+- [ ] WhatsApp/call click conversion events on the website (needs the conversion actions created in Google Ads)
 - [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
 - [ ] Website About page: "Serving Noida families since …" (waiting for the opening date)
 - [ ] After the API SIM: connect it (setup page /admin/whatsapp is ready)
