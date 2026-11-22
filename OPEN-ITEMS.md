@@ -44,7 +44,8 @@ section. Last updated: 22 Nov 2026.
 - [x] Google Ads account 898-392-0631 created 22 Nov (vocalzz24@gmail.com), Organisation payments profile, prepay UPI,
       ₹20,000 offer selected (deadline 21 Jan 2027), ₹200/day Performance Max campaign submitted for review
 - [x] Search campaign "Search - Speech Therapy Noida" published 23 Nov: 19 phrase/exact keywords, 15 km Presence, Search only, 07:00–23:45, Maximize clicks ₹40 cap, ₹200/day, 6 sitelinks, 5 callouts
-- [ ] Add negative keyword list; pause Performance Max "Campaign #1"; confirm ₹40 max CPC in settings
+- [x] 38 negative keywords added; Performance Max "Campaign #1" paused (23 Nov, ₹0 spent)
+- [ ] Confirm ₹40 max CPC in Search campaign settings
 - [ ] Later: more ad groups (OT, autism/behaviour, hearing) with their own landing pages
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
