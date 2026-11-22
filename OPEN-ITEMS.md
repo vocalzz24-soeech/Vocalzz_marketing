@@ -43,7 +43,9 @@ section. Last updated: 22 Nov 2026.
 - [ ] Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
 - [x] Google Ads account 898-392-0631 created 22 Nov (vocalzz24@gmail.com), Organisation payments profile, prepay UPI,
       ₹20,000 offer selected (deadline 21 Jan 2027), ₹200/day Performance Max campaign submitted for review
-- [ ] Switch to Expert Mode, pause the Performance Max campaign, build the Search campaign
+- [x] Search campaign "Search - Speech Therapy Noida" published 23 Nov: 19 phrase/exact keywords, 15 km Presence, Search only, 07:00–23:45, Maximize clicks ₹40 cap, ₹200/day, 6 sitelinks, 5 callouts
+- [ ] Add negative keyword list; pause Performance Max "Campaign #1"; confirm ₹40 max CPC in settings
+- [ ] Later: more ad groups (OT, autism/behaviour, hearing) with their own landing pages
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
 - [ ] Check the Meta ad account is inside the Vocalzz portfolio, with payment (card or UPI)
