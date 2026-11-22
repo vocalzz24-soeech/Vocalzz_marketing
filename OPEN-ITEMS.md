@@ -1,0 +1,67 @@
+# Open items
+
+Running list of things still to do. When the owner asks about open or pending items, read this file, remind them
+of what is open (owner's items first), and update it when something is done. Newest additions at the top of each
+section. Last updated: 22 Nov 2026.
+
+## Owner (you)
+
+### WhatsApp Business on 99106 71188 (kept open on purpose; owner will finish later)
+- [ ] Business hours: Mon–Sat 10 am–8 pm, Sunday closed
+- [ ] Description, last sentence: "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week."
+- [ ] Away message: "Thank you for your message! 🙏 Clinic visits are Mon–Sat, 10 am–8 pm, by appointment. We reply to
+      WhatsApp messages 7 days a week, so we'll get back to you shortly. Please share the patient's name, age and main concern."
+- [ ] Quick reply /timing: "Clinic visits are Monday to Saturday, 10 am to 8 pm, by appointment. You can WhatsApp us any day of the week."
+- [ ] Check: profile photo replaced with the logo (old one showed "Lorem ipsum"), address written as
+      "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304", email contactus@vocalzz.com,
+      About line, username reserved, two-step verification PIN set, daily chat backup on
+- [ ] Optional: labels (New enquiry, Consultation booked, Active patient, Follow up, Not interested), UPI QR code
+
+### Google Business Profile
+- [ ] Phone change to 099106 71188: submitted 22 Nov, pending Google review (up to 7 days). Don't re-edit while pending
+- [ ] Chat link: change WhatsApp from wa.me/918800230240 to https://wa.me/919910671188
+- [ ] Hours: Mon–Sat 10:00 am–8:00 pm, Sunday closed
+- [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
+- [ ] Opening date (month/year the clinic opened), and tell Claude so the website About page says the same
+- [ ] Check attributes "women-owned" / "LGBTQ+ friendly" are intended
+- [ ] Remove the duplicate (audiology) listings
+
+### Number switch (88002 30240 → 99106 71188)
+- [ ] Until Google shows the new number: answer 88002 30240 for clinic calls, or forward its calls to 99106 71188
+- [ ] Instagram @vocalzz_4u contact number; Facebook page contact number
+- [ ] Justdial, Practo, Sulekha numbers
+- [ ] Message existing patients about the new number (text in chat, 20 Nov)
+- [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
+
+### Paid ads launch
+- [ ] Create the clinic's own Google Ads account (Expert mode, INR, India time zone) + billing
+- [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
+- [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
+- [ ] Check the Meta ad account is inside the Vocalzz portfolio, with payment (card or UPI)
+- [ ] Shoot 3 reels (marketing/reel-scripts-2026-11.md) and make 2 posters; Dr. Tanu to check the poster's 5 signs and Reel 2 wording
+- [ ] Build the Meta Click-to-WhatsApp campaign with Claude
+- [ ] On Sundays, someone checks WhatsApp a few times a day
+
+### Automatic WhatsApp messages (API)
+- [ ] Buy the new SIM for the API (don't install WhatsApp on it; keep it recharged); send Claude the number
+- [ ] Then follow appointments/docs/whatsapp-setup-guide.md from Phase 2; submit templates only after the number switch
+
+### Booking app
+- [ ] Give therapists logins; set joining dates and opening leave balances (Leave page)
+- [ ] Upload "HR Policy 2027" and "Holiday Calendar 2027" PDFs on the Policies page
+- [ ] Delete test bills and test patients
+- [ ] Weekly report email: Resend account, domain vocalzz.com, then Cloudflare secrets RESEND_API_KEY and REPORT_EMAIL_TO
+- [ ] Optional: change your admin login from 8800230240 to 9910671188 (ask Claude)
+
+## Claude
+- [ ] Add the Google tag + WhatsApp/call conversion events to the website (waiting for the AW- ID and labels)
+- [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
+- [ ] Website About page: "Serving Noida families since …" (waiting for the opening date)
+- [ ] After the API SIM: connect it (setup page /admin/whatsapp is ready)
+
+## Offered, not decided
+- Login security: new password on first login, change-password page, lock after wrong tries, forgot-password request
+- Monthly report email on the 1st (last completed month)
+- Website footer line "Vocalzz Speech & Audio is a brand of Vocalzz Resonance Hearing Centre OPC Private Limited"
+- Later ideas: UPI QR on bills and dues tracking, home-practice card for parents, website enquiry form → inbox,
+  review-request messages, a listings copy-paste sheet
