@@ -247,28 +247,6 @@ SERVICES = [
                   "It depends on the test and the person's age. We'll let you know when you book.")],
     },
     {
-        "slug": "physiotherapy", "name": "Paediatric Physiotherapy", "short": "Paediatric physiotherapy",
-        "title": "Paediatric Physiotherapy in Sector 137, Noida | Vocalzz Speech & Audio",
-        "desc": "Paediatric physiotherapy in Sector 137, Noida to help children build movement, strength, balance and coordination, alongside occupational and speech therapy.",
-        "h1": "Paediatric Physiotherapy in Sector 137, Noida",
-        "lead": "Helping little bodies move with more strength and confidence, with Dr. Samriddhi, Physiotherapist and certified Occupational Therapist.",
-        "wa": "Hi Vocalzz, I'd like to know about physiotherapy for my child.",
-        "who": ["Babies and children reaching motor milestones (sitting, crawling, walking) later than expected",
-                "Children with low muscle tone or weakness",
-                "Children who find balance, running, jumping or stairs difficult",
-                "Children with cerebral palsy or other conditions that affect movement"],
-        "work": ["Gross motor milestones: sitting, crawling, standing and walking",
-                 "Strength and posture",
-                 "Balance and coordination",
-                 "Movement through play, with exercises to continue at home"],
-        "extra": ("Physiotherapy for children",
-                  "Our physiotherapy service is for children. Sessions are play-based, and parents learn simple exercises to continue at home."),
-        "faqs": [("Do you offer physiotherapy for adults?",
-                  "Our physiotherapy service focuses on children. Message us and we'll guide you."),
-                 ("What happens in the first session?",
-                  "The physiotherapist observes how your child moves and plays, talks with you about your concerns, and suggests a plan.")],
-    },
-    {
         "slug": "therapy-at-home", "name": "Therapy at Home", "short": "Therapy at home",
         "title": "Speech Therapy & Occupational Therapy at Home in Noida | Vocalzz Speech & Audio",
         "desc": "Home sessions of speech therapy and occupational therapy in Noida and Greater Noida by the Vocalzz team. WhatsApp us to check availability in your area.",
@@ -409,7 +387,7 @@ def build_services_index():
     schema = [{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}/{s['slug']}/", "name": s["name"]} for i, s in enumerate(SERVICES)]}]
     page("/services/", "Therapy Services in Sector 137, Noida | Vocalzz Speech & Audio",
-         "Speech therapy, occupational therapy, behavioural therapy, special education, audiology and paediatric physiotherapy in Sector 137, Noida, all under one roof.",
+         "Speech therapy, occupational therapy, behavioural therapy, special education and audiology in Sector 137, Noida, all under one roof.",
          [("Home", "/"), ("Services", "/services/")], body, schema)
 
 
@@ -436,7 +414,7 @@ def build_about():
 <figure class="team-photo team-chart" style="margin:0 auto 8px"><img src="/photos/team-chart-1080.webp?v=2" srcset="/photos/team-chart-540.webp?v=2 540w, /photos/team-chart-1080.webp?v=2 1080w" sizes="(min-width: 600px) 520px, 100vw" width="1080" height="1350" loading="lazy" decoding="async" alt="The Vocalzz team: Dr. Tanu Garg, founder, speech therapist and audiologist; Dr. Samriddhi; Minhaj Hashmi and Tanishk Kaushik"><figcaption>Our team at Vocalzz, Sector 137, Noida</figcaption></figure>
 <h2>Why families choose Vocalzz</h2>
 <ul>
-<li><strong>Every therapy under one roof:</strong> speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy.</li>
+<li><strong>Every therapy under one roof:</strong> speech, occupational and behavioural therapy, special education and audiology.</li>
 <li><strong>One team, one plan:</strong> our therapists share notes and agree goals together, so nothing pulls in different directions.</li>
 <li><strong>Parents are part of therapy:</strong> after every session you get simple activities to practise at home.</li>
 <li><strong>Honest guidance:</strong> every person is different, so we set realistic goals and review progress with you, without promising fixed results or timelines.</li>
@@ -456,7 +434,7 @@ def build_about():
         "@context": "https://schema.org",
         "employee": [{"@type": "Person", "name": name, "jobTitle": role} for _, name, role, _, _ in TEAM]})}]
     page("/about/", "About Vocalzz Speech & Audio | Therapy Team in Sector 137, Noida",
-         "Meet the Vocalzz team in Sector 137, Noida: speech therapy, audiology, occupational therapy, physiotherapy and special education, planned together around each child.",
+         "Meet the Vocalzz team in Sector 137, Noida: speech therapy, audiology, occupational therapy and special education, planned together around each child.",
          [("Home", "/"), ("About us", "/about/")], body, schema)
 
 

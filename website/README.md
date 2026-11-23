@@ -16,7 +16,7 @@ A fast, single-page clinic website (plus privacy and 404 pages). Plain HTML and 
 |---|---|
 | `/` | Home (`public/index.html`, edited by hand) |
 | `/services/` | All services |
-| `/speech-language-therapy/`, `/occupational-therapy/`, `/behavioral-therapy/`, `/special-education/`, `/audiology/`, `/physiotherapy/` | One page per service |
+| `/speech-language-therapy/`, `/occupational-therapy/`, `/behavioral-therapy/`, `/special-education/`, `/audiology/` | One page per service |
 | `/about/` | About us and team |
 | `/contact-us/` | Contact, hours and map |
 

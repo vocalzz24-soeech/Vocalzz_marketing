@@ -115,6 +115,11 @@ section. Last updated: 23 Nov 2026.
 - [ ] Invite the owner's own Facebook profile to the portfolio as Admin (Settings → People → Invite, by the email of that Facebook profile), then assign it to the ad account with Full control; add payment method (company name, registered address, no GST)
 - [ ] (was) Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
 
+### Physiotherapy removed (23 Nov)
+- [x] Website: physiotherapy page removed, /physiotherapy/ → /occupational-therapy/ (301); home card replaced by "Therapy at home"; footer, schema and service lists updated
+- [ ] Owner: remove "physiotherapy" from the Google Business Profile services/description if listed, and from Justdial/Practo/Instagram bio if mentioned
+- [ ] Owner decision: Dr. Samriddhi's title on the website still says "Physiotherapist & Certified Occupational Therapist" (her qualification). Keep, or change to "Certified Occupational Therapist"?
+
 ### Windsor.ai plan (trial ends 9 Dec 2026)
 - [ ] Before 9 Dec: decide plan. Prices (annual billing): Basic ₹1,799/mo (3 sources), Standard ₹9,299/mo (7). Forever Free after trial = 1 data source, 1 account, 30-day history. Plan: keep only Google Ads on Windsor Free (check that write actions work on Free); Claude builds Search Console reporting into the booking app; disconnect Facebook Ads (Ayush Goyal), Facebook page, GBP "Rehabilitation clinic"; Instagram optional. If Free can't make ad changes → Basic
 - [x] 23 Nov: SEO report LIVE at book.vocalzz.com/seo (Search Console via service account vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com, project Digital-marketing-vocalzz; runtime secret GSC_PRIVATE_KEY). Owner to delete the stray GSC_PRIVATE_KEY under Settings → Builds and the downloaded .json file. Search Console can now be disconnected from Windsor
