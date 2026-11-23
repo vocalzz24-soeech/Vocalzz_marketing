@@ -131,7 +131,7 @@ section. Last updated: 23 Nov 2026.
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
 - [x] Label confirmed by owner (23 Nov)
-- [ ] Conversion tracking: Goals shows "WhatsApp click" (Website, Primary, in account goals) and AI-qualified call leads as "Awaiting conversions" (23 Nov). A direct test tap does NOT count: Google Ads only records a conversion after an ad click. Watch for the first real one in the Thu/Fri review; if none after ~20 ad clicks, Claude checks the tag
+- [x] 24 Nov: Conversion tracking WORKS: Google Ads overview shows 1 conversion action "Recording conversions" (after the first ad-driven WhatsApp lead on 23 Nov)
 - [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
 - [x] 23 Nov: Booking app: "How did they hear about us?" + "First contacted us on" on patients (add + edit forms, shown in list and summary), Dashboard section 5 "Where new patients came from" (migration 0012, applied on deploy). + "How did they contact us?" (WhatsApp, call, walk-in…, migration 0013) with a second table on the Dashboard. Live and checked by owner 23 Nov
