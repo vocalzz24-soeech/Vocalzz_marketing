@@ -14,6 +14,7 @@ import { buildReport, periodFor, rangeLabel } from "./report.ts";
 import { reportPdf } from "./report-pdf.ts";
 import { emailReady, emailReport, sendWeeklyReport, WEEKLY_CRON } from "./report-email.ts";
 import { dashboardPage } from "./dashboard-views.ts";
+import { cleanDate, cleanSource, sourceReport } from "./sources.ts";
 import { numberStatus, registerNumber, sendTest, whatsappSetupPage } from "./whatsapp-admin.ts";
 import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
@@ -860,7 +861,7 @@ app.get("/patients", adminOnly, async (c) => renderPatients(c, (c.req.query("q")
 app.post("/patients", adminOnly, async (c) => {
   const body = await c.req.parseBody();
   const f: NewPatientForm = Object.fromEntries(
-    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
+    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "source", "enquiry_date", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
   );
   const again = (text: string) => renderPatients(c, "", { type: "error", text }, f, 400);
   const phone = normalisePhone(f.phone ?? "");
@@ -879,9 +880,9 @@ app.post("/patients", adminOnly, async (c) => {
   }
 
   const res = await c.env.DB.prepare(
-    "INSERT INTO patients (name, guardian_name, phone, whatsapp_consent, notes, stage, stage_changed_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO patients (name, guardian_name, phone, whatsapp_consent, notes, stage, stage_changed_at, source, enquiry_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
   ).bind(f.name.slice(0, 80), (f.guardian_name ?? "").slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, (f.notes ?? "").slice(0, 200) || null,
-    isNew ? "consultation" : "active", new Date().toISOString()).run();
+    isNew ? "consultation" : "active", new Date().toISOString(), cleanSource(f.source), cleanDate(f.enquiry_date)).run();
   const patientId = Number(res.meta.last_row_id);
 
   if (!isNew) return redirectWith(c, `/appointments/new?patient_id=${patientId}`, { type: "ok", text: `${f.name} added. Book their sessions below.` });
@@ -984,8 +985,9 @@ app.post("/patients/:id", adminOnly, async (c) => {
   const f = await c.req.parseBody();
   const phone = normalisePhone(str(f.phone));
   if (!str(f.name) || !phone) return redirectWith(c, `/patients/${id}/edit`, { type: "error", text: "Enter the patient's name and a valid 10-digit mobile number." });
-  await c.env.DB.prepare("UPDATE patients SET name = ?, guardian_name = ?, phone = ?, whatsapp_consent = ?, notes = ? WHERE id = ?")
-    .bind(str(f.name).slice(0, 80), str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null, id).run();
+  await c.env.DB.prepare("UPDATE patients SET name = ?, guardian_name = ?, phone = ?, whatsapp_consent = ?, notes = ?, source = ?, enquiry_date = ? WHERE id = ?")
+    .bind(str(f.name).slice(0, 80), str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null,
+      cleanSource(str(f.source)), cleanDate(str(f.enquiry_date)), id).run();
   return redirectWith(c, "/patients", { type: "ok", text: `${str(f.name)} updated.` });
 });
 
@@ -1009,7 +1011,8 @@ async function reportFromQuery(c: C, q: URLSearchParams) {
 
 app.get("/dashboard", adminOnly, async (c) => {
   const { therapists, therapist, report, query } = await reportFromQuery(c, new URL(c.req.url).searchParams);
-  return c.html(dashboardPage(c.get("user"), report, { therapists, therapistId: therapist?.id, query, emailReady: emailReady(c.env), flash: takeFlash(c) }));
+  const sources = await sourceReport(c.env, report.period.from, report.period.to);
+  return c.html(dashboardPage(c.get("user"), report, { therapists, therapistId: therapist?.id, query, emailReady: emailReady(c.env), flash: takeFlash(c), sources }));
 });
 
 app.get("/dashboard/report.pdf", adminOnly, async (c) => {

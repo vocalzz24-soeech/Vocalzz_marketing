@@ -114,7 +114,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] Conversion tracking: Goals shows "WhatsApp click" (Website, Primary, in account goals) and AI-qualified call leads as "Awaiting conversions" (23 Nov). A direct test tap does NOT count: Google Ads only records a conversion after an ad click. Watch for the first real one in the Thu/Fri review; if none after ~20 ad clicks, Claude checks the tag
 - [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
-- [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
+- [x] 23 Nov: Booking app: "How did they hear about us?" + "First contacted us on" on patients (add + edit forms, shown in list and summary), Dashboard section 5 "Where new patients came from" (migration 0012, applied on deploy). Owner to tag today's stammering patient as Google ad, 23 Nov
 - [x] Website About page: "serving Noida families since July 2022" (23 Nov)
 - [ ] After the API SIM: connect it (setup page /admin/whatsapp is ready)
 
