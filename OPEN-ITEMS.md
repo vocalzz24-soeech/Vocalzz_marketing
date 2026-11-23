@@ -41,7 +41,8 @@ section. Last updated: 22 Nov 2026.
 - [ ] 24 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
       ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
       in account 164-628-8199 in 2026? Ask for email confirmation. If not eligible, go back to the ₹130/day plan
-- [ ] Start Google Search at ₹200/day; raise to ₹350/day once Google confirms eligibility in writing (decided 22 Nov)
+- [x] 24 Nov: Billing → Promotions shows the ₹20,000 offer (code 6YVK9-VXQE3-HALP) "Redeemed: Complete further requirements", spend ₹20,000 excl. GST by 21 Jan 2027. Owner approved; Search budget raised ₹200 → ₹350/day via Windsor. Final eligibility is still Google's call when the credit is granted
+- [ ] Keep prepaid balance ≥ ~₹3,000 (₹350/day + GST ≈ ₹2,900/week); check Promotions progress every Monday. If daily spend stays well under ₹350 (₹40 click cap limits it), review CPC cap with Claude so the ₹20k target is met by 21 Jan
 - [ ] Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
 - [ ] Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
