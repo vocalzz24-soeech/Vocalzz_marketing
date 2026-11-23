@@ -65,7 +65,7 @@ POSTS = [
     },
     {
         "slug": "stammering-tips-teens-adults",
-        "status": "draft",
+        "status": "published",
         "date": "2026-11-23",
         "reviewed_on": None,
         "title": "Stammering (हकलाना) at college or work: 8 practical tips, and when therapy helps",
@@ -118,7 +118,7 @@ POSTS = [
     },
     {
         "slug": "speech-therapy-mistakes-parents-make",
-        "status": "draft",
+        "status": "published",
         "date": "2026-11-23",
         "reviewed_on": None,
         "title": "10 speech therapy mistakes parents make (and what to do instead)",
