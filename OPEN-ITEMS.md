@@ -18,7 +18,9 @@ section. Last updated: 22 Nov 2026.
 - [ ] Optional: labels (New enquiry, Consultation booked, Active patient, Follow up, Not interested), UPI QR code
 
 ### Google Business Profile
-- [ ] Phone change to 099106 71188: REJECTED (seen 24 Nov). Appeal via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
+- [ ] Reply to the new 5-star review from "L" (Claude can draft it; paste the review text)
+- [ ] "Vocalzz Audiology centre" listing shows a red dot on its edit pencil (something pending); look at it after the phone appeal; decide remove vs merge so its reviews aren't lost
+- [ ] Phone change to 099106 71188: REJECTED (seen 24 Nov); APPEAL SUBMITTED 24 Nov, case ID 4-2748000041681 (main listing id 12924698047389058106). Wait for Google's email (3–7 days); reply to it with evidence if asked. Appeal was via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
 - [ ] Chat link: change WhatsApp from wa.me/918800230240 to https://wa.me/919910671188
 - [ ] Hours: Mon–Sat 10:00 am–8:00 pm, Sunday closed
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
