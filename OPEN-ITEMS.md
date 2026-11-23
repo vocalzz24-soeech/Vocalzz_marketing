@@ -12,7 +12,7 @@ section. Last updated: 23 Nov 2026.
 - [x] 24 Nov: description (no physiotherapy; stammering, adults, home visits, online), quick replies (/location /home /online /stammer /assessment /tips) and labels done (owner confirmed)
 - [ ] Catalogue: one item per service, no price, "WhatsApp us for details", photo + website link (Speech therapy for children, Stammering, Adults, OT, Special education, Hearing test, Therapy at home; no physiotherapy). Kept open on purpose
 - [ ] Check: Website 2 = vocalzz.com/therapy-at-home/, address/email/About as listed
-- [ ] Description, last sentence: "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week."
+- [x] Description, last sentence (covered by the 24 Nov description)
 - [x] (done, owner 23 Nov) Away message: "Thank you for your message! 🙏 Clinic visits are Mon–Sat, 10 am–8 pm, by appointment. We reply to
       WhatsApp messages 7 days a week, so we'll get back to you shortly. Please share the patient's name, age and main concern."
 - [x] (done, owner 23 Nov) Quick reply /timing: "Clinic visits are Monday to Saturday, 10 am to 8 pm, by appointment. You can WhatsApp us any day of the week."
