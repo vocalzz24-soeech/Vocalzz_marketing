@@ -116,4 +116,53 @@ POSTS = [
 <p>At our clinic in Sector 137, Noida, and in online sessions, we start with an assessment: we listen to you, understand where and when stammering affects you most, and agree goals together. Sessions focus on practical techniques and real-life practice, such as calls, introductions and interviews, with things to practise between sessions. Every person is different, so we set realistic goals and review progress with you.</p>
 """,
     },
+    {
+        "slug": "speech-therapy-mistakes-parents-make",
+        "status": "draft",
+        "date": "2026-11-23",
+        "reviewed_on": None,
+        "title": "10 speech therapy mistakes parents make (and what to do instead)",
+        "seo_title": "10 Speech Therapy Mistakes Parents Make | Child Speech Delay Tips | Vocalzz Noida",
+        "description": "Is your child a late talker or in speech therapy? 10 common mistakes loving parents make at home, and simple things to do instead to help your child talk.",
+        "summary": "\"Bolo beta, bolo!\" Ten common, well-meant habits that can hold speech back, and what to try instead.",
+        "service": ("Speech & Language Therapy", "/speech-language-therapy/"),
+        "wa": "Hi Vocalzz, I read your article on speech therapy mistakes and I'd like advice about my child.",
+        "body": """
+<p>"Bolo beta, bolo… say mumma!" Every parent wants to hear their child talk, and every one of these habits comes from love. But some well-meant things we do at home can quietly make talking harder for a child who is a late talker or already in speech therapy.</p>
+<p>The good news: each one has a simple swap you can start today. Every child is different, so take what fits your family.</p>
+
+<h2>1. Waiting too long because "boys talk late"</h2>
+<p>Relatives mean well, but "he'll talk on his own" can cost months. <strong>Instead:</strong> if you're worried, get an assessment. It either reassures you or helps you start the right support sooner.</p>
+
+<h2>2. Giving your child everything before they ask</h2>
+<p>If the biscuit, the water and the toy appear before your child needs to communicate, there's no reason to try. <strong>Instead:</strong> pause and wait. Hold the item up, look at your child, and give them a chance to point, make a sound or say a word.</p>
+
+<h2>3. Turning talking into a test</h2>
+<p>"Say apple. Say A-P-P-L-E. Come on, say it!" Pressure usually makes children go quiet. <strong>Instead:</strong> say the word yourself in play, without asking them to repeat: "Apple! Crunchy apple!" Talking should feel like fun, not an exam.</p>
+
+<h2>4. Correcting every mistake</h2>
+<p>If your child says "tat" for "cat" and you stop them each time, they may stop trying. <strong>Instead:</strong> repeat it back correctly and happily: "Yes, a cat! A big cat." No "wrong", no repeating drills.</p>
+
+<h2>5. Using screens as "learning time"</h2>
+<p>Even "educational" videos don't talk back. Children learn to talk through back-and-forth with people. <strong>Instead:</strong> swap some screen time for face-to-face play, songs and books, and avoid screens in the background during play and meals.</p>
+
+<h2>6. Talking too much, too fast</h2>
+<p>Long sentences at full speed are hard to follow and leave no gap for your child. <strong>Instead:</strong> use short, simple phrases, slow down a little, and leave a pause of about five seconds for your child to respond.</p>
+
+<h2>7. Dropping your home language</h2>
+<p>Many families switch to English only, hoping it will help. Children can learn more than one language, and switching often means parents talk less naturally. <strong>Instead:</strong> speak the language you're most comfortable in, richly and often. Ask your therapist if you're unsure.</p>
+
+<h2>8. Skipping the hearing check</h2>
+<p>Children learn to talk by listening, and even a mild or temporary hearing problem can affect speech. <strong>Instead:</strong> if speech is late, get your child's hearing checked as one of the first steps.</p>
+
+<h2>9. Comparing in front of your child</h2>
+<p>"Look, Riya is younger and talks so much!" Children understand more than we think, and comparison adds pressure. <strong>Instead:</strong> notice and praise small steps: a new sound, a new gesture, a new word.</p>
+
+<h2>10. Leaving therapy to the therapist</h2>
+<p>A session is an hour or so a week; your child is at home with you for the rest. Progress usually comes from what happens every day. <strong>Instead:</strong> ask your therapist for 2–3 simple activities to practise at home, and fit them into daily routines like bath time and meals. Also, don't stop therapy the moment the first words come; ask your therapist when it's the right time.</p>
+
+<h2>How we work with parents at Vocalzz</h2>
+<p>At our clinic in Sector 137, Noida, every session ends with guidance on what to practise at home, because parents are the most important part of therapy. We start with an assessment, explain what we notice in simple words and set realistic goals together. Every child is different, so we don't promise fixed timelines; we review progress with you regularly.</p>
+""",
+    },
 ]
