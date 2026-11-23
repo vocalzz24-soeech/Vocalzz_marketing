@@ -132,7 +132,8 @@ section. Last updated: 23 Nov 2026.
 - [x] 24 Nov: Google Ads Manager account created: "Vocalzz Speech & Audio – Manager" 305-879-1109 (vocalzz24@gmail.com)
 - [x] 24 Nov: 898-392-0631 linked under manager 305-879-1109 (Owner: No — ads account keeps its own ownership)
 - [x] 24 Nov: API Center form done: token created, access level "Explorer Access". Google's banner: developer tokens no longer required; API access levels now managed in Google Cloud Console
-- [ ] Next: Google Cloud project Digital-marketing-vocalzz → enable "Google Ads API"; check its access level there; give the app access to 898-392-0631 (likely by adding the service account as a user in Google Ads, else OAuth sign-in). Then Claude builds the Google Ads report page
+- [x] 24 Nov: Google Ads API enabled in Cloud project Digital-marketing-vocalzz; access level was Test; Explorer access applied for ("under review, check back in a few minutes")
+- [ ] Check Explorer approved (Cloud console → Google Ads API → Manage access levels); add vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com as Read-only user in 898-392-0631 (else OAuth). Then Claude builds the Google Ads report page
 
 ## Claude
 - [x] 24 Nov: "Adults" ad group (id 203056682820) live: 8 phrase keywords (speech therapy for adults, adult speech therapist, voice therapy, voice therapist near me, speech therapy after stroke, aphasia therapy, speech therapy for elderly, swallowing therapy), adult-worded ad → /speech-language-therapy/. "speech therapy for adults" paused in Child Speech (criterion 379378333). Shares ₹400/day. Later: a dedicated adults page
