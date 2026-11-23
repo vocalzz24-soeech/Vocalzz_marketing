@@ -78,7 +78,9 @@ section. Last updated: 23 Nov 2026.
 - [ ] On Sundays, someone checks WhatsApp a few times a day
 
 ### Organic growth / SEO (plan: marketing/seo-plan-2026-11.md, started 23 Nov)
-- [ ] Owner: set up Google Search Console (domain vocalzz.com, verify via Cloudflare), submit sitemap; then connect Search Console in Windsor so Claude can read it
+- [x] 23 Nov: Search Console already existed (domain vocalzz.com, owner tanugarg.india@gmail.com, data since Aug). Old developer's leftover token (allworkmail44@gmail.com) removed from Cloudflare DNS; 0 unused tokens
+- [ ] Search Console: Settings → Users and permissions: remove unknown users, add vocalzz24@gmail.com as Owner; submit sitemap.xml; request indexing for /stammering-therapy/ and /speech-therapy-greater-noida/; then connect Search Console in Windsor so Claude can read it
+- [ ] Search Console shows 39 indexed / 16 not indexed pages but the site has ~15: old-site URLs; Claude to review the list and redirect useful old URLs
 - [ ] Owner: start the review routine (ask 2–3 families a week; QR/link at reception and in the WhatsApp thank-you)
 - [ ] Owner: send screenshots of Business Profile categories + services list; Claude suggests fixes and writes Q&A
 - [x] 23 Nov: page "Speech therapy for Greater Noida families" live at /speech-therapy-greater-noida/ (clinic, home, online; in sitemap and services list). Owner confirmed home visits (speech + OT) in Greater Noida and online speech therapy; Greater Noida ads now point there
