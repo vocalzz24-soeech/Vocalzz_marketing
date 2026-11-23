@@ -82,7 +82,7 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: page "Speech therapy for Greater Noida families" live at /speech-therapy-greater-noida/ (clinic, home, online; in sitemap and services list). Owner confirmed home visits (speech + OT) in Greater Noida and online speech therapy; Greater Noida ads now point there
 - [x] 23 Nov: Stammering (हकलाना) page live at /stammering-therapy/ (owner approved; Lidcombe not claimed, says "parent-guided practice"); in sitemap + Services
 - [ ] Claude: page "Speech therapy for autism" (Dr. Tanu to check facts)
-- [ ] Optional: "Stammering" ad group → /stammering-therapy/ (needs owner OK on keywords + ad text)
+- [x] 23 Nov: "Stammering" ad group (id 202743642376) live → /stammering-therapy/: 7 phrase keywords (stammering treatment/therapy, stuttering therapy/treatment, speech therapy for stammering, haklana ka ilaj, हकलाना इलाज), 6 ad-group negatives (meaning, quotes, song, movie, "in hindi", youtube), 15-headline ad. Owner: stammering patients are top priority (CLAUDE.md updated). Shares ₹350/day
 - [ ] Claude: blog post 1 "My 2-year-old isn't talking" + weekly Google post drafts
 - [ ] Claude: copy-paste sheet for directories (same name/address/99106 number)
 - [ ] Check the third listing "Vocalzz -Rehabilitation clinic" (seen in Windsor, locations/13587561885596827742) — whose account owns it; fold into the duplicate clean-up

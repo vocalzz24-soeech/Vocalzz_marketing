@@ -30,7 +30,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 
 ## Audience (in priority order)
 1. **Parents aged 25–44 in Noida, Greater Noida and East Delhi** whose child aged 2–8 is a late talker, shows autism or ADHD signs, or has unclear speech. Both mothers and fathers follow the account.
-2. **Teens and adults who stammer**
+2. **Teens and adults who stammer (and children who stammer)**: owner, 23 Nov 2026: treat as equal top priority with group 1. Therapy often goes well and success stories carry weight; stammering ads and content get the same effort as late-talker content
 3. **Adult children of elderly parents** with hearing loss or post-stroke speech problems. Reach them through their children and on Facebook.
 4. **Online therapy clients** across India
 
