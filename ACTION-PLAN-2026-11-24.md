@@ -25,8 +25,8 @@ Claude can read results and make changes with your OK. Full list of pending item
 ## Afternoon: review with Claude (15 min)
 7. Ask Claude "**How are the ads doing?**" → Claude pulls impressions, clicks, cost, and any WhatsApp clicks/calls per
    ad group through Windsor, and checks for any disapproved ads.
-8. Decide on the **ad text that still mentions behaviour therapy** (Speech and OT ads: "Speech, OT & Behaviour Therapy",
-   "behavioural therapy under one roof"). Claude can replace it with "Speech & OT Under One Roof" if you say so.
+8. ✅ Done 24 Nov (behaviour wording removed; owner to remove 2 old sitelinks). ~~Decide on the **ad text that still mentions behaviour therapy** (Speech and OT ads: "Speech, OT & Behaviour Therapy",
+   "behavioural therapy under one roof"). Claude can replace it with "Speech & OT Under One Roof" if you say so.~~
 9. Give Claude the **home-visit details**: which therapies, which areas, any extra charge, which therapists. Claude
    updates vocalzz.com/therapy-at-home/ to match.
 
