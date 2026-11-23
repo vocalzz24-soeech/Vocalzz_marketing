@@ -62,7 +62,7 @@ section. Last updated: 23 Nov 2026.
 - [x] Call asset schedule: owner decided 23 Nov to keep it showing whenever ads run (7:00 am–11:45 pm, all days); owner answers calls at those times
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
 - [x] 23 Nov: "Home Therapy" ad group live (id 202193002773): 7 keywords, 15-headline ad → vocalzz.com/therapy-at-home/ (new page). Total 4 live ad groups, 41 keywords
-- [ ] Owner to confirm home-visit details (which therapies, areas, extra charge, which therapists) so the page and replies can be exact
+- [ ] Owner to confirm home-visit details. Confirmed 23 Nov: home visits are speech therapy + OT, in Noida and Greater Noida; online speech therapy offered. Still open: any extra charge, which therapists
 - [ ] PARKED, REMIND OWNER: Behaviour & ADHD ad group (id 203852092002) left PAUSED and empty on 23 Nov — no behaviour therapist on the team right now. Revisit when one joins
 - [x] 23 Nov via Windsor: behaviour wording removed from Child Speech + OT ads (headline → "Speech & OT Under One Roof"; description → "Speech, OT, hearing & special education under one roof. WhatsApp us 7 days."). New sitelinks "Our Therapies" (/services/) and "Meet Dr. Tanu & Team" (/about/) added
 - [x] Owner removed (23 Nov) the 2 old sitelinks "All Our Therapies" and "About Dr. Tanu & Team" (they still say behaviour; Windsor can't remove assets). When a behaviour therapist joins, the behaviour wording can come back
@@ -78,7 +78,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] Owner: set up Google Search Console (domain vocalzz.com, verify via Cloudflare), submit sitemap; then connect Search Console in Windsor so Claude can read it
 - [ ] Owner: start the review routine (ask 2–3 families a week; QR/link at reception and in the WhatsApp thank-you)
 - [ ] Owner: send screenshots of Business Profile categories + services list; Claude suggests fixes and writes Q&A
-- [x] 23 Nov: page "Speech therapy for Greater Noida families" live at /speech-therapy-greater-noida/ (clinic, home, online; in sitemap and services list). Owner/Dr. Tanu to check wording; option: point Greater Noida ad keywords there (needs OK)
+- [x] 23 Nov: page "Speech therapy for Greater Noida families" live at /speech-therapy-greater-noida/ (clinic, home, online; in sitemap and services list). Owner confirmed home visits (speech + OT) in Greater Noida and online speech therapy; option: point Greater Noida ad keywords there (needs OK)
 - [ ] Claude: page 1 "Stammering therapy" and page 2 "Speech therapy for autism" (Dr. Tanu to check facts)
 - [ ] Claude: blog post 1 "My 2-year-old isn't talking" + weekly Google post drafts
 - [ ] Claude: copy-paste sheet for directories (same name/address/99106 number)
