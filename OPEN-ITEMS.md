@@ -9,7 +9,9 @@ section. Last updated: 23 Nov 2026.
 ### WhatsApp Business on 99106 71188 (kept open on purpose; owner will finish later)
 - [x] Business hours (owner confirmed done, 23 Nov)
 - [x] 24 Nov: greeting message (new, hours Mon–Sat 10–8, Sunday closed, asks clinic/home/online) and away message re-saved with correct hours (old auto-message said 10–9, 7 days)
-- [ ] New (24 Nov): description update (no physiotherapy; stammering, adults, home visits, online), Website 2 = vocalzz.com/therapy-at-home/, quick replies /location /home /online /stammer /assessment /tips, optional catalogue (no physiotherapy)
+- [x] 24 Nov: description (no physiotherapy; stammering, adults, home visits, online), quick replies (/location /home /online /stammer /assessment /tips) and labels done (owner confirmed)
+- [ ] Catalogue: one item per service, no price, "WhatsApp us for details", photo + website link (Speech therapy for children, Stammering, Adults, OT, Special education, Hearing test, Therapy at home; no physiotherapy). Kept open on purpose
+- [ ] Check: Website 2 = vocalzz.com/therapy-at-home/, address/email/About as listed
 - [ ] Description, last sentence: "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week."
 - [x] (done, owner 23 Nov) Away message: "Thank you for your message! 🙏 Clinic visits are Mon–Sat, 10 am–8 pm, by appointment. We reply to
       WhatsApp messages 7 days a week, so we'll get back to you shortly. Please share the patient's name, age and main concern."
@@ -18,7 +20,8 @@ section. Last updated: 23 Nov 2026.
 - [ ] Still to check: address written as
       "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304", email contactus@vocalzz.com,
       About line, username reserved, two-step verification PIN set, daily chat backup on
-- [ ] Optional: labels (New enquiry, Consultation booked, Active patient, Follow up, Not interested), UPI QR code
+- [x] Labels done (24 Nov)
+- [ ] Optional: UPI QR code
 
 ### Google Business Profile
 - [ ] Reply to the new 5-star review from "L" (Claude can draft it; paste the review text)
