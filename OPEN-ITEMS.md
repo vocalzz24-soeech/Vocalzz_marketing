@@ -8,6 +8,8 @@ section. Last updated: 23 Nov 2026.
 
 ### WhatsApp Business on 99106 71188 (kept open on purpose; owner will finish later)
 - [x] Business hours (owner confirmed done, 23 Nov)
+- [x] 24 Nov: greeting message (new, hours Mon–Sat 10–8, Sunday closed, asks clinic/home/online) and away message re-saved with correct hours (old auto-message said 10–9, 7 days)
+- [ ] New (24 Nov): description update (no physiotherapy; stammering, adults, home visits, online), Website 2 = vocalzz.com/therapy-at-home/, quick replies /location /home /online /stammer /assessment /tips, optional catalogue (no physiotherapy)
 - [ ] Description, last sentence: "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week."
 - [x] (done, owner 23 Nov) Away message: "Thank you for your message! 🙏 Clinic visits are Mon–Sat, 10 am–8 pm, by appointment. We reply to
       WhatsApp messages 7 days a week, so we'll get back to you shortly. Please share the patient's name, age and main concern."
