@@ -108,6 +108,11 @@ section. Last updated: 23 Nov 2026.
 - [ ] Weekly report email: Resend account, domain vocalzz.com, then Cloudflare secrets RESEND_API_KEY and REPORT_EMAIL_TO
 - [ ] Optional: change your admin login from 8800230240 to 9910671188 (ask Claude)
 
+### One login for everything (owner's decision, 23 Nov)
+- Google side: vocalzz24@gmail.com owns Google Ads, Search Console (Owner), Business Profile, Cloudflare, Windsor, Google Cloud project "Digital-marketing-vocalzz". Keep tanugarg.india@gmail.com as a second owner on Search Console/Business Profile as a backup
+- [ ] Meta side: Meta logs in with a Facebook profile, not a Gmail; the single home is the business portfolio "Vocalzz Speech & Audio" (contact email vocalzz24@gmail.com). Put the Meta ad account, Facebook page, Instagram and WhatsApp accounts inside it, with 2 admins
+- [ ] Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
+
 ### Windsor.ai plan (trial ends 9 Dec 2026)
 - [ ] Before 9 Dec: decide plan. Prices (annual billing): Basic ₹1,799/mo (3 sources), Standard ₹9,299/mo (7). Forever Free after trial = 1 data source, 1 account, 30-day history. Plan: keep only Google Ads on Windsor Free (check that write actions work on Free); Claude builds Search Console reporting into the booking app; disconnect Facebook Ads (Ayush Goyal), Facebook page, GBP "Rehabilitation clinic"; Instagram optional. If Free can't make ad changes → Basic
 - [x] 23 Nov: SEO report LIVE at book.vocalzz.com/seo (Search Console via service account vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com, project Digital-marketing-vocalzz; runtime secret GSC_PRIVATE_KEY). Owner to delete the stray GSC_PRIVATE_KEY under Settings → Builds and the downloaded .json file. Search Console can now be disconnected from Windsor
