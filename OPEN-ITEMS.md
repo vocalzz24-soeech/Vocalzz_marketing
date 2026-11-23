@@ -38,7 +38,7 @@ section. Last updated: 22 Nov 2026.
 ### Paid ads launch
 - [ ] URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
 - [ ] Google Ads account issues (recommended, not blocking): EU political ads = No; Advertiser verification (Organisation, legal name, registration address); funding source = the organisation
-- [ ] Mon 23 Nov: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
+- [ ] 24 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
       ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
       in account 164-628-8199 in 2026? Ask for email confirmation. If not eligible, go back to the ₹130/day plan
 - [ ] Start Google Search at ₹200/day; raise to ₹350/day once Google confirms eligibility in writing (decided 22 Nov)
