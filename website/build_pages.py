@@ -433,7 +433,7 @@ def build_about():
 </header>
 <div class="content" style="grid-template-columns:1fr">
 <article class="prose">
-<figure class="team-photo team-chart" style="margin:0 auto 8px"><img src="/photos/team-chart-1080.webp" srcset="/photos/team-chart-540.webp 540w, /photos/team-chart-1080.webp 1080w" sizes="(min-width: 600px) 520px, 100vw" width="1080" height="1350" loading="lazy" decoding="async" alt="The Vocalzz team: Dr. Tanu Garg, founder, speech therapist and audiologist; Samriddhi; Minhaj Hashmi and Tanishk Kaushik"><figcaption>Our team at Vocalzz, Sector 137, Noida</figcaption></figure>
+<figure class="team-photo team-chart" style="margin:0 auto 8px"><img src="/photos/team-chart-1080.webp?v=2" srcset="/photos/team-chart-540.webp?v=2 540w, /photos/team-chart-1080.webp?v=2 1080w" sizes="(min-width: 600px) 520px, 100vw" width="1080" height="1350" loading="lazy" decoding="async" alt="The Vocalzz team: Dr. Tanu Garg, founder, speech therapist and audiologist; Dr. Samriddhi; Minhaj Hashmi and Tanishk Kaushik"><figcaption>Our team at Vocalzz, Sector 137, Noida</figcaption></figure>
 <h2>Why families choose Vocalzz</h2>
 <ul>
 <li><strong>Every therapy under one roof:</strong> speech, occupational and behavioural therapy, special education, audiology and paediatric physiotherapy.</li>
