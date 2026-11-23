@@ -126,6 +126,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
 
 ## Claude
+- [ ] Thu/Fri review: redo Auction insights estimate on 7 days. Baseline 23 Nov (1 day): our impression share 21%; softhear.com 21%, cureable.in 12%, sunshinebylissun.com 10%, soundforlife.in / google.com / momsbelief.com <10%. Rough est. spend on OUR keywords in OUR 15 km: softhear ~₹10k/mo, cureable ~₹6k, Sunshine ~₹5k, others <₹5k each. Covering all eligible searches would need ~₹1,700/day
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
 - [x] Label confirmed by owner (23 Nov)
