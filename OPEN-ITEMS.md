@@ -80,8 +80,9 @@ section. Last updated: 23 Nov 2026.
 - [ ] Owner: start the review routine (ask 2–3 families a week; QR/link at reception and in the WhatsApp thank-you)
 - [ ] Owner: send screenshots of Business Profile categories + services list; Claude suggests fixes and writes Q&A
 - [x] 23 Nov: page "Speech therapy for Greater Noida families" live at /speech-therapy-greater-noida/ (clinic, home, online; in sitemap and services list). Owner confirmed home visits (speech + OT) in Greater Noida and online speech therapy; Greater Noida ads now point there
-- [ ] Stammering page DRAFTED 23 Nov (marketing/drafts/stammering-page-draft.md): Dr. Tanu to check the [CHECK] lines (techniques used, Lidcombe or not, when-to-assess signs); then Claude publishes at /stammering-therapy/
-- [ ] Claude: page 1 "Stammering therapy" and page 2 "Speech therapy for autism" (Dr. Tanu to check facts)
+- [x] 23 Nov: Stammering (हकलाना) page live at /stammering-therapy/ (owner approved; Lidcombe not claimed, says "parent-guided practice"); in sitemap + Services
+- [ ] Claude: page "Speech therapy for autism" (Dr. Tanu to check facts)
+- [ ] Optional: "Stammering" ad group → /stammering-therapy/ (needs owner OK on keywords + ad text)
 - [ ] Claude: blog post 1 "My 2-year-old isn't talking" + weekly Google post drafts
 - [ ] Claude: copy-paste sheet for directories (same name/address/99106 number)
 - [ ] Check the third listing "Vocalzz -Rehabilitation clinic" (seen in Windsor, locations/13587561885596827742) — whose account owns it; fold into the duplicate clean-up
