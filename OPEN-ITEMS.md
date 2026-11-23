@@ -80,7 +80,8 @@ section. Last updated: 23 Nov 2026.
 ### Organic growth / SEO (plan: marketing/seo-plan-2026-11.md, started 23 Nov)
 - [x] 23 Nov: Search Console already existed (domain vocalzz.com, owner tanugarg.india@gmail.com, data since Aug). Old developer's leftover token (allworkmail44@gmail.com) removed from Cloudflare DNS; 0 unused tokens
 - [x] 23 Nov: sitemap resubmitted (https://vocalzz.com/sitemap.xml, 16 pages); indexing requested for /stammering-therapy/ and /speech-therapy-greater-noida/
-- [ ] Search Console: Settings → Users and permissions: remove unknown users, add vocalzz24@gmail.com as Owner; then connect Search Console in Windsor so Claude can read it
+- [x] 23 Nov: vocalzz24@gmail.com is Owner in Search Console; Search Console connected to Windsor (sc-domain:vocalzz.com; trial = last 30 days only)
+- [x] 23 Nov: added 301 redirects for old URLs still in Google: /best-child-speech-therapist-in-noida/ and /best-speech-therapy-for-autism-in-noida/ → /speech-language-therapy/ (move autism one to the autism page when it exists), /contact-form/ → /contact-us/
 - [ ] Search Console shows 39 indexed / 16 not indexed pages but the site has ~15: old-site URLs; Claude to review the list and redirect useful old URLs
 - [ ] Owner: start the review routine (ask 2–3 families a week; QR/link at reception and in the WhatsApp thank-you)
 - [ ] Owner: send screenshots of Business Profile categories + services list; Claude suggests fixes and writes Q&A
