@@ -36,6 +36,8 @@ CLOSE_HOUR = "20"
 WHATSAPP_TEMPLATE_LANG = "en"
 # Sender of report emails; the domain must be verified in Resend.
 REPORT_EMAIL_FROM = "Vocalzz Reports <reports@vocalzz.com>"
+# Google Search Console property for the SEO report page (keys GSC_CLIENT_EMAIL / GSC_PRIVATE_KEY are secrets).
+GSC_SITE = "sc-domain:vocalzz.com"
 # Secrets (set with `npx wrangler secret put NAME`, never commit them):
 #   WHATSAPP_TOKEN            Meta permanent access token
 #   WHATSAPP_PHONE_NUMBER_ID  Meta phone number id of the sending number (a separate API SIM;

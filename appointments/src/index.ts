@@ -15,6 +15,8 @@ import { reportPdf } from "./report-pdf.ts";
 import { emailReady, emailReport, sendWeeklyReport, WEEKLY_CRON } from "./report-email.ts";
 import { dashboardPage } from "./dashboard-views.ts";
 import { cleanChannel, cleanDate, cleanSource, sourceReport } from "./sources.ts";
+import { gscConfigured, seoReport } from "./search-console.ts";
+import { seoPage } from "./seo-views.ts";
 import { numberStatus, registerNumber, sendTest, whatsappSetupPage } from "./whatsapp-admin.ts";
 import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
@@ -1013,6 +1015,17 @@ app.get("/dashboard", adminOnly, async (c) => {
   const { therapists, therapist, report, query } = await reportFromQuery(c, new URL(c.req.url).searchParams);
   const sources = await sourceReport(c.env, report.period.from, report.period.to);
   return c.html(dashboardPage(c.get("user"), report, { therapists, therapistId: therapist?.id, query, emailReady: emailReady(c.env), flash: takeFlash(c), sources }));
+});
+
+app.get("/seo", adminOnly, async (c) => {
+  const d = Number(c.req.query("days"));
+  const days = [7, 28, 90].includes(d) ? d : 28;
+  if (!gscConfigured(c.env)) return c.html(seoPage(c.get("user"), null, { days, configured: false }));
+  try {
+    return c.html(seoPage(c.get("user"), await seoReport(c.env, istDay(new Date()), days), { days, configured: true }));
+  } catch (e) {
+    return c.html(seoPage(c.get("user"), null, { days, configured: true, error: e instanceof Error ? e.message : String(e), serviceEmail: c.env.GSC_CLIENT_EMAIL }));
+  }
 });
 
 app.get("/dashboard/report.pdf", adminOnly, async (c) => {

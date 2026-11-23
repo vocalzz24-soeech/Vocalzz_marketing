@@ -19,6 +19,10 @@ export interface Env {
   /** Sender, on a domain verified in Resend, e.g. "Vocalzz Reports <reports@vocalzz.com>". */
   REPORT_EMAIL_FROM?: string;
   WHATSAPP_PHONE_NUMBER_ID?: string;
+  /** Search Console service account (secrets) and property, for the SEO report page. */
+  GSC_CLIENT_EMAIL?: string;
+  GSC_PRIVATE_KEY?: string;
+  GSC_SITE?: string;
 }
 
 // Minimal D1 types so the project needs no extra type packages.

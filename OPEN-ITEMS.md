@@ -110,6 +110,7 @@ section. Last updated: 23 Nov 2026.
 
 ### Windsor.ai plan (trial ends 9 Dec 2026)
 - [ ] Before 9 Dec: decide plan. Prices (annual billing): Basic ₹1,799/mo (3 sources), Standard ₹9,299/mo (7). Forever Free after trial = 1 data source, 1 account, 30-day history. Plan: keep only Google Ads on Windsor Free (check that write actions work on Free); Claude builds Search Console reporting into the booking app; disconnect Facebook Ads (Ayush Goyal), Facebook page, GBP "Rehabilitation clinic"; Instagram optional. If Free can't make ad changes → Basic
+- [ ] SEO report page built 23 Nov (book.vocalzz.com → 🔎 SEO report; read-only Search Console via a service account; 16 months of history). Owner: follow appointments/docs/search-console-setup.md (Google Cloud project, service account, add it to Search Console, two Cloudflare secrets GSC_CLIENT_EMAIL / GSC_PRIVATE_KEY)
 - [ ] Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
 
 ## Claude
