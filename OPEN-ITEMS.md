@@ -108,6 +108,10 @@ section. Last updated: 23 Nov 2026.
 - [ ] Weekly report email: Resend account, domain vocalzz.com, then Cloudflare secrets RESEND_API_KEY and REPORT_EMAIL_TO
 - [ ] Optional: change your admin login from 8800230240 to 9910671188 (ask Claude)
 
+### Windsor.ai plan (trial ends 9 Dec 2026)
+- [ ] Before 9 Dec: decide plan. Prices (annual billing): Basic ₹1,799/mo (3 sources), Standard ₹9,299/mo (7). Forever Free after trial = 1 data source, 1 account, 30-day history. Plan: keep only Google Ads on Windsor Free (check that write actions work on Free); Claude builds Search Console reporting into the booking app; disconnect Facebook Ads (Ayush Goyal), Facebook page, GBP "Rehabilitation clinic"; Instagram optional. If Free can't make ad changes → Basic
+- [ ] Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
+
 ## Claude
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
