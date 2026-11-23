@@ -38,6 +38,8 @@ section. Last updated: 23 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [x] 23 Nov: FIRST LEAD from Google Ads — a stammering enquiry, before the Stammering group existed (likely via Child Speech's stammering/stuttering keywords). Thu/Fri review: check whether a WhatsApp-click/call conversion was recorded for it (tells us if tracking works)
+- [ ] 23 Nov: 8 invalid clicks filtered (not charged) vs 9 valid — ask staff not to click own ads (use Ad Preview); optional IP exclusion of clinic Wi-Fi
 - [x] 23 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
 - [x] 23 Nov: Google Ads account tasks done: EU political ads = No; organisation info (Vocalzz Resonance Hearing Centre OPC Pvt Ltd, registered address, no D-U-N-S); affiliation confirmed; payer = the company. Verification review 1–10 days; upload Certificate of Incorporation / GST certificate if Google asks
 - [x] 23 Nov: Google Ads support assistant (in-account Help) confirmed "Active promotional credit of INR 20,000.00 in progress", code ending -HALP, ₹42.40 spent toward it; owner screenshot kept. Live agent channels not offered yet (new account)
