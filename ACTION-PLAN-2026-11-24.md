@@ -27,8 +27,8 @@ Claude can read results and make changes with your OK. Full list of pending item
    ad group through Windsor, and checks for any disapproved ads.
 8. ✅ Done 24 Nov (behaviour wording removed; owner to remove 2 old sitelinks). ~~Decide on the **ad text that still mentions behaviour therapy** (Speech and OT ads: "Speech, OT & Behaviour Therapy",
    "behavioural therapy under one roof"). Claude can replace it with "Speech & OT Under One Roof" if you say so.~~
-9. Give Claude the **home-visit details**: which therapies, which areas, any extra charge, which therapists. Claude
-   updates vocalzz.com/therapy-at-home/ to match.
+9. ✅ Done 23 Nov (no charges/therapist names on the site). ~~Give Claude the **home-visit details**: which therapies, which areas, any extra charge, which therapists. Claude
+   updates vocalzz.com/therapy-at-home/ to match.~~
 
 ## This week (pick up as time allows)
 10. **WhatsApp API:** buy the new SIM for automatic booking messages (no WhatsApp on it), then follow
