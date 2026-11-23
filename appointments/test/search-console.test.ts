@@ -17,3 +17,12 @@ test("pathOf and pemToDer", () => {
   const pem = "-----BEGIN PRIVATE KEY-----\\nAAEC\\n-----END PRIVATE KEY-----\\n";
   assert.deepEqual([...pemToDer(pem)], [0, 1, 2]);
 });
+
+test("credentials accept the whole JSON key file or the PEM key on its own", async () => {
+  const { credentials } = await import("../src/search-console.ts");
+  const file = JSON.stringify({ type: "service_account", client_email: "a@b.iam.gserviceaccount.com", private_key: "-----BEGIN PRIVATE KEY-----\nAAEC\n-----END PRIVATE KEY-----\n" });
+  assert.deepEqual(credentials({ GSC_PRIVATE_KEY: file } as never), { email: "a@b.iam.gserviceaccount.com", key: "-----BEGIN PRIVATE KEY-----\nAAEC\n-----END PRIVATE KEY-----\n" });
+  assert.deepEqual(credentials({ GSC_PRIVATE_KEY: "PEM", GSC_CLIENT_EMAIL: "x@y" } as never), { email: "x@y", key: "PEM" });
+  assert.equal(credentials({ GSC_PRIVATE_KEY: "PEM" } as never), null);
+  assert.equal(credentials({ GSC_PRIVATE_KEY: "{bad json" } as never), null);
+});

@@ -37,21 +37,20 @@ Send Claude a screenshot at any ✅ checkpoint, or if a screen looks different.
 2. **Settings → Users and permissions → Add user**.
 3. Paste the service account email from step 3 → Permission **Restricted** → **Add**.
 
-## Step 6: Give the keys to the app in Cloudflare (4 min)
-1. **dash.cloudflare.com → Workers & Pages → vocalzz-marketing → Settings → Variables and Secrets → + Add.**
-2. Type **Secret**, name `GSC_CLIENT_EMAIL`, value: the service account email → **Save / Deploy**.
-3. Open the downloaded `.json` file (any text app). Find `"private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"`.
-   Copy **everything between the quotes** after `"private_key":`, starting at `-----BEGIN` and ending at
-   `-----END PRIVATE KEY-----\n` (the `\n` bits are fine; the app understands them).
-4. **+ Add** again: type **Secret**, name `GSC_PRIVATE_KEY`, paste the value → **Save / Deploy**.
-5. Delete the downloaded `.json` file from the device (it's no longer needed; Google can make a new one any time).
+## Step 6: Give the key to the app in Cloudflare (3 min)
+1. Open the downloaded `.json` file (Files app → tap it → open with a text viewer, or Chrome). **Select all** the text
+   and **Copy** it, from the first `{` to the last `}`.
+2. **dash.cloudflare.com → Workers & Pages → vocalzz-marketing → Settings → Variables and Secrets → + Add.**
+3. Type **Secret**, name `GSC_PRIVATE_KEY`, value: paste the whole file content → **Save / Deploy**.
+   (The app reads the robot's email from the file, so no second secret is needed.)
+4. Delete the downloaded `.json` file from the device (Google can make a new one any time).
 
 ## Step 7: Check
 Open **book.vocalzz.com → ☰ → 🔎 SEO report**. You should see clicks, searches and pages.
 
 | What you see | Fix |
 |---|---|
-| "Not connected yet" | One of the two secrets is missing or misspelt (step 6) |
-| "Google sign-in failed: invalid_grant" | The private key was copied incompletely; repeat step 6.3–6.4 |
+| "Not connected yet" | The secret is missing, misspelt, or only part of the file was pasted (step 6) |
+| "Google sign-in failed: invalid_grant" | The private key was copied incompletely; copy the whole file again (step 6) |
 | "User does not have sufficient permission" | Step 5 not done, or the email has a typo |
 | "Search Console API has not been used in project…" | Step 2 not done; enable the API and wait 2 minutes |

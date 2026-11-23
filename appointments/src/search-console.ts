@@ -13,7 +13,23 @@ const SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
 /** Searches containing these words are the clinic's own name ("brand"), counted separately. */
 export const BRAND_WORDS = ["vocalzz", "vocalz", "vocals speech"];
 
-export const gscConfigured = (env: Env) => !!(env.GSC_CLIENT_EMAIL && env.GSC_PRIVATE_KEY);
+/**
+ * The service account email and PEM key. GSC_PRIVATE_KEY may hold either the PEM key on its own, or the whole
+ * downloaded JSON key file (easier to paste on a phone); in that case the email is read from the file too.
+ */
+export function credentials(env: Env): { email: string; key: string } | null {
+  const raw = (env.GSC_PRIVATE_KEY ?? "").trim();
+  if (raw.startsWith("{")) {
+    try {
+      const j = JSON.parse(raw) as { client_email?: string; private_key?: string };
+      const email = env.GSC_CLIENT_EMAIL || j.client_email;
+      return email && j.private_key ? { email, key: j.private_key } : null;
+    } catch { return null; }
+  }
+  return env.GSC_CLIENT_EMAIL && raw ? { email: env.GSC_CLIENT_EMAIL, key: raw } : null;
+}
+
+export const gscConfigured = (env: Env) => credentials(env) !== null;
 const site = (env: Env) => env.GSC_SITE || "sc-domain:vocalzz.com";
 
 // --- Auth: a signed JWT exchanged for a 1-hour access token, cached per worker instance. ---
@@ -34,10 +50,12 @@ let cached: { token: string; exp: number; email: string } | null = null;
 
 async function accessToken(env: Env): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  if (cached && cached.email === env.GSC_CLIENT_EMAIL && cached.exp - 60 > now) return cached.token;
+  const cred = credentials(env);
+  if (!cred) throw new Error("Search Console keys are missing or not readable. Check GSC_PRIVATE_KEY in Cloudflare.");
+  if (cached && cached.email === cred.email && cached.exp - 60 > now) return cached.token;
   const header = b64urlText(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claims = b64urlText(JSON.stringify({ iss: env.GSC_CLIENT_EMAIL, scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600 }));
-  const key = await crypto.subtle.importKey("pkcs8", pemToDer(env.GSC_PRIVATE_KEY!), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const claims = b64urlText(JSON.stringify({ iss: cred.email, scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600 }));
+  const key = await crypto.subtle.importKey("pkcs8", pemToDer(cred.key), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
   const sig = new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(`${header}.${claims}`)));
   const res = await fetch(TOKEN_URL, {
     method: "POST",
@@ -46,7 +64,7 @@ async function accessToken(env: Env): Promise<string> {
   });
   const data = (await res.json().catch(() => ({}))) as { access_token?: string; expires_in?: number; error_description?: string; error?: string };
   if (!res.ok || !data.access_token) throw new Error(`Google sign-in failed: ${data.error_description || data.error || `HTTP ${res.status}`}`);
-  cached = { token: data.access_token, exp: now + (data.expires_in ?? 3600), email: env.GSC_CLIENT_EMAIL! };
+  cached = { token: data.access_token, exp: now + (data.expires_in ?? 3600), email: cred.email };
   return data.access_token;
 }
 
