@@ -3,7 +3,7 @@ import { html, raw } from "hono/html";
 import type { User } from "./auth.ts";
 import { attendance, PERIODS, rangeLabel, scheduled, shortDate, STATUSES, type Counts, type Report, type Status } from "./report.ts";
 import { formatDateTime } from "./time.ts";
-import type { SourceLine } from "./sources.ts";
+import type { SourceLine, SourceReport } from "./sources.ts";
 import { layout, type TherapistRow } from "./views.ts";
 
 const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -123,7 +123,7 @@ function countsCells(c: Counts) {
 }
 const statusHeads = html`${STATUSES.map((s) => html`<th class="num">${s.label}</th>`)}<th class="num">Sessions*</th>`;
 
-export function dashboardPage(user: User, r: Report, opts: { therapists: TherapistRow[]; therapistId?: number; query: string; emailReady: boolean; flash?: { type: "ok" | "error"; text: string }; sources?: SourceLine[] }) {
+export function dashboardPage(user: User, r: Report, opts: { therapists: TherapistRow[]; therapistId?: number; query: string; emailReady: boolean; flash?: { type: "ok" | "error"; text: string }; sources?: SourceReport }) {
   const c = r.totals, att = attendance(c);
   const maxT = Math.max(0, ...r.byTherapist.map((t) => total(t.counts)));
   const maxP = Math.max(0, ...r.byPatient.map((p) => total(p.counts)));
@@ -183,19 +183,24 @@ ${r.byPatient.map((x) => html`<tr><td><a href="/patients/${x.id}/summary">${x.na
 <td><div class="mini" style="width:${Math.max(8, (120 * total(x.counts)) / (maxP || 1))}px" role="img" aria-label="${statusText(x.counts)}">${STATUSES.filter((s) => x.counts[s.key]).map((s) => html`<div style="flex:${x.counts[s.key]} 1 0;background:${colour(s.key)}" title="${s.label}: ${x.counts[s.key]}"></div>`)}</div></td>
 ${countsCells(x.counts)}</tr>`)}</table></div>${legend()}` : html`<div class="empty-note">No sessions in this period.</div>`}
 </div>
-${sourcesCard(opts.sources ?? [])}
+${sourcesCard(opts.sources ?? { sources: [], channels: [] })}
 <p class="muted">Report made ${formatDateTime(new Date(r.generatedAt))}. Every Sunday at 9:30 PM a PDF of that week (Monday to Sunday) and the coming week's bookings is emailed automatically.</p>
 </div>`, opts.flash);
 }
 
 /** "Where new patients came from": patients whose first contact falls in the period, by source. */
-function sourcesCard(lines: SourceLine[]) {
+function sourcesCard(rep: SourceReport) {
+  const lines = rep.sources;
   const totalNew = lines.reduce((n, l) => n + l.patients, 0);
   const max = Math.max(1, ...lines.map((l) => l.patients));
   return html`<div class="card"><h2 style="margin-top:0">5 · Where new patients came from <span class="muted" style="font-weight:400">${plural(totalNew, "new patient")}</span></h2>
 ${lines.length ? html`<div class="tbl-wrap"><table><tr><th>Came via</th><th></th><th>Patients</th><th>Went ahead</th></tr>
 ${lines.map((l) => html`<tr><td>${l.label}</td><td><div class="mini" style="width:${Math.max(8, (120 * l.patients) / max)}px"><div style="flex:1;background:var(--s-completed)"></div></div></td><td>${l.patients}</td><td>${l.started}</td></tr>`)}
 </table></div>
-<p class="muted" style="margin:8px 0 0">Counted by the date they first contacted us (or the day they were added, if no date was entered), for all therapists. "Went ahead" = consultation confirmed and sessions can be booked. Set "How did they hear about us?" when adding or editing a patient.</p>`
+<h3 style="margin:14px 0 4px">How they contacted us</h3>
+<div class="tbl-wrap"><table><tr><th>Contacted by</th><th>Patients</th><th>Went ahead</th></tr>
+${rep.channels.map((l) => html`<tr><td>${l.label}</td><td>${l.patients}</td><td>${l.started}</td></tr>`)}
+</table></div>
+<p class="muted" style="margin:8px 0 0">Counted by the date they first contacted us (or the day they were added, if no date was entered), for all therapists. "Went ahead" = consultation confirmed and sessions can be booked. Set "How did they hear about us?" and "How did they contact us?" when adding or editing a patient.</p>`
   : html`<div class="empty-note">No new patients in this period.</div>`}</div>`;
 }

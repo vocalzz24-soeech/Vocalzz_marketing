@@ -32,3 +32,16 @@ test("tallySources counts patients and confirmed ones, in list order, unrecorded
   assert.equal(sourceLabel("google_ads"), "Google ad");
   assert.equal(sourceLabel(null), "Not recorded");
 });
+
+test("tallyChannels groups by contact channel", async () => {
+  const { tallyChannels, cleanChannel } = await import("../src/sources.ts");
+  assert.equal(cleanChannel("whatsapp"), "whatsapp");
+  assert.equal(cleanChannel("nope"), null);
+  const lines = tallyChannels([
+    { contact_channel: "call", stage: "active" },
+    { contact_channel: "whatsapp", stage: "consultation" },
+    { contact_channel: "whatsapp", stage: "active" },
+    { contact_channel: null, stage: "active" },
+  ]);
+  assert.deepEqual(lines.map((l) => [l.key, l.patients, l.started]), [["whatsapp", 2, 1], ["call", 1, 1], [null, 1, 1]]);
+});

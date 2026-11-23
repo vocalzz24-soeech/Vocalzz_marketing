@@ -4,7 +4,7 @@ import type { User } from "./auth.ts";
 import { CONSULTATION, isConsultation, type ApptRow } from "./notify.ts";
 import { dateToIstLocal, formatDateTime, formatTime, istDay } from "./time.ts";
 import { endOf, MAX_SERIES, timeSlots } from "./schedule.ts";
-import { SOURCES, sourceLabel } from "./sources.ts";
+import { CHANNELS, channelLabel, SOURCES, sourceLabel } from "./sources.ts";
 
 // Clinic hours 10:00–20:00, Mon–Sat (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
 const TIME_SLOTS = timeSlots(10, 20);
@@ -187,7 +187,7 @@ export function setupPage(error?: string) {
 
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number; deleted_at?: string | null }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null; stage?: string;
-  source?: string | null; enquiry_date?: string | null }
+  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null }
 
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
@@ -559,11 +559,11 @@ export function messageTable(messages: MessageRow[]) {
   })}</div>`;
 }
 
-export interface NewPatientForm { name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string; source?: string; enquiry_date?: string;
+export interface NewPatientForm { name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string; source?: string; enquiry_date?: string; contact_channel?: string;
   is_new?: string; therapist_id?: string; date?: string; time?: string; duration?: string }
 
 /** "How did you hear about us?" and first-contact date, shared by the add and edit forms. */
-function sourceFields(source: string | null | undefined, date: string | null | undefined) {
+function sourceFields(source: string | null | undefined, date: string | null | undefined, channel: string | null | undefined) {
   return html`<div class="row">
 <div><label for="source">How did they hear about us?</label>
 <select id="source" name="source"><option value="">Not asked / not sure</option>
@@ -571,6 +571,10 @@ ${SOURCES.map((s) => html`<option value="${s.key}" ${s.key === source ? "selecte
 </select></div>
 <div><label for="enquiry_date">First contacted us on</label><input id="enquiry_date" name="enquiry_date" type="date" value="${date ?? ""}"></div>
 </div>
+<label for="contact_channel">How did they contact us?</label>
+<select id="contact_channel" name="contact_channel"><option value="">Not sure</option>
+${CHANNELS.map((c) => html`<option value="${c.key}" ${c.key === channel ? "selected" : ""}>${c.label}</option>`)}
+</select>
 <p class="muted" style="margin:4px 0 0">Used for the monthly "where new patients came from" report on the Dashboard.</p>`;
 }
 
@@ -599,7 +603,7 @@ export function patientsPage(user: User, patients: PatientRow[], q: string, flas
 <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${fresh || f.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>
 <label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${f.notes ?? ""}">
-${sourceFields(f.source, fresh ? istDay(new Date()) : f.enquiry_date)}
+${sourceFields(f.source, fresh ? istDay(new Date()) : f.enquiry_date, f.contact_channel)}
 <div class="repeat-box consult-box">
 <label class="repeat-toggle"><input type="checkbox" id="is_new" name="is_new" value="1" ${isNew ? "checked" : ""}> <span>New patient: first visit is a consultation</span></label>
 <p class="muted" style="margin:4px 0 0">Untick only for someone who is already in therapy with us.</p>
@@ -634,7 +638,7 @@ ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "
 </script>
 <form method="get" action="/patients" class="row" style="align-items:end"><div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div><button class="secondary">Search</button></form>
 <div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th></th></tr>
-${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source ? html`<div class="muted" style="font-size:12px">via ${sourceLabel(p.source)}</div>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
+${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source || p.contact_channel ? html`<div class="muted" style="font-size:12px">${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</div>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
 <td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a></td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
@@ -672,7 +676,7 @@ export function patientEditPage(user: User, p: PatientRow, flash?: { type: "ok" 
 <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${p.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>
 <label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${p.notes ?? ""}">
-${sourceFields(p.source, p.enquiry_date)}
+${sourceFields(p.source, p.enquiry_date, p.contact_channel)}
 <p class="muted">Changes apply to future messages. Messages already sent are not changed.</p>
 <button>Save changes</button> <a class="btn secondary" href="/patients">Cancel</a>
 </form>
@@ -838,7 +842,7 @@ export function patientSummaryPage(user: User, p: PatientRow, month: string, app
   return layout("Patient summary", user, html`
 <p><a href="/patients">← Patients</a></p>
 <h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
-${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}` : ""} · <a href="/patients/${p.id}/edit">change</a></p>` : ""}
+${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong> · contacted us by <strong>${channelLabel(p.contact_channel)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}` : ""} · <a href="/patients/${p.id}/edit">change</a></p>` : ""}
 ${user.role === "admin" && p.stage === "consultation" ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
 <p class="muted" style="margin:4px 0 8px">Regular sessions can be booked once the consultation is confirmed. Confirm it from the consultation appointment, or here if it happened outside the app.</p>
 <div class="row" style="gap:8px;flex:0 0 auto"><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a>
