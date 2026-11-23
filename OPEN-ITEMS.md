@@ -24,7 +24,7 @@ section. Last updated: 22 Nov 2026.
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
 - [ ] Opening date (month/year the clinic opened), and tell Claude so the website About page says the same
 - [ ] Check attributes "women-owned" / "LGBTQ+ friendly" are intended
-- [ ] Remove the duplicate (audiology) listings. Note 23 Nov: Google Ads search-ad preview showed location "Vocalzz Audiology… 5.0★ (100)"; check Admin → Linked accounts that Ads is linked to the main "Vocalzz Speech & Audio" profile
+- [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 24 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
 ### Number switch (88002 30240 → 99106 71188)
 - [ ] Until Google shows the new number: answer 88002 30240 for clinic calls, or forward its calls to 99106 71188
@@ -49,6 +49,7 @@ section. Last updated: 22 Nov 2026.
 - [x] 38 negative keywords added; Performance Max "Campaign #1" paused (23 Nov, ₹0 spent)
 - [x] Verified via Windsor (23 Nov): Search campaign ENABLED, ₹200/day, max CPC ₹40, Google Search only, Presence, 15 km, Mon–Sun 07:00–23:45, 38 negatives; PMax paused
 - [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
+- [ ] Google Ads → Assets → Location: filter the account-level Business Profile asset to business name "Vocalzz -speech and audio" only (stops the Audiology duplicate appearing in ads). AFTER the listing is renamed to "Vocalzz Speech & Audio", update this filter to the new name or ads lose the location
 - [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
 - [ ] Call asset schedule 10:00–20:00 (Assets → Calls)
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
