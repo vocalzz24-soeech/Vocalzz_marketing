@@ -18,7 +18,7 @@ section. Last updated: 22 Nov 2026.
 - [ ] Optional: labels (New enquiry, Consultation booked, Active patient, Follow up, Not interested), UPI QR code
 
 ### Google Business Profile
-- [ ] Phone change to 099106 71188: submitted 22 Nov, pending Google review (up to 7 days). Don't re-edit while pending
+- [ ] Phone change to 099106 71188: REJECTED (seen 24 Nov). Appeal via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
 - [ ] Chat link: change WhatsApp from wa.me/918800230240 to https://wa.me/919910671188
 - [ ] Hours: Mon–Sat 10:00 am–8:00 pm, Sunday closed
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
