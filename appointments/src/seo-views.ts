@@ -5,7 +5,7 @@ import { isBrand, pathOf, type DayRow, type Range, type Row, type SeoReport, typ
 import { shortDate } from "./report.ts";
 import { layout } from "./views.ts";
 
-const CSS = `.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+export const CSS = `.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .tile span{display:block;font-size:13px;color:var(--muted)}.tile b{font-size:24px}
 .up{color:var(--ok)}.down{color:var(--bad)}.chg{font-size:12px;margin-left:4px}
@@ -49,13 +49,13 @@ ${rows.map((r) => html`<tr><td>${label(r)}</td><td class="n">${r.clicks}</td><td
 }
 
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const dayLabel = (d: string) => `${DOW[new Date(`${d}T00:00:00Z`).getUTCDay()]} ${shortDate(d)}`;
+export const dayLabel = (d: string) => `${DOW[new Date(`${d}T00:00:00Z`).getUTCDay()]} ${shortDate(d)}`;
 const dayLink = (d: string) => `/seo?from=${d}&to=${d}`;
 
-/** One bar per day for one measure. Each bar is a link to that single day, with a tooltip. One axis, one series. */
-function dayChart(title: string, days: DayRow[], key: "clicks" | "impressions") {
-  const W = 400, H = 150, top = 16, bottom = 24, left = 28;
-  const max = Math.max(1, ...days.map((d) => d[key]));
+/** One bar per day for one measure. Each bar links to that single day, with a tooltip. One axis, one series. */
+export function barChart<T extends { date: string }>(title: string, days: T[], get: (d: T) => number, unit: string, link: (d: string) => string, fmt: (n: number) => string = String) {
+  const W = 400, H = 150, top = 16, bottom = 24, left = 34;
+  const max = Math.max(...days.map(get), 0) || 1;
   const step = (W - left) / days.length;
   const bw = Math.max(2, Math.min(28, step - 2));
   const y = (v: number) => top + (H - top - bottom) * (1 - v / max);
@@ -63,16 +63,19 @@ function dayChart(title: string, days: DayRow[], key: "clicks" | "impressions") 
   return html`<div class="card"><h3 style="margin:0 0 6px">${title} per day</h3>
 <svg class="daychart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${title} per day, ${days.length} days">
 <line x1="${left}" x2="${W}" y1="${H - bottom}" y2="${H - bottom}"></line>
-<text x="${left - 4}" y="${top + 4}" text-anchor="end">${max}</text><text x="${left - 4}" y="${H - bottom}" text-anchor="end">0</text>
+<text x="${left - 4}" y="${top + 4}" text-anchor="end">${fmt(max)}</text><text x="${left - 4}" y="${H - bottom}" text-anchor="end">0</text>
 ${days.map((d, i) => {
-    const x = left + i * step + (step - bw) / 2, h = (H - bottom) - y(d[key]);
-    return html`<a href="${dayLink(d.date)}"><title>${dayLabel(d.date)}: ${d[key]} ${key === "clicks" ? "clicks" : "times shown"}</title>
+    const v = get(d), x = left + i * step + (step - bw) / 2, h = (H - bottom) - y(v);
+    return html`<a href="${link(d.date)}"><title>${dayLabel(d.date)}: ${fmt(v)} ${unit}</title>
 <rect class="hit" x="${left + i * step}" y="${top}" width="${step}" height="${H - top - bottom}"></rect>
-${d[key] ? html`<rect class="b" x="${x.toFixed(1)}" y="${y(d[key]).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, h).toFixed(1)}" rx="${Math.min(4, bw / 2).toFixed(1)}"></rect>` : ""}</a>
+${v ? html`<rect class="b" x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, h).toFixed(1)}" rx="${Math.min(4, bw / 2).toFixed(1)}"></rect>` : ""}</a>
 ${i % every === 0 ? html`<text x="${(left + i * step + step / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${shortDate(d.date)}</text>` : ""}`;
   })}
 </svg></div>`;
 }
+
+const dayChart = (title: string, days: DayRow[], key: "clicks" | "impressions") =>
+  barChart(title, days, (d) => d[key], key === "clicks" ? "clicks" : "times shown", dayLink);
 
 function dailySection(r: SeoReport) {
   if (r.daily.length < 2) return "";

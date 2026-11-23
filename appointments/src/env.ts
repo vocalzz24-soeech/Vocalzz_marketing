@@ -23,6 +23,11 @@ export interface Env {
   GSC_CLIENT_EMAIL?: string;
   GSC_PRIVATE_KEY?: string;
   GSC_SITE?: string;
+  /** Google Ads report: account to read (digits only), optional manager id, optional developer token (secret). */
+  GADS_CUSTOMER_ID?: string;
+  GADS_LOGIN_CUSTOMER_ID?: string;
+  GADS_DEVELOPER_TOKEN?: string;
+  GADS_API_VERSION?: string;
 }
 
 // Minimal D1 types so the project needs no extra type packages.

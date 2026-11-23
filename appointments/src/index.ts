@@ -17,6 +17,8 @@ import { dashboardPage } from "./dashboard-views.ts";
 import { cleanChannel, cleanDate, cleanSource, sourceReport } from "./sources.ts";
 import { earliestDay, gscConfigured, latestDay, resolveRange, seoReport } from "./search-console.ts";
 import { seoPage } from "./seo-views.ts";
+import { adsEarliest, adsReport, resolveAdsRange } from "./google-ads.ts";
+import { adsPage } from "./ads-views.ts";
 import { numberStatus, registerNumber, sendTest, whatsappSetupPage } from "./whatsapp-admin.ts";
 import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
@@ -1026,6 +1028,18 @@ app.get("/seo", adminOnly, async (c) => {
     return c.html(seoPage(c.get("user"), await seoReport(c.env, range), { ...opts, configured: true }));
   } catch (e) {
     return c.html(seoPage(c.get("user"), null, { ...opts, configured: true, error: e instanceof Error ? e.message : String(e), serviceEmail: c.env.GSC_CLIENT_EMAIL }));
+  }
+});
+
+app.get("/ads", adminOnly, async (c) => {
+  const today = istDay(new Date());
+  const range = resolveAdsRange(today, { p: c.req.query("p"), from: c.req.query("from"), to: c.req.query("to") });
+  const opts = { range, today, earliest: adsEarliest(today) };
+  if (!gscConfigured(c.env)) return c.html(adsPage(c.get("user"), null, { ...opts, configured: false }));
+  try {
+    return c.html(adsPage(c.get("user"), await adsReport(c.env, range), { ...opts, configured: true }));
+  } catch (e) {
+    return c.html(adsPage(c.get("user"), null, { ...opts, configured: true, error: e instanceof Error ? e.message : String(e) }));
   }
 });
 

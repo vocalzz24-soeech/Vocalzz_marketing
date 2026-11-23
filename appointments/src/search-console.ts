@@ -46,15 +46,17 @@ export function pemToDer(pem: string): Uint8Array<ArrayBuffer> {
   return out;
 }
 
-let cached: { token: string; exp: number; email: string } | null = null;
+const cache = new Map<string, { token: string; exp: number; email: string }>();
 
-async function accessToken(env: Env): Promise<string> {
+/** A Google access token for the clinic's service account, for one OAuth scope (cached per scope). */
+export async function googleToken(env: Env, scope: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const cred = credentials(env);
-  if (!cred) throw new Error("Search Console keys are missing or not readable. Check GSC_PRIVATE_KEY in Cloudflare.");
+  if (!cred) throw new Error("Google keys are missing or not readable. Check GSC_PRIVATE_KEY in Cloudflare.");
+  const cached = cache.get(scope);
   if (cached && cached.email === cred.email && cached.exp - 60 > now) return cached.token;
   const header = b64urlText(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claims = b64urlText(JSON.stringify({ iss: cred.email, scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600 }));
+  const claims = b64urlText(JSON.stringify({ iss: cred.email, scope, aud: TOKEN_URL, iat: now, exp: now + 3600 }));
   const key = await crypto.subtle.importKey("pkcs8", pemToDer(cred.key), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
   const sig = new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(`${header}.${claims}`)));
   const res = await fetch(TOKEN_URL, {
@@ -64,9 +66,11 @@ async function accessToken(env: Env): Promise<string> {
   });
   const data = (await res.json().catch(() => ({}))) as { access_token?: string; expires_in?: number; error_description?: string; error?: string };
   if (!res.ok || !data.access_token) throw new Error(`Google sign-in failed: ${data.error_description || data.error || `HTTP ${res.status}`}`);
-  cached = { token: data.access_token, exp: now + (data.expires_in ?? 3600), email: cred.email };
+  cache.set(scope, { token: data.access_token, exp: now + (data.expires_in ?? 3600), email: cred.email });
   return data.access_token;
 }
+
+const accessToken = (env: Env) => googleToken(env, SCOPE);
 
 // --- Search Analytics queries ---
 
