@@ -49,7 +49,7 @@ section. Last updated: 22 Nov 2026.
 - [x] 38 negative keywords added; Performance Max "Campaign #1" paused (23 Nov, ₹0 spent)
 - [x] Verified via Windsor (23 Nov): Search campaign ENABLED, ₹200/day, max CPC ₹40, Google Search only, Presence, 15 km, Mon–Sun 07:00–23:45, 38 negatives; PMax paused
 - [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
-- [ ] Google Ads → Assets → Location: filter the account-level Business Profile asset to business name "Vocalzz -speech and audio" only (stops the Audiology duplicate appearing in ads). AFTER the listing is renamed to "Vocalzz Speech & Audio", update this filter to the new name or ads lose the location
+- [ ] Location asset filter: Google Ads shows no Edit option for the account-level Business Profile location (only Remove; do NOT remove it). Skipped 24 Nov; the main listing got all 12 impressions. Real fix: remove/close the duplicate "Vocalzz Audiology centre" listing in Business Profile
 - [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
 - [x] Call asset schedule: owner decided 24 Nov to keep it showing whenever ads run (7:00 am–11:45 pm, all days); owner answers calls at those times
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
