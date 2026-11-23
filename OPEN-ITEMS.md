@@ -57,7 +57,7 @@ section. Last updated: 22 Nov 2026.
 - [ ] Owner to confirm home-visit details (which therapies, areas, extra charge, which therapists) so the page and replies can be exact
 - [ ] PARKED, REMIND OWNER: Behaviour & ADHD ad group (id 203852092002) left PAUSED and empty on 23 Nov — no behaviour therapist on the team right now. Revisit when one joins
 - [x] 24 Nov via Windsor: behaviour wording removed from Child Speech + OT ads (headline → "Speech & OT Under One Roof"; description → "Speech, OT, hearing & special education under one roof. WhatsApp us 7 days."). New sitelinks "Our Therapies" (/services/) and "Meet Dr. Tanu & Team" (/about/) added
-- [ ] Owner: in Assets → Sitelink, remove the 2 old sitelinks "All Our Therapies" and "About Dr. Tanu & Team" (they still say behaviour; Windsor can't remove assets). When a behaviour therapist joins, the behaviour wording can come back
+- [x] Owner removed (24 Nov) the 2 old sitelinks "All Our Therapies" and "About Dr. Tanu & Team" (they still say behaviour; Windsor can't remove assets). When a behaviour therapist joins, the behaviour wording can come back
 - [ ] PARKED, REMIND OWNER: Autism / ABA ad group ("autism therapy noida", "autism centre noida", "aba therapy noida") skipped on 23 Nov because clicks are costly (funded chains bid there). Raise it whenever ads, budget, performance or marketing plans are discussed
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
