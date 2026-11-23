@@ -21,12 +21,12 @@ section. Last updated: 22 Nov 2026.
 - [ ] Reply to the new 5-star review from "L" (Claude can draft it; paste the review text)
 - [ ] "Vocalzz Audiology centre" listing shows a red dot on its edit pencil (something pending); look at it after the phone appeal; decide remove vs merge so its reviews aren't lost
 - [ ] Phone change to 099106 71188: REJECTED (seen 24 Nov); APPEAL SUBMITTED 24 Nov, case ID 4-2748000041681 (main listing id 12924698047389058106). Wait for Google's email (3–7 days); reply to it with evidence if asked. Appeal was via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
-- [ ] Chat link: change WhatsApp from wa.me/918800230240 to https://wa.me/919910671188
+- [x] Chat link already on 99106 71188 (owner confirmed 24 Nov)
 - [x] Hours: Mon–Sat 10:00–20:00, Sunday closed (done 24 Nov)
 - [x] Description: "Open every day, 10 am to 8 pm" replaced with "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week" (24 Nov, pending Google's ~10-min review)
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
 - [x] Opening date on Business Profile: 4 July 2022 (seen 24 Nov); website About page now says "serving Noida families since July 2022"
-- [ ] Check attributes "women-owned" / "LGBTQ+ friendly" are intended
+- [x] Attributes "women-owned" / "LGBTQ+ friendly": owner confirmed intended (24 Nov). Description keeps behavioural therapy (owner's call; only ads were changed)
 - [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 24 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
 ### Number switch (88002 30240 → 99106 71188)
