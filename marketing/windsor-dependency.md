@@ -12,5 +12,6 @@ Goal: run reporting from tools Vocalzz owns. Update 23 Nov: Meta ads (Facebook/I
 | 5 | Google Business Profile ("Vocalzz -Rehabilitation clinic") | Nothing (wrong listing; main listing managed directly) | Manage in Business Profile; Google's API needs approval, not worth it | ❌ Not used | Disconnect now; find who owns this listing (merge plan) |
 | 6 | Instagram (vocalzz_4u) | Reel performance + ads | Meta Graph API via the same Meta app (instagram_manage_insights) | ⏳ Needed | Keep while Meta ads launch; own report built with the Meta ads report |
 
-After the clean-up: **1 source on Windsor (Google Ads) = ₹0/month** on the Free plan, if write actions work there
-(check before 9 Dec). If not: Basic ₹1,799/month until the own Google Ads connection is ready.
+After the clean-up (from 9 Dec): **Windsor Basic, ₹1,799/month** with 3 sources: Google Ads, the clinic's own Meta ad
+account, Instagram. Once Claude's own Meta and Google Ads connections work (target Jan 2027), drop to Windsor Free
+(₹0) or cancel.
