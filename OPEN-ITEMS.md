@@ -39,6 +39,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [x] 23 Nov evening: owner approved; Search budget raised ₹350 → ₹400/day via Windsor (buffer to reach ₹20k by ~11 Jan instead of ~19 Jan). Weekly top-up now ~₹3,300
 - [x] 23 Nov: FIRST LEAD from Google Ads — a stammering enquiry by WhatsApp on 99106, before the Stammering group existed (likely via Child Speech's stammering/stuttering keywords). Thu/Fri review: check whether a WhatsApp-click/call conversion was recorded for it (tells us if tracking works)
 - [ ] 23 Nov: 8 invalid clicks filtered (not charged) vs 9 valid — ask staff not to click own ads (use Ad Preview); optional IP exclusion of clinic Wi-Fi
 - [x] 23 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
