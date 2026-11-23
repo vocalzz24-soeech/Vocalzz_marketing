@@ -28,6 +28,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
 - [x] Opening date on Business Profile: 4 July 2022 (seen 23 Nov); website About page now says "serving Noida families since July 2022"
 - [x] Attributes "women-owned" / "LGBTQ+ friendly": owner confirmed intended (23 Nov). Description keeps behavioural therapy (owner's call; only ads were changed)
+- [ ] MERGE PLAN (owner asked 23 Nov): wait for the phone appeal to be approved, then ask GBP support to MERGE "Vocalzz Audiology centre" into "Vocalzz -speech and audio" (reviews may move; do NOT mark closed or remove from account). Before that, owner to send: Audiology listing's review count/rating (ad preview showed ~5.0★ (100)) and what its red-dot pending item is; find who owns "Vocalzz -Rehabilitation clinic"
 - [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 23 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
 ### Number switch (88002 30240 → 99106 71188) — owner unsure what's done (23 Nov); check each
