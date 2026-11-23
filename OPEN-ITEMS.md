@@ -51,7 +51,7 @@ section. Last updated: 22 Nov 2026.
 - [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
 - [ ] Google Ads → Assets → Location: filter the account-level Business Profile asset to business name "Vocalzz -speech and audio" only (stops the Audiology duplicate appearing in ads). AFTER the listing is renamed to "Vocalzz Speech & Audio", update this filter to the new name or ads lose the location
 - [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
-- [ ] Call asset schedule 10:00–20:00 (Assets → Calls)
+- [x] Call asset schedule: owner decided 24 Nov to keep it showing whenever ads run (7:00 am–11:45 pm, all days); owner answers calls at those times
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
 - [x] 23 Nov: "Home Therapy" ad group live (id 202193002773): 7 keywords, 15-headline ad → vocalzz.com/therapy-at-home/ (new page). Total 4 live ad groups, 41 keywords
 - [ ] Owner to confirm home-visit details (which therapies, areas, extra charge, which therapists) so the page and replies can be exact

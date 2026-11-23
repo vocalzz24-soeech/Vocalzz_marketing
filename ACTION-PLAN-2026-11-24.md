@@ -18,7 +18,7 @@ Claude can read results and make changes with your OK. Full list of pending item
    Please confirm by email." → If yes: raise budget to ₹350/day (Claude can do it). If no: stay at ₹200/day.
 4. **Google Ads → Admin → Linked accounts → Business Profile:** check the ads use the main **"Vocalzz Speech & Audio"**
    listing (4.9★, 129 reviews), not "Vocalzz Audiology".
-5. **Google Ads → Assets → Calls:** set the call button schedule to **10:00–20:00**.
+5. ~~**Google Ads → Assets → Calls:** set the call button schedule to **10:00–20:00**.~~ Decided: keep the call button on whenever ads run; owner answers calls.
 6. **Google Business Profile:** check whether the phone change (099106 71188) is approved; change the WhatsApp chat
    link to `https://wa.me/919910671188`; set hours **Mon–Sat 10 am–8 pm, Sunday closed**.
 
