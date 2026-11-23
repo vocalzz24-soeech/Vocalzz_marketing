@@ -7,12 +7,13 @@ section. Last updated: 23 Nov 2026.
 ## Owner (you)
 
 ### WhatsApp Business on 99106 71188 (kept open on purpose; owner will finish later)
-- [ ] Business hours: Mon–Sat 10 am–8 pm, Sunday closed
+- [x] Business hours (owner confirmed done, 23 Nov)
 - [ ] Description, last sentence: "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week."
-- [ ] Away message: "Thank you for your message! 🙏 Clinic visits are Mon–Sat, 10 am–8 pm, by appointment. We reply to
+- [x] (done, owner 23 Nov) Away message: "Thank you for your message! 🙏 Clinic visits are Mon–Sat, 10 am–8 pm, by appointment. We reply to
       WhatsApp messages 7 days a week, so we'll get back to you shortly. Please share the patient's name, age and main concern."
-- [ ] Quick reply /timing: "Clinic visits are Monday to Saturday, 10 am to 8 pm, by appointment. You can WhatsApp us any day of the week."
-- [ ] Check: profile photo replaced with the logo (old one showed "Lorem ipsum"), address written as
+- [x] (done, owner 23 Nov) Quick reply /timing: "Clinic visits are Monday to Saturday, 10 am to 8 pm, by appointment. You can WhatsApp us any day of the week."
+- [x] Logo as profile photo (owner confirmed 23 Nov)
+- [ ] Still to check: address written as
       "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304", email contactus@vocalzz.com,
       About line, username reserved, two-step verification PIN set, daily chat backup on
 - [ ] Optional: labels (New enquiry, Consultation booked, Active patient, Follow up, Not interested), UPI QR code
@@ -29,7 +30,7 @@ section. Last updated: 23 Nov 2026.
 - [x] Attributes "women-owned" / "LGBTQ+ friendly": owner confirmed intended (23 Nov). Description keeps behavioural therapy (owner's call; only ads were changed)
 - [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 23 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
-### Number switch (88002 30240 → 99106 71188)
+### Number switch (88002 30240 → 99106 71188) — owner unsure what's done (23 Nov); check each
 - [ ] Until Google shows the new number: answer 88002 30240 for clinic calls, or forward its calls to 99106 71188
 - [ ] Instagram @vocalzz_4u contact number; Facebook page contact number
 - [ ] Justdial, Practo, Sulekha numbers
@@ -40,7 +41,7 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
 - [x] 23 Nov: Google Ads account tasks done: EU political ads = No; organisation info (Vocalzz Resonance Hearing Centre OPC Pvt Ltd, registered address, no D-U-N-S); affiliation confirmed; payer = the company. Verification review 1–10 days; upload Certificate of Incorporation / GST certificate if Google asks
 - [x] 23 Nov: Google Ads support assistant (in-account Help) confirmed "Active promotional credit of INR 20,000.00 in progress", code ending -HALP, ₹42.40 spent toward it; owner screenshot kept. Live agent channels not offered yet (new account)
-- [ ] (superseded) 23 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
+- [x] (superseded) 23 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
       ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
       in account 164-628-8199 in 2026? Ask for email confirmation. If not eligible, go back to the ₹130/day plan
 - [x] 23 Nov: Billing → Promotions shows the ₹20,000 offer (code 6YVK9-VXQE3-HALP) "Redeemed: Complete further requirements", spend ₹20,000 excl. GST by 21 Jan 2027. Owner approved; Search budget raised ₹200 → ₹350/day via Windsor. Final eligibility is still Google's call when the credit is granted
