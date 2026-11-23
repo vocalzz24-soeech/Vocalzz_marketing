@@ -36,12 +36,13 @@ section. Last updated: 22 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
-- [ ] URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
+- [x] 24 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
 - [ ] Google Ads account issues (recommended, not blocking): EU political ads = No; Advertiser verification (Organisation, legal name, registration address); funding source = the organisation
 - [ ] 24 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
       ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
       in account 164-628-8199 in 2026? Ask for email confirmation. If not eligible, go back to the ₹130/day plan
 - [x] 24 Nov: Billing → Promotions shows the ₹20,000 offer (code 6YVK9-VXQE3-HALP) "Redeemed: Complete further requirements", spend ₹20,000 excl. GST by 21 Jan 2027. Owner approved; Search budget raised ₹200 → ₹350/day via Windsor. Final eligibility is still Google's call when the credit is granted
+- [ ] URGENT 24 Nov: balance only ₹949.97 (lasts ~2 days at ₹350/day + GST). Top up ₹3,000 by UPI (Billing → Add funds)
 - [ ] Keep prepaid balance ≥ ~₹3,000 (₹350/day + GST ≈ ₹2,900/week); check Promotions progress every Monday. If daily spend stays well under ₹350 (₹40 click cap limits it), review CPC cap with Claude so the ₹20k target is met by 21 Jan
 - [ ] Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
