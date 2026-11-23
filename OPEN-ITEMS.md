@@ -127,7 +127,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
 
 ## Claude
-- [ ] Thu/Fri review: first conversion (23 Nov) came from keyword "speech therapy for adults" (phrase, Child Speech group, search "speech therapy for adults"). Consider an "Adults" ad group (stammering, voice, after stroke) with an adult-focused ad; Child Speech ad is child-worded
+- [x] 24 Nov: "Adults" ad group (id 203056682820) live: 8 phrase keywords (speech therapy for adults, adult speech therapist, voice therapy, voice therapist near me, speech therapy after stroke, aphasia therapy, speech therapy for elderly, swallowing therapy), adult-worded ad → /speech-language-therapy/. "speech therapy for adults" paused in Child Speech (criterion 379378333). Shares ₹400/day. Later: a dedicated adults page
 - [ ] Thu/Fri review: redo Auction insights estimate on 7 days. Baseline 23 Nov (1 day): our impression share 21%; softhear.com 21%, cureable.in 12%, sunshinebylissun.com 10%, soundforlife.in / google.com / momsbelief.com <10%. Rough est. spend on OUR keywords in OUR 15 km: softhear ~₹10k/mo, cureable ~₹6k, Sunshine ~₹5k, others <₹5k each. Covering all eligible searches would need ~₹1,700/day
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
