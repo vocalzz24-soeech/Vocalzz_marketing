@@ -130,7 +130,8 @@ section. Last updated: 23 Nov 2026.
 - [ ] Before 9 Dec: decide plan. Prices (annual billing): Basic ₹1,799/mo (3 sources), Standard ₹9,299/mo (7). Forever Free after trial = 1 data source, 1 account, 30-day history. Plan: keep only Google Ads on Windsor Free (check that write actions work on Free); Claude builds Search Console reporting into the booking app; disconnect Facebook Ads (Ayush Goyal), Facebook page, GBP "Rehabilitation clinic"; Instagram optional. If Free can't make ad changes → Basic
 - [x] 23 Nov: SEO report LIVE at book.vocalzz.com/seo (Search Console via service account vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com, project Digital-marketing-vocalzz; runtime secret GSC_PRIVATE_KEY). Owner to delete the stray GSC_PRIVATE_KEY under Settings → Builds and the downloaded .json file. Search Console can now be disconnected from Windsor
 - [x] 24 Nov: Google Ads Manager account created: "Vocalzz Speech & Audio – Manager" 305-879-1109 (vocalzz24@gmail.com)
-- [ ] Link 898-392-0631 under the manager (send request from manager, accept in the ads account), then API Center → apply — Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
+- [x] 24 Nov: 898-392-0631 linked under manager 305-879-1109 (Owner: No — ads account keeps its own ownership)
+- [ ] Manager 305-879-1109 → Admin → API Center → apply (Basic access); token is a secret, store only in Cloudflare — Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
 
 ## Claude
 - [x] 24 Nov: "Adults" ad group (id 203056682820) live: 8 phrase keywords (speech therapy for adults, adult speech therapist, voice therapy, voice therapist near me, speech therapy after stroke, aphasia therapy, speech therapy for elderly, swallowing therapy), adult-worded ad → /speech-language-therapy/. "speech therapy for adults" paused in Child Speech (criterion 379378333). Shares ₹400/day. Later: a dedicated adults page
