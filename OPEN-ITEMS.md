@@ -22,9 +22,10 @@ section. Last updated: 22 Nov 2026.
 - [ ] "Vocalzz Audiology centre" listing shows a red dot on its edit pencil (something pending); look at it after the phone appeal; decide remove vs merge so its reviews aren't lost
 - [ ] Phone change to 099106 71188: REJECTED (seen 24 Nov); APPEAL SUBMITTED 24 Nov, case ID 4-2748000041681 (main listing id 12924698047389058106). Wait for Google's email (3–7 days); reply to it with evidence if asked. Appeal was via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
 - [ ] Chat link: change WhatsApp from wa.me/918800230240 to https://wa.me/919910671188
-- [ ] Hours: Mon–Sat 10:00 am–8:00 pm, Sunday closed
+- [x] Hours: Mon–Sat 10:00–20:00, Sunday closed (done 24 Nov)
+- [x] Description: "Open every day, 10 am to 8 pm" replaced with "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week" (24 Nov, pending Google's ~10-min review)
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
-- [ ] Opening date (month/year the clinic opened), and tell Claude so the website About page says the same
+- [x] Opening date on Business Profile: 4 July 2022 (seen 24 Nov); website About page now says "serving Noida families since July 2022"
 - [ ] Check attributes "women-owned" / "LGBTQ+ friendly" are intended
 - [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 24 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
@@ -90,7 +91,7 @@ section. Last updated: 22 Nov 2026.
 - [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
 - [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
-- [ ] Website About page: "Serving Noida families since …" (waiting for the opening date)
+- [x] Website About page: "serving Noida families since July 2022" (24 Nov)
 - [ ] After the API SIM: connect it (setup page /admin/whatsapp is ready)
 
 ## Offered, not decided

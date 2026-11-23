@@ -377,7 +377,7 @@ def build_about():
     body = f"""<header class="page-hero">
 <span class="eyebrow">About us</span>
 <h1>About Vocalzz Speech &amp; Audio</h1>
-<p class="lead">Vocalzz Speech &amp; Audio is a multi-therapy clinic in Sector 137, Noida for children, adults and seniors. Our promise is simple: <strong>Better Communication, Better Life</strong>.</p>
+<p class="lead">Vocalzz Speech &amp; Audio is a multi-therapy clinic in Sector 137, Noida for children, adults and seniors, serving Noida families since July 2022. Our promise is simple: <strong>Better Communication, Better Life</strong>.</p>
 </header>
 <div class="content" style="grid-template-columns:1fr">
 <article class="prose">
