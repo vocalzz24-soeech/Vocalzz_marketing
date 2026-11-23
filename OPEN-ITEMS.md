@@ -50,9 +50,9 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: negative keyword "tickles" (competitor) added to the Search campaign; total 39 negatives
 - [ ] URGENT 23 Nov: balance only ₹949.97 (lasts ~2 days at ₹350/day + GST). Top up ₹3,000 by UPI (Billing → Add funds)
 - [ ] Keep prepaid balance ≥ ~₹3,000 (₹350/day + GST ≈ ₹2,900/week); check Promotions progress every Monday. If daily spend stays well under ₹350 (₹40 click cap limits it), review CPC cap with Claude so the ₹20k target is met by 21 Jan
-- [ ] Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
+- [x] (superseded/done 23 Nov) Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
-- [ ] Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
+- [x] (superseded/done 23 Nov) Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
 - [x] Google Ads account 898-392-0631 created 22 Nov (vocalzz24@gmail.com), Organisation payments profile, prepay UPI,
       ₹20,000 offer selected (deadline 21 Jan 2027), ₹200/day Performance Max campaign submitted for review
 - [x] Search campaign "Search - Speech Therapy Noida" published 23 Nov: 19 phrase/exact keywords, 15 km Presence, Search only, 07:00–23:45, Maximize clicks ₹40 cap, ₹200/day, 6 sitelinks, 5 callouts
@@ -60,7 +60,7 @@ section. Last updated: 23 Nov 2026.
 - [x] Verified via Windsor (23 Nov): Search campaign ENABLED, ₹200/day, max CPC ₹40, Google Search only, Presence, 15 km, Mon–Sun 07:00–23:45, 38 negatives; PMax paused
 - [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
 - [ ] Location asset filter: Google Ads shows no Edit option for the account-level Business Profile location (only Remove; do NOT remove it). Skipped 23 Nov; the main listing got all 12 impressions. Real fix: remove/close the duplicate "Vocalzz Audiology centre" listing in Business Profile
-- [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
+- [x] (superseded/done 23 Nov) Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
 - [x] Call asset schedule: owner decided 23 Nov to keep it showing whenever ads run (7:00 am–11:45 pm, all days); owner answers calls at those times
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
 - [x] 23 Nov: "Home Therapy" ad group live (id 202193002773): 7 keywords, 15-headline ad → vocalzz.com/therapy-at-home/ (new page). Total 4 live ad groups, 41 keywords
@@ -70,11 +70,11 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov via Windsor: behaviour wording removed from Child Speech + OT ads (headline → "Speech & OT Under One Roof"; description → "Speech, OT, hearing & special education under one roof. WhatsApp us 7 days."). New sitelinks "Our Therapies" (/services/) and "Meet Dr. Tanu & Team" (/about/) added
 - [x] Owner removed (23 Nov) the 2 old sitelinks "All Our Therapies" and "About Dr. Tanu & Team" (they still say behaviour; Windsor can't remove assets). When a behaviour therapist joins, the behaviour wording can come back
 - [ ] PARKED, REMIND OWNER: Autism / ABA ad group ("autism therapy noida", "autism centre noida", "aba therapy noida") skipped on 23 Nov because clicks are costly (funded chains bid there). Raise it whenever ads, budget, performance or marketing plans are discussed
-- [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
-- [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
-- [ ] Check the Meta ad account is inside the Vocalzz portfolio, with payment (card or UPI)
+- [x] (superseded/done 23 Nov) Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
+- [x] (superseded/done 23 Nov) Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
+- [ ] PARKED (Meta ads on hold while chasing the Google credit): Check the Meta ad account is inside the Vocalzz portfolio, with payment (card or UPI)
 - [ ] Shoot 3 reels (marketing/reel-scripts-2026-11.md) and make 2 posters; Dr. Tanu to check the poster's 5 signs and Reel 2 wording
-- [ ] Build the Meta Click-to-WhatsApp campaign with Claude
+- [ ] PARKED (Meta ads on hold while chasing the Google credit): Build the Meta Click-to-WhatsApp campaign with Claude
 - [ ] On Sundays, someone checks WhatsApp a few times a day
 
 ### Organic growth / SEO (plan: marketing/seo-plan-2026-11.md, started 23 Nov)
@@ -82,7 +82,7 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: sitemap resubmitted (https://vocalzz.com/sitemap.xml, 16 pages); indexing requested for /stammering-therapy/ and /speech-therapy-greater-noida/
 - [x] 23 Nov: vocalzz24@gmail.com is Owner in Search Console; Search Console connected to Windsor (sc-domain:vocalzz.com; trial = last 30 days only)
 - [x] 23 Nov: added 301 redirects for old URLs still in Google: /best-child-speech-therapist-in-noida/ and /best-speech-therapy-for-autism-in-noida/ → /speech-language-therapy/ (move autism one to the autism page when it exists), /contact-form/ → /contact-us/
-- [ ] Search Console shows 39 indexed / 16 not indexed pages but the site has ~15: old-site URLs; Claude to review the list and redirect useful old URLs
+- [ ] (redirects added 23 Nov for old URLs seen in search data; still to review the full not-indexed list) Search Console shows 39 indexed / 16 not indexed pages but the site has ~15: old-site URLs; Claude to review the list and redirect useful old URLs
 - [ ] Owner: start the review routine (ask 2–3 families a week; QR/link at reception and in the WhatsApp thank-you)
 - [ ] Owner: send screenshots of Business Profile categories + services list; Claude suggests fixes and writes Q&A
 - [x] 23 Nov: page "Speech therapy for Greater Noida families" live at /speech-therapy-greater-noida/ (clinic, home, online; in sitemap and services list). Owner confirmed home visits (speech + OT) in Greater Noida and online speech therapy; Greater Noida ads now point there
