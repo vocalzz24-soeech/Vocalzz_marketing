@@ -48,7 +48,8 @@ export function seoPage(user: User, r: SeoReport | null, opts: { days: number; c
 <p class="muted" style="margin-top:-6px">How vocalzz.com does in normal (unpaid) Google search. Data from Google Search Console, about 2 days behind.</p>
 <span class="seg">${link(7)}${link(28)}${link(90)}</span>
 ${!opts.configured ? html`<div class="card" style="margin-top:12px"><strong>Not connected yet.</strong>
-<p>Add the two Search Console keys in Cloudflare (GSC_CLIENT_EMAIL and GSC_PRIVATE_KEY). Steps: appointments/docs/search-console-setup.md.</p></div>` : ""}
+<p>Add the Search Console key in Cloudflare as the secret <strong>GSC_PRIVATE_KEY</strong> (paste the whole downloaded .json file). Steps: appointments/docs/search-console-setup.md.</p>
+<p class="muted">Just added it? Cloudflare can take a minute or two to apply a new secret. Reload this page.</p></div>` : ""}
 ${opts.error ? html`<div class="flash error" style="margin-top:12px">Google said: ${opts.error}
 ${/permission|forbidden|not have/i.test(opts.error) && opts.serviceEmail ? html`<br>Check that <strong>${opts.serviceEmail}</strong> is added as a user in Search Console → Settings → Users and permissions.` : ""}</div>` : ""}
 ${r ? html`
