@@ -2,7 +2,7 @@
 
 Running list of things still to do. When the owner asks about open or pending items, read this file, remind them
 of what is open (owner's items first), and update it when something is done. Newest additions at the top of each
-section. Last updated: 22 Nov 2026.
+section. Last updated: 23 Nov 2026.
 
 ## Owner (you)
 
@@ -20,14 +20,14 @@ section. Last updated: 22 Nov 2026.
 ### Google Business Profile
 - [ ] Reply to the new 5-star review from "L" (Claude can draft it; paste the review text)
 - [ ] "Vocalzz Audiology centre" listing shows a red dot on its edit pencil (something pending); look at it after the phone appeal; decide remove vs merge so its reviews aren't lost
-- [ ] Phone change to 099106 71188: REJECTED (seen 24 Nov); APPEAL SUBMITTED 24 Nov, case ID 4-2748000041681 (main listing id 12924698047389058106). Wait for Google's email (3–7 days); reply to it with evidence if asked. Appeal was via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
-- [x] Chat link already on 99106 71188 (owner confirmed 24 Nov)
-- [x] Hours: Mon–Sat 10:00–20:00, Sunday closed (done 24 Nov)
-- [x] Description: "Open every day, 10 am to 8 pm" replaced with "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week" (24 Nov, pending Google's ~10-min review)
+- [ ] Phone change to 099106 71188: REJECTED (seen 23 Nov); APPEAL SUBMITTED 23 Nov, case ID 4-2748000041681 (main listing id 12924698047389058106). Wait for Google's email (3–7 days); reply to it with evidence if asked. Appeal was via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
+- [x] Chat link already on 99106 71188 (owner confirmed 23 Nov)
+- [x] Hours: Mon–Sat 10:00–20:00, Sunday closed (done 23 Nov)
+- [x] Description: "Open every day, 10 am to 8 pm" replaced with "Clinic visits Mon–Sat, 10 am–8 pm, by appointment. WhatsApp us 7 days a week" (23 Nov, pending Google's ~10-min review)
 - [ ] After the phone change is approved: business name "Vocalzz -speech and audio" → "Vocalzz Speech & Audio"
-- [x] Opening date on Business Profile: 4 July 2022 (seen 24 Nov); website About page now says "serving Noida families since July 2022"
-- [x] Attributes "women-owned" / "LGBTQ+ friendly": owner confirmed intended (24 Nov). Description keeps behavioural therapy (owner's call; only ads were changed)
-- [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 24 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
+- [x] Opening date on Business Profile: 4 July 2022 (seen 23 Nov); website About page now says "serving Noida families since July 2022"
+- [x] Attributes "women-owned" / "LGBTQ+ friendly": owner confirmed intended (23 Nov). Description keeps behavioural therapy (owner's call; only ads were changed)
+- [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 23 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
 ### Number switch (88002 30240 → 99106 71188)
 - [ ] Until Google shows the new number: answer 88002 30240 for clinic calls, or forward its calls to 99106 71188
@@ -37,15 +37,15 @@ section. Last updated: 22 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
-- [x] 24 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
-- [x] 24 Nov: Google Ads account tasks done: EU political ads = No; organisation info (Vocalzz Resonance Hearing Centre OPC Pvt Ltd, registered address, no D-U-N-S); affiliation confirmed; payer = the company. Verification review 1–10 days; upload Certificate of Incorporation / GST certificate if Google asks
-- [x] 24 Nov: Google Ads support assistant (in-account Help) confirmed "Active promotional credit of INR 20,000.00 in progress", code ending -HALP, ₹42.40 spent toward it; owner screenshot kept. Live agent channels not offered yet (new account)
-- [ ] (superseded) 24 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
+- [x] 23 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
+- [x] 23 Nov: Google Ads account tasks done: EU political ads = No; organisation info (Vocalzz Resonance Hearing Centre OPC Pvt Ltd, registered address, no D-U-N-S); affiliation confirmed; payer = the company. Verification review 1–10 days; upload Certificate of Incorporation / GST certificate if Google asks
+- [x] 23 Nov: Google Ads support assistant (in-account Help) confirmed "Active promotional credit of INR 20,000.00 in progress", code ending -HALP, ₹42.40 spent toward it; owner screenshot kept. Live agent channels not offered yet (new account)
+- [ ] (superseded) 23 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
       ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
       in account 164-628-8199 in 2026? Ask for email confirmation. If not eligible, go back to the ₹130/day plan
-- [x] 24 Nov: Billing → Promotions shows the ₹20,000 offer (code 6YVK9-VXQE3-HALP) "Redeemed: Complete further requirements", spend ₹20,000 excl. GST by 21 Jan 2027. Owner approved; Search budget raised ₹200 → ₹350/day via Windsor. Final eligibility is still Google's call when the credit is granted
-- [x] 24 Nov: negative keyword "tickles" (competitor) added to the Search campaign; total 39 negatives
-- [ ] URGENT 24 Nov: balance only ₹949.97 (lasts ~2 days at ₹350/day + GST). Top up ₹3,000 by UPI (Billing → Add funds)
+- [x] 23 Nov: Billing → Promotions shows the ₹20,000 offer (code 6YVK9-VXQE3-HALP) "Redeemed: Complete further requirements", spend ₹20,000 excl. GST by 21 Jan 2027. Owner approved; Search budget raised ₹200 → ₹350/day via Windsor. Final eligibility is still Google's call when the credit is granted
+- [x] 23 Nov: negative keyword "tickles" (competitor) added to the Search campaign; total 39 negatives
+- [ ] URGENT 23 Nov: balance only ₹949.97 (lasts ~2 days at ₹350/day + GST). Top up ₹3,000 by UPI (Billing → Add funds)
 - [ ] Keep prepaid balance ≥ ~₹3,000 (₹350/day + GST ≈ ₹2,900/week); check Promotions progress every Monday. If daily spend stays well under ₹350 (₹40 click cap limits it), review CPC cap with Claude so the ₹20k target is met by 21 Jan
 - [ ] Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
@@ -56,15 +56,15 @@ section. Last updated: 22 Nov 2026.
 - [x] 38 negative keywords added; Performance Max "Campaign #1" paused (23 Nov, ₹0 spent)
 - [x] Verified via Windsor (23 Nov): Search campaign ENABLED, ₹200/day, max CPC ₹40, Google Search only, Presence, 15 km, Mon–Sun 07:00–23:45, 38 negatives; PMax paused
 - [x] Windsor.ai connected to Google Ads 898-392-0631 (old 164-628-8199 no longer linked); Claude can read reports and, with owner OK, make changes
-- [ ] Location asset filter: Google Ads shows no Edit option for the account-level Business Profile location (only Remove; do NOT remove it). Skipped 24 Nov; the main listing got all 12 impressions. Real fix: remove/close the duplicate "Vocalzz Audiology centre" listing in Business Profile
+- [ ] Location asset filter: Google Ads shows no Edit option for the account-level Business Profile location (only Remove; do NOT remove it). Skipped 23 Nov; the main listing got all 12 impressions. Real fix: remove/close the duplicate "Vocalzz Audiology centre" listing in Business Profile
 - [ ] Check Billing → Summary shows a prepaid balance (top up ₹2,000 by UPI if not)
-- [x] Call asset schedule: owner decided 24 Nov to keep it showing whenever ads run (7:00 am–11:45 pm, all days); owner answers calls at those times
+- [x] Call asset schedule: owner decided 23 Nov to keep it showing whenever ads run (7:00 am–11:45 pm, all days); owner answers calls at those times
 - [x] 23 Nov via Windsor: ad groups "Occupational Therapy" (8 kw, /occupational-therapy/) and "Hearing" (7 kw, /audiology/) created live with 15-headline ads
 - [x] 23 Nov: "Home Therapy" ad group live (id 202193002773): 7 keywords, 15-headline ad → vocalzz.com/therapy-at-home/ (new page). Total 4 live ad groups, 41 keywords
 - [ ] Owner to confirm home-visit details (which therapies, areas, extra charge, which therapists) so the page and replies can be exact
 - [ ] PARKED, REMIND OWNER: Behaviour & ADHD ad group (id 203852092002) left PAUSED and empty on 23 Nov — no behaviour therapist on the team right now. Revisit when one joins
-- [x] 24 Nov via Windsor: behaviour wording removed from Child Speech + OT ads (headline → "Speech & OT Under One Roof"; description → "Speech, OT, hearing & special education under one roof. WhatsApp us 7 days."). New sitelinks "Our Therapies" (/services/) and "Meet Dr. Tanu & Team" (/about/) added
-- [x] Owner removed (24 Nov) the 2 old sitelinks "All Our Therapies" and "About Dr. Tanu & Team" (they still say behaviour; Windsor can't remove assets). When a behaviour therapist joins, the behaviour wording can come back
+- [x] 23 Nov via Windsor: behaviour wording removed from Child Speech + OT ads (headline → "Speech & OT Under One Roof"; description → "Speech, OT, hearing & special education under one roof. WhatsApp us 7 days."). New sitelinks "Our Therapies" (/services/) and "Meet Dr. Tanu & Team" (/about/) added
+- [x] Owner removed (23 Nov) the 2 old sitelinks "All Our Therapies" and "About Dr. Tanu & Team" (they still say behaviour; Windsor can't remove assets). When a behaviour therapist joins, the behaviour wording can come back
 - [ ] PARKED, REMIND OWNER: Autism / ABA ad group ("autism therapy noida", "autism centre noida", "aba therapy noida") skipped on 23 Nov because clicks are costly (funded chains bid there). Raise it whenever ads, budget, performance or marketing plans are discussed
 - [ ] Create conversions "WhatsApp click" and "Phone call click"; send Claude the AW- tag ID and the two labels
 - [ ] Build the Google Search campaign with Claude (launch kit: marketing/launch-plan-2026-11-22.md)
@@ -88,11 +88,11 @@ section. Last updated: 22 Nov 2026.
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
 - [x] Label confirmed by owner (23 Nov)
-- [ ] Check Goals → Conversions shows "Recording conversions" after a test tap (owner did the test tap on vocalzz.com, 24 Nov ~11:30 am; check on 25 Nov; Claude to verify in the Thu/Fri review)
+- [ ] Check Goals → Conversions shows "Recording conversions" after a test tap (owner did the test tap on vocalzz.com, 23 Nov ~11:30 am; check on 24 Nov; Claude to verify in the Thu/Fri review)
 - [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
 - [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
-- [x] Website About page: "serving Noida families since July 2022" (24 Nov)
+- [x] Website About page: "serving Noida families since July 2022" (23 Nov)
 - [ ] After the API SIM: connect it (setup page /admin/whatsapp is ready)
 
 ## Offered, not decided
