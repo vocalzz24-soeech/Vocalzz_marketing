@@ -38,7 +38,7 @@ section. Last updated: 22 Nov 2026.
 
 ### Paid ads launch
 - [x] 24 Nov: 2-Step Verification on for the Google account and turned On in Google Ads Security (required from 29 Nov). Owner to keep backup codes on paper / private note. Was: URGENT before 30 Nov 2026: turn on 2-Step Verification for vocalzz24@gmail.com (Google Ads will require it; without it the account may be locked). Then Admin → Access and security → Security → Turn on
-- [ ] Google Ads account issues (recommended, not blocking): EU political ads = No; Advertiser verification (Organisation, legal name, registration address); funding source = the organisation
+- [x] 24 Nov: Google Ads account tasks done: EU political ads = No; organisation info (Vocalzz Resonance Hearing Centre OPC Pvt Ltd, registered address, no D-U-N-S); affiliation confirmed; payer = the company. Verification review 1–10 days; upload Certificate of Incorporation / GST certificate if Google asks
 - [x] 24 Nov: Google Ads support assistant (in-account Help) confirmed "Active promotional credit of INR 20,000.00 in progress", code ending -HALP, ₹42.40 spent toward it; owner screenshot kept. Live agent channels not offered yet (new account)
 - [ ] (superseded) 24 Nov: phone support tried twice from a third number; IVR asked for the website by SMS, then said it can't connect and hung up. Next: (1) check Billing → Promotions shows the ₹20,000 offer "In progress"; (2) ask via in-account Help (?) → Contact us → Billing/Promotions → chat or callback. Was: call Google Ads support 1800-419-3355 (Mon–Fri 9–6) — is new account 898-392-0631 eligible for the
       ₹20,000 new-advertiser credit (spend ₹20,000 excl. GST within 60 days of billing), given an agency ran Vocalzz ads
