@@ -111,7 +111,9 @@ section. Last updated: 23 Nov 2026.
 ### One login for everything (owner's decision, 23 Nov)
 - Google side: vocalzz24@gmail.com owns Google Ads, Search Console (Owner), Business Profile, Cloudflare, Windsor, Google Cloud project "Digital-marketing-vocalzz". Keep tanugarg.india@gmail.com as a second owner on Search Console/Business Profile as a backup
 - [ ] Meta side: Meta logs in with a Facebook profile, not a Gmail; the single home is the business portfolio "Vocalzz Speech & Audio" (contact email vocalzz24@gmail.com). Put the Meta ad account, Facebook page, Instagram and WhatsApp accounts inside it, with 2 admins
-- [ ] Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
+- [x] 23 Nov: Meta ad account "Vocalzz Speech & Audio – Ads" (ID 4649091728569565) created inside the business portfolio; 1 person assigned (Ayush's profile)
+- [ ] Invite the owner's own Facebook profile to the portfolio as Admin (Settings → People → Invite, by the email of that Facebook profile), then assign it to the ad account with Full control; add payment method (company name, registered address, no GST)
+- [ ] (was) Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
 
 ### Windsor.ai plan (trial ends 9 Dec 2026)
 - [ ] Before 9 Dec: decide plan. Prices (annual billing): Basic ₹1,799/mo (3 sources), Standard ₹9,299/mo (7). Forever Free after trial = 1 data source, 1 account, 30-day history. Plan: keep only Google Ads on Windsor Free (check that write actions work on Free); Claude builds Search Console reporting into the booking app; disconnect Facebook Ads (Ayush Goyal), Facebook page, GBP "Rehabilitation clinic"; Instagram optional. If Free can't make ad changes → Basic
