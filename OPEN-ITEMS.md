@@ -135,7 +135,8 @@ section. Last updated: 23 Nov 2026.
 - [x] 24 Nov: Google Ads API enabled in Cloud project Digital-marketing-vocalzz; access level was Test; Explorer access applied for ("under review, check back in a few minutes")
 - [x] 24 Nov: service account vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com added to 898-392-0631 as Read only (upgrade to Standard when the app's change features are built)
 - [x] 24 Nov: Explorer access approved (2,880 ops/day on production)
-- [ ] Google Ads report page built (book.vocalzz.com → 📈 Google Ads, /ads): owner to open it after deploy and send a screenshot. If it asks for the developer token: Cloudflare runtime secret GADS_DEVELOPER_TOKEN (never in chat). Once working, Windsor is only needed for making ad changes
+- [x] 24 Nov: Google Ads report page LIVE at book.vocalzz.com/ads with real data; no developer token needed
+- [ ] Thu/Fri review: candidate negatives from search terms (hearing competitors: hearing point, insono, aura hearing, earkart, hearwell, star hearing, centre for hearing green park; info searches: ot exercises for kids, how to clear speech in kids, hearing test price for newborn?). Owner to approve
 
 ## Claude
 - [x] 24 Nov: "Adults" ad group (id 203056682820) live: 8 phrase keywords (speech therapy for adults, adult speech therapist, voice therapy, voice therapist near me, speech therapy after stroke, aphasia therapy, speech therapy for elderly, swallowing therapy), adult-worded ad → /speech-language-therapy/. "speech therapy for adults" paused in Child Speech (criterion 379378333). Shares ₹400/day. Later: a dedicated adults page

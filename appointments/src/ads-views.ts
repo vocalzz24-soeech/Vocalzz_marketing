@@ -74,7 +74,7 @@ ${r.groups.map((x) => html`<tr><td>${x.name}${STATUS[x.status] ? html` <span cla
 <div class="card"><h2 style="margin-top:0">Keywords</h2>
 ${r.keywords.length ? html`<div class="tbl-wrap"><table><tr><th>Keyword</th><th>Ad group</th>${HEAD}</tr>
 ${r.keywords.map((x) => html`<tr><td>${x.text} <span class="brand">${MATCH[x.match] ?? x.match.toLowerCase()}</span>${STATUS[x.status] ? html` <span class="brand">${STATUS[x.status]}</span>` : ""}</td><td class="muted">${x.group}</td>${rowCells(x)}</tr>`)}</table></div>` : html`<p class="muted">No keyword activity in this period.</p>`}
-<p class="muted" style="margin:8px 0 0">Only keywords that were shown at least once appear here.</p></div>
+<p class="muted" style="margin:8px 0 0">Keywords you bid on (blocked "negative" words are not listed). Most active first.</p></div>
 <div class="card"><h2 style="margin-top:0">What people searched</h2>
 ${r.terms.length ? html`<div class="tbl-wrap"><table><tr><th>Search</th><th>Ad group</th>${HEAD}</tr>
 ${r.terms.map((x) => html`<tr><td>${x.term}</td><td class="muted">${x.group}</td>${rowCells(x)}</tr>`)}</table></div>` : html`<p class="muted">No searches in this period yet.</p>`}

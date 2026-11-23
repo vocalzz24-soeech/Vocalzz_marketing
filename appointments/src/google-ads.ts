@@ -126,7 +126,7 @@ export async function adsReport(env: Env, range: AdsRange): Promise<AdsReport> {
   const [prevRows, groups, keywords, terms, conv] = await Promise.all([
     search(env, token, `SELECT ${M} FROM customer WHERE ${between(prev.start, prev.end)}`),
     search(env, token, `SELECT ad_group.name, ad_group.status, ${M} FROM ad_group WHERE ${cur} AND campaign.advertising_channel_type = 'SEARCH'`),
-    search(env, token, `SELECT ad_group.name, ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ${M} FROM keyword_view WHERE ${cur}`),
+    search(env, token, `SELECT ad_group.name, ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ${M} FROM keyword_view WHERE ${cur} AND ad_group_criterion.negative = FALSE AND ad_group_criterion.status != 'REMOVED'`),
     search(env, token, `SELECT ad_group.name, search_term_view.search_term, ${M} FROM search_term_view WHERE ${cur} ORDER BY metrics.impressions DESC LIMIT 200`),
     search(env, token, `SELECT segments.conversion_action_name, metrics.conversions FROM customer WHERE ${cur}`),
   ]);
