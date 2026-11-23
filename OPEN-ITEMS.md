@@ -131,7 +131,8 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: SEO report LIVE at book.vocalzz.com/seo (Search Console via service account vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com, project Digital-marketing-vocalzz; runtime secret GSC_PRIVATE_KEY). Owner to delete the stray GSC_PRIVATE_KEY under Settings → Builds and the downloaded .json file. Search Console can now be disconnected from Windsor
 - [x] 24 Nov: Google Ads Manager account created: "Vocalzz Speech & Audio – Manager" 305-879-1109 (vocalzz24@gmail.com)
 - [x] 24 Nov: 898-392-0631 linked under manager 305-879-1109 (Owner: No — ads account keeps its own ownership)
-- [ ] Manager 305-879-1109 → Admin → API Center → apply (Basic access); token is a secret, store only in Cloudflare — Apply for a Google Ads API developer token (free; backup plan to drop Windsor entirely)
+- [x] 24 Nov: API Center form done: token created, access level "Explorer Access". Google's banner: developer tokens no longer required; API access levels now managed in Google Cloud Console
+- [ ] Next: Google Cloud project Digital-marketing-vocalzz → enable "Google Ads API"; check its access level there; give the app access to 898-392-0631 (likely by adding the service account as a user in Google Ads, else OAuth sign-in). Then Claude builds the Google Ads report page
 
 ## Claude
 - [x] 24 Nov: "Adults" ad group (id 203056682820) live: 8 phrase keywords (speech therapy for adults, adult speech therapist, voice therapy, voice therapist near me, speech therapy after stroke, aphasia therapy, speech therapy for elderly, swallowing therapy), adult-worded ad → /speech-language-therapy/. "speech therapy for adults" paused in Child Speech (criterion 379378333). Shares ₹400/day. Later: a dedicated adults page
