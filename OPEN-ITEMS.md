@@ -88,7 +88,7 @@ section. Last updated: 23 Nov 2026.
 - [x] Google tag GTM-KSX477XK added to all 14 website pages (22 Nov); privacy notice updated
 - [x] "WhatsApp click" conversion (AW-18589489528/3wyfCKjmwL0dEPiylKBF) fires on every wa.me tap (website/public/conversions.js, 23 Nov)
 - [x] Label confirmed by owner (23 Nov)
-- [ ] Check Goals → Conversions shows "Recording conversions" after a test tap (owner did the test tap on vocalzz.com, 23 Nov ~11:30 am; check on 24 Nov; Claude to verify in the Thu/Fri review)
+- [ ] Conversion tracking: Goals shows "WhatsApp click" (Website, Primary, in account goals) and AI-qualified call leads as "Awaiting conversions" (23 Nov). A direct test tap does NOT count: Google Ads only records a conversion after an ad click. Watch for the first real one in the Thu/Fri review; if none after ~20 ad clicks, Claude checks the tag
 - [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
 - [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
 - [ ] Booking app: "How did you hear about us?" on patients, and a by-source view on the dashboard
