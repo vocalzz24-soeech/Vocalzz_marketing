@@ -63,4 +63,57 @@ POSTS = [
 <p>We start by listening to you: your concerns, your child's history and what they enjoy. Then we play and interact with your child to understand how they communicate and understand. Afterwards we explain what we noticed in simple words, suggest whether a hearing check is needed, and share a plan if support would help, including activities to practise at home. Every child is different, so we don't promise fixed timelines; we set realistic goals together and review them.</p>
 """,
     },
+    {
+        "slug": "stammering-tips-teens-adults",
+        "status": "draft",
+        "date": "2026-11-23",
+        "reviewed_on": None,
+        "title": "Stammering (हकलाना) at college or work: 8 practical tips, and when therapy helps",
+        "seo_title": "Stammering (हकलाना) Tips for Teens & Adults | Vocalzz Noida",
+        "description": "Stammer in class, interviews or phone calls? 8 practical tips for teens and adults who stammer (हकलाना), what to avoid, and when speech therapy can help.",
+        "summary": "Interviews, phone calls, introducing yourself: practical tips for teens and adults who stammer, and when therapy can help.",
+        "service": ("Stammering Therapy", "/stammering-therapy/"),
+        "wa": "Hi Vocalzz, I read your article on stammering and I'd like to know about therapy.",
+        "body": """
+<p>"Mera naam bolte waqt hi atak jaata hoon." Saying your own name, answering in class, a phone call, a job interview: for many people who stammer (हकलाना), these everyday moments feel like the hardest part of the day. If that's you, you're not alone, and it is nobody's fault.</p>
+<p>Stammering, also called stuttering, is when the flow of speech gets interrupted: repeating a sound ("b-b-b-bus"), stretching it ("sssssorry") or getting stuck with no sound coming out (a "block"). It often varies a lot: easier with friends, harder when you're tired, rushed or nervous.</p>
+<p>Here are practical things that many teens and adults find helpful, and some common habits that tend to make things harder.</p>
+
+<h2>8 practical tips</h2>
+<ul>
+<li><strong>Slow the start, not the whole sentence.</strong> Begin words gently, with an easy, relaxed breath out, instead of pushing hard on the first sound.</li>
+<li><strong>Use light contact on hard sounds.</strong> On sounds like p, b, t, d and k, let your lips and tongue touch lightly rather than pressing them together tightly.</li>
+<li><strong>Pause on purpose.</strong> Short, planned pauses between phrases give you time and make speech sound calm and confident. Listeners rarely mind a pause.</li>
+<li><strong>Keep eye contact when you can.</strong> Looking away during a stammer can make the moment feel bigger. Staying connected with the listener often makes it smaller.</li>
+<li><strong>Practise the hard situations, not only the easy ones.</strong> Rehearse your introduction, a phone call or an interview answer out loud at home, then try it in real life step by step.</li>
+<li><strong>Tell people, if you're comfortable.</strong> A simple "I stammer sometimes, so give me a moment" often takes the pressure off both of you.</li>
+<li><strong>Look after the basics.</strong> Being tired, rushed or stressed often makes stammering worse. Sleep, time to prepare and slowing your day down a little can help.</li>
+<li><strong>Notice what you avoid.</strong> Write down the words, people and situations you avoid. That list is a useful starting point for practice, on your own or with a therapist.</li>
+</ul>
+
+<h2>Habits that usually make it harder</h2>
+<ul>
+<li><strong>Switching words all the time.</strong> Swapping a "hard" word for an easier one works in the moment, but over time the list of feared words often grows.</li>
+<li><strong>Avoiding situations.</strong> Not ordering food, staying quiet in meetings or skipping calls can protect you today but tends to increase fear tomorrow.</li>
+<li><strong>Forcing through a block.</strong> Pushing harder usually adds tension. Easing off, pausing and restarting gently is often more helpful.</li>
+<li><strong>Rushing to "get it over with".</strong> Speaking very fast to escape a stammer tends to cause more of them.</li>
+</ul>
+
+<h2>When speech therapy can help</h2>
+<p>Tips are a good start, but many people find it easier to change with a trained therapist guiding the practice. It may be a good time to get an assessment if:</p>
+<ul>
+<li>stammering stops you from speaking up in class, at work or on the phone</li>
+<li>you avoid words, people or situations because of it</li>
+<li>you have an important event coming up, such as an interview, viva or presentation</li>
+<li>it affects your confidence or how you feel about yourself</li>
+</ul>
+<p>It is never too late to start. There is no honest guarantee of a "cure", but therapy can help many teens and adults speak more easily, stammer with less struggle and feel more confident in daily life.</p>
+
+<h2>For parents of a teen who stammers</h2>
+<p>Stay patient and keep eye contact. Let them finish without completing their words, and avoid "slow down" or "take a breath". Ask them what helps; many teens prefer that you simply listen to what they're saying, not how they say it.</p>
+
+<h2>Stammering therapy at Vocalzz</h2>
+<p>At our clinic in Sector 137, Noida, and in online sessions, we start with an assessment: we listen to you, understand where and when stammering affects you most, and agree goals together. Sessions focus on practical techniques and real-life practice, such as calls, introductions and interviews, with things to practise between sessions. Every person is different, so we set realistic goals and review progress with you.</p>
+""",
+    },
 ]
