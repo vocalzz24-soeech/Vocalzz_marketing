@@ -74,6 +74,15 @@ section. Last updated: 23 Nov 2026.
 - [ ] Build the Meta Click-to-WhatsApp campaign with Claude
 - [ ] On Sundays, someone checks WhatsApp a few times a day
 
+### Organic growth / SEO (plan: marketing/seo-plan-2026-11.md, started 23 Nov)
+- [ ] Owner: set up Google Search Console (domain vocalzz.com, verify via Cloudflare), submit sitemap; then connect Search Console in Windsor so Claude can read it
+- [ ] Owner: start the review routine (ask 2–3 families a week; QR/link at reception and in the WhatsApp thank-you)
+- [ ] Owner: send screenshots of Business Profile categories + services list; Claude suggests fixes and writes Q&A
+- [ ] Claude: page 1 "Stammering therapy" and page 2 "Speech therapy for autism" (Dr. Tanu to check facts)
+- [ ] Claude: blog post 1 "My 2-year-old isn't talking" + weekly Google post drafts
+- [ ] Claude: copy-paste sheet for directories (same name/address/99106 number)
+- [ ] Check the third listing "Vocalzz -Rehabilitation clinic" (seen in Windsor, locations/13587561885596827742) — whose account owns it; fold into the duplicate clean-up
+
 ### Automatic WhatsApp messages (API)
 - [ ] Buy the new SIM for the API (don't install WhatsApp on it; keep it recharged); send Claude the number
 - [ ] Then follow appointments/docs/whatsapp-setup-guide.md from Phase 2; submit templates only after the number switch
