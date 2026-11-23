@@ -26,3 +26,16 @@ test("credentials accept the whole JSON key file or the PEM key on its own", asy
   assert.equal(credentials({ GSC_PRIVATE_KEY: "PEM" } as never), null);
   assert.equal(credentials({ GSC_PRIVATE_KEY: "{bad json" } as never), null);
 });
+
+test("resolveRange: presets, custom dates, clamping and swapping", async () => {
+  const { resolveRange, previousOf, fillDays } = await import("../src/search-console.ts");
+  assert.deepEqual(resolveRange("2026-11-24", {}), { start: "2026-10-26", end: "2026-11-22", days: 28, preset: 28 });
+  assert.deepEqual(resolveRange("2026-11-24", { days: "7" }), { start: "2026-11-16", end: "2026-11-22", days: 7, preset: 7 });
+  const c = resolveRange("2026-11-24", { from: "2026-11-20", to: "2026-11-10" });
+  assert.deepEqual([c.start, c.end, c.days, c.preset], ["2026-11-10", "2026-11-20", 11, null]);
+  const late = resolveRange("2026-11-24", { from: "2026-11-20", to: "2026-11-30" });
+  assert.equal(late.end, "2026-11-22"); assert.ok(late.note);
+  assert.deepEqual(resolveRange("2026-11-24", { from: "2026-11-18", to: "2026-11-18" }).days, 1);
+  assert.deepEqual(previousOf({ start: "2026-11-18", days: 1 }), { start: "2026-11-17", end: "2026-11-17" });
+  assert.deepEqual(fillDays("2026-11-01", "2026-11-03", [{ keys: ["2026-11-02"], clicks: 3, impressions: 9, ctr: 0, position: 0 }]).map((d) => d.clicks), [0, 3, 0]);
+});
