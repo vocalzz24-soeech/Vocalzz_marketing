@@ -154,7 +154,7 @@ section. Last updated: 24 Nov 2026.
 - [x] Label confirmed by owner (23 Nov)
 - [x] 24 Nov: Conversion tracking WORKS: Google Ads overview shows 1 conversion action "Recording conversions" (after the first ad-driven WhatsApp lead on 23 Nov)
 - [x] Goals cleaned up (23 Nov): campaign uses only Phone call lead + Contact (WhatsApp click); YouTube views, Get directions, Engagement off
-- [ ] Optional: create "Phone call click" conversion and send Claude its label (website Call buttons)
+- [x] 24 Nov: "Click to call" conversion (Phone call lead, Primary, Count = One, no value) created; label added to website/public/conversions.js so taps on any tel: number on vocalzz.com count. Owner: tap Finish in Google Ads. Calls straight from the ad/listing still aren't tracked (not offered for this account): log them in the booking app source field
 - [x] 23 Nov: Booking app: "How did they hear about us?" + "First contacted us on" on patients (add + edit forms, shown in list and summary), Dashboard section 5 "Where new patients came from" (migration 0012, applied on deploy). + "How did they contact us?" (WhatsApp, call, walk-in…, migration 0013) with a second table on the Dashboard. Live and checked by owner 23 Nov
 - [x] Website About page: "serving Noida families since July 2022" (23 Nov)
 - [ ] After the API SIM: connect it (setup page /admin/whatsapp is ready)
