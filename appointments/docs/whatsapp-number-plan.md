@@ -15,7 +15,7 @@
 1. 99106 71188 on the WhatsApp Business app, with profile, greeting and away messages.
 2. Connect 99106 71188 to Instagram (@vocalzz_4u) and the Facebook page; then remove the old 88002 30240
    "Vocalzz" WhatsApp Business App account from the Meta portfolio (Messaging accounts).
-3. Buy the new SIM (don't install WhatsApp on it); keep it recharged.
+3. Buy the new SIM (don't install WhatsApp on it); keep it recharged. Done 24 Nov: **+91 88263 34323**.
 4. Same day: switch the public number to 99106 71188 on the website, booking app (CLINIC_WHATSAPP and the
    "please WhatsApp us on ..." line in all patient templates), CLAUDE.md and the skill's business profile; owner
    updates Google Business Profile first, then Instagram/Facebook bio, Justdial, Practo; message existing

@@ -105,7 +105,7 @@ section. Last updated: 24 Nov 2026.
 - [ ] Check the third listing "Vocalzz -Rehabilitation clinic" (seen in Windsor, locations/13587561885596827742) — whose account owns it; fold into the duplicate clean-up
 
 ### Automatic WhatsApp messages (API)
-- [ ] Buy the new SIM for the API (don't install WhatsApp on it; keep it recharged); send Claude the number
+- [x] 24 Nov: API SIM bought: +91 88263 34323 (automatic messages only; no WhatsApp app on it; keep it recharged)
 - [ ] Then follow appointments/docs/whatsapp-setup-guide.md from Phase 2; submit templates only after the number switch
 
 ### Booking app
