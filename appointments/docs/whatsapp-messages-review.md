@@ -103,7 +103,7 @@ for approval (usually minutes), so it's best to finalise the wording now, before
 ### 14. New weekly sessions
 **Sent to:** Therapist · **Template name:** `vocalzz_therapist_series`
 
-> New weekly sessions for you: Aarav (Speech therapy) at 5:00 PM on Mon 30 Nov, Mon 7 Dec, Mon 14 Dec. Please check the schedule for details.
+> Schedule update: weekly sessions have been booked for Aarav (Speech therapy) at 5:00 PM on Mon 30 Nov, Mon 7 Dec, Mon 14 Dec. Please check the schedule for details.
 
 ### 15. Weekly sessions updated
 **Sent to:** Therapist · **Template name:** `vocalzz_therapist_series_moved`
