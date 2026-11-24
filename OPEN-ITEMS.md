@@ -56,6 +56,7 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: Billing → Promotions shows the ₹20,000 offer (code 6YVK9-VXQE3-HALP) "Redeemed: Complete further requirements", spend ₹20,000 excl. GST by 21 Jan 2027. Owner approved; Search budget raised ₹200 → ₹350/day via Windsor. Final eligibility is still Google's call when the credit is granted
 - [x] 23 Nov: negative keyword "tickles" (competitor) added to the Search campaign; total 39 negatives
 - [ ] URGENT 23 Nov: balance only ₹949.97 (lasts ~2 days at ₹350/day + GST). Top up ₹3,000 by UPI (Billing → Add funds)
+- [ ] 24 Nov: Billing settings: Prepay selected; Postpay offered but "You can't change how you pay at the moment" (new account). Recheck in a few weeks (Billing → Settings → How you pay). Visa ••0007 saved. ₹2,000 card payment of 23 Nov not yet in balance (₹365 available) — owner to check pending/failed
 - [ ] Keep prepaid balance ≥ ~₹3,000 (₹350/day + GST ≈ ₹2,900/week); check Promotions progress every Monday. If daily spend stays well under ₹350 (₹40 click cap limits it), review CPC cap with Claude so the ₹20k target is met by 21 Jan
 - [x] (superseded/done 23 Nov) Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
