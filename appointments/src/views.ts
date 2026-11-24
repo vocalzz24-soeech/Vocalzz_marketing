@@ -114,7 +114,12 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;p
 export function layout(title: string, user: User | null, body: H | string, flash?: { type: "ok" | "error"; text: string }) {
   return html`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} · Vocalzz Appointments</title><link rel="icon" href="/logo-mark.png" type="image/png"><style>${raw(CSS)}</style></head>
+<title>${title} · Vocalzz Appointments</title><link rel="icon" href="/logo-mark.png" type="image/png">
+<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#0b1220">
+<link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Vocalzz"><meta name="apple-mobile-web-app-status-bar-style" content="black">
+<style>${raw(CSS)}</style>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(function () {});</script></head>
 <body>
 <header>
 <a class="home-link" href="${user ? "/" : "/login"}" aria-label="Vocalzz Appointments: go to the schedule"><img src="/logo-mark.png" width="28" height="28" alt="">VOCALZZ <span class="app-word">Appointments</span></a>
@@ -135,9 +140,25 @@ ${user.role === "admin" ? html`<div class="sep"></div><div class="label">Admin</
 <a href="/messages">💬 Messages</a>
 <a href="/admin/whatsapp">⚙️ WhatsApp setup</a>` : ""}
 <div class="sep"></div>
+<a href="#" id="install-app" hidden>📲 Install the app</a>
 <a class="site-link" href="https://vocalzz.com/">🌐 Website</a>
 <form method="post" action="/logout"><button class="logout">↩ Log out</button></form>
-</nav></details>` : html`<a class="site-link" href="https://vocalzz.com/" style="color:var(--bar-ink);text-decoration:none">← Website</a>`}
+</nav></details>
+<script>
+(function () {
+  var link = document.getElementById("install-app"); if (!link) return;
+  var standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone) return; // already running as the app
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent), prompt = null;
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); prompt = e; link.hidden = false; });
+  if (ios) link.hidden = false;
+  link.addEventListener("click", function (e) {
+    e.preventDefault();
+    if (prompt) { prompt.prompt(); prompt.userChoice.then(function () { prompt = null; link.hidden = true; }); }
+    else alert("To install on iPhone/iPad: tap the Share button in Safari, then \"Add to Home Screen\".");
+  });
+})();
+</script>` : html`<a class="site-link" href="https://vocalzz.com/" style="color:var(--bar-ink);text-decoration:none">← Website</a>`}
 </header>
 <main>
 ${flash ? html`<div class="flash ${flash.type}">${flash.text}</div>` : ""}
