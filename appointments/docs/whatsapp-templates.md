@@ -89,7 +89,7 @@ Sample values:
 - {{1}}: Aarav
 - {{2}}: Speech therapy
 - {{3}}: Fri, 20 Nov 2026, 5:00 PM
-- {{4}}: 45
+- {{4}}: 40
 
 ## vocalzz_therapist_moved
 
@@ -102,7 +102,7 @@ Sample values:
 - {{1}}: Aarav
 - {{2}}: Speech therapy
 - {{3}}: Sat, 21 Nov 2026, 4:00 PM
-- {{4}}: 45
+- {{4}}: 40
 - {{5}}: Fri, 20 Nov 2026, 5:00 PM
 
 ## vocalzz_therapist_cancelled
@@ -222,7 +222,7 @@ Sample values:
 - {{2}}: Aarav
 - {{3}}: Dr. Tanu Garg
 - {{4}}: Fri, 20 Nov 2026, 5:00 PM
-- {{5}}: 45
+- {{5}}: 30
 
 ## vocalzz_therapist_consult
 
@@ -236,5 +236,5 @@ Sample values:
 
 - {{1}}: Aarav
 - {{2}}: Fri, 20 Nov 2026, 5:00 PM
-- {{3}}: 45
+- {{3}}: 30
 - {{4}}: Priya
