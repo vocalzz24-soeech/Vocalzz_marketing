@@ -26,10 +26,11 @@ export interface ApptRow {
   therapist_name: string;
   therapist_phone: string;
   patient_stage?: string;
+  patient_hold?: string | null;
 }
 
 export const APPT_SELECT = `
-  SELECT a.*, p.name AS patient_name, p.guardian_name, p.phone AS patient_phone, p.whatsapp_consent, p.stage AS patient_stage,
+  SELECT a.*, p.name AS patient_name, p.guardian_name, p.phone AS patient_phone, p.whatsapp_consent, p.stage AS patient_stage, p.hold_status AS patient_hold,
          t.name AS therapist_name, t.phone AS therapist_phone
     FROM appointments a
     JOIN patients p ON p.id = a.patient_id

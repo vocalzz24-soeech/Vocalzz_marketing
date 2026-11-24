@@ -195,16 +195,17 @@ async function patientList(env: Env, q = "") {
 
 /** New patients start with a consultation; other sessions wait until it is confirmed. */
 function consultationGate(p: { name: string; stage: string; hold_status?: string | null }, service: string): string | null {
-  if (service === CONSULTATION) return null;
-  if (p.stage === "consultation") return `${p.name} is a new patient. Book their consultation first. Regular sessions open up once the consultation is confirmed (the "Confirmed: book therapy sessions" button on the consultation).`;
   if (p.stage === "closed") return `${p.name} is marked "Not going ahead". Change their status on the Patients page first.`;
-  if (p.hold_status) return `${p.name} is marked "${p.hold_status === "hold" ? "On hold" : "In talks"}". Change their status to Active on the Patients page first.`;
+  if (p.hold_status === "hold") return `${p.name} is marked "On hold". Change their status on the Patients page first.`;
+  if (service === CONSULTATION) return null;
+  if (p.hold_status === "talking") return `${p.name} is marked "In talks": only a consultation can be booked. Change their status to Active to book sessions.`;
+  if (p.stage === "consultation") return `${p.name} is a new patient. Book their consultation first. Regular sessions open up once the consultation is confirmed (the "Confirmed: book therapy sessions" button on the consultation).`;
   return null;
 }
 
 /** New patients with no upcoming consultation booked. */
 const consultsToBookStmt = (env: Env) => env.DB.prepare(
-  `SELECT p.name FROM patients p WHERE p.stage = 'consultation' AND p.hold_status IS NULL
+  `SELECT p.name FROM patients p WHERE p.stage = 'consultation' AND (p.hold_status IS NULL OR p.hold_status = 'talking')
      AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.service = ? AND a.status IN ('booked','completed'))
    ORDER BY p.id DESC LIMIT 20`,
 ).bind(CONSULTATION);
@@ -279,7 +280,7 @@ app.post("/appointments", async (c) => {
   if (user.role === "therapist") form.therapist_id = String(user.therapist_id);
   const fail = async (msg: string) =>
     c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, msg, consultMin(c.env)), 400);
-  const patient = await c.env.DB.prepare("SELECT id, name, stage FROM patients WHERE id = ?").bind(Number(form.patient_id)).first<{ id: number; name: string; stage: string }>();
+  const patient = await c.env.DB.prepare("SELECT id, name, stage, hold_status FROM patients WHERE id = ?").bind(Number(form.patient_id)).first<{ id: number; name: string; stage: string; hold_status: string | null }>();
   if (!patient) return fail("Choose a patient.");
   const stageError = consultationGate(patient, form.service ?? "");
   if (stageError) return fail(stageError);
@@ -451,7 +452,7 @@ app.post("/appointments/:id/reschedule", adminOnly, async (c) => {
   if (appt.status !== "booked") return c.redirect(`/appointments/${appt.id}`, 303);
   const body = await c.req.parseBody();
   const form = { ...formFrom(body), patient_id: String(appt.patient_id) };
-  const stageError = consultationGate({ name: appt.patient_name, stage: appt.patient_stage ?? "active" }, form.service ?? "");
+  const stageError = consultationGate({ name: appt.patient_name, stage: appt.patient_stage ?? "active", hold_status: appt.patient_hold }, form.service ?? "");
   if (stageError) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: stageError });
   const v = await validateSlot(c.env, form, appt.id);
   if ("error" in v) return redirectWith(c, `/appointments/${appt.id}`, { type: "error", text: v.error! });
@@ -926,7 +927,7 @@ app.post("/patients/:id/stage", adminOnly, async (c) => {
   const id = Number(c.req.param("id"));
   const stage = str((await c.req.parseBody()).stage);
   if (!["active", "consultation"].includes(stage)) return c.text("Bad request", 400);
-  await c.env.DB.prepare("UPDATE patients SET stage = ?, stage_changed_at = ? WHERE id = ?").bind(stage, new Date().toISOString(), id).run();
+  await c.env.DB.prepare("UPDATE patients SET stage = ?, hold_status = NULL, stage_changed_at = ? WHERE id = ?").bind(stage, new Date().toISOString(), id).run();
   return redirectWith(c, stage === "active" ? `/appointments/new?patient_id=${id}` : `/patients/${id}/summary`, {
     type: "ok", text: stage === "active" ? "Consultation marked as done. You can now book therapy sessions." : "Reopened as a new patient: book their consultation.",
   });
@@ -940,7 +941,7 @@ app.post("/appointments/:id/consultation", adminOnly, async (c) => {
   if (!["confirmed", "declined"].includes(outcome)) return c.text("Bad request", 400);
   const now = new Date().toISOString();
   await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE patients SET stage = ?, stage_changed_at = ? WHERE id = ?").bind(outcome === "confirmed" ? "active" : "closed", now, appt.patient_id),
+    c.env.DB.prepare("UPDATE patients SET stage = ?, hold_status = NULL, stage_changed_at = ? WHERE id = ?").bind(outcome === "confirmed" ? "active" : "closed", now, appt.patient_id),
     // A consultation whose time has passed took place; a future one stays booked (and keeps its slot).
     c.env.DB.prepare("UPDATE appointments SET status = 'completed' WHERE id = ? AND status = 'booked' AND start_utc <= ?").bind(appt.id, now),
   ]);

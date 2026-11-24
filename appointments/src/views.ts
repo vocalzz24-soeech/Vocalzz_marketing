@@ -293,7 +293,7 @@ ${patients.length === 0 ? html`<div class="card">${user.role === "admin" ? html`
 <form class="card" method="post" action="/appointments">
 <label for="patient_id">Patient</label>
 <select id="patient_id" name="patient_id" required><option value="">Choose…</option>
-${patients.filter((p) => (p.stage !== "closed" && !p.hold_status) || String(p.id) === form.patient_id).map((p) => html`<option value="${p.id}" data-stage="${p.stage ?? "active"}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}${p.stage === "consultation" ? " · NEW: consultation first" : ""}</option>`)}
+${patients.filter((p) => (p.stage !== "closed" && p.hold_status !== "hold") || String(p.id) === form.patient_id).map((p) => html`<option value="${p.id}" data-stage="${p.hold_status === "talking" ? "consultation" : p.stage ?? "active"}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}${p.stage === "consultation" ? " · NEW: consultation first" : ""}</option>`)}
 </select>
 <div id="consult-hint" class="card consult-card" style="margin:8px 0 0;padding:10px 12px" hidden>New patient: book their <strong>consultation</strong> first. Regular sessions open up once the consultation is confirmed.</div>
 <p class="muted">${user.role === "admin" ? html`New patient? <a href="/patients">Add them first</a>.` : "New patient? Ask the clinic admin to add them first."}</p>
@@ -652,7 +652,7 @@ ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "
 ${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source || p.contact_channel ? html`<div class="muted" style="font-size:12px">${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</div>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
 <td>${statusSelect(p)}</td>
-<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>${p.stage === "closed" || p.hold_status ? "" : html` <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}</td></tr>`)}
+<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "talking" ? html` <a class="btn small" href="/appointments/new?patient_id=${p.id}&service=consultation">Book consultation</a>` : html` <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}</td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
 `, flash);
 }
@@ -866,8 +866,9 @@ export function patientSummaryPage(user: User, p: PatientRow, month: string, app
 <p><a href="/patients">← Patients</a></p>
 <h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
 ${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong> · contacted us by <strong>${channelLabel(p.contact_channel)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}` : ""} · <a href="/patients/${p.id}/edit">change</a></p>` : ""}
-${user.role === "admin" && p.hold_status ? html`<div class="card"><strong>${p.hold_status === "hold" ? "On hold" : "In talks"}</strong><p class="muted" style="margin:4px 0 0">Booking is paused for this patient. Change the status to Active on the Patients page to book again.</p></div>` : ""}
-${user.role === "admin" && p.stage === "consultation" && !p.hold_status ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
+${user.role === "admin" && p.hold_status === "hold" ? html`<div class="card"><strong>On hold</strong><p class="muted" style="margin:4px 0 0">Booking is paused for this patient. Change the status on the Patients page to book again.</p></div>` : ""}
+${user.role === "admin" && p.hold_status === "talking" ? html`<div class="card consult-card"><strong>In talks</strong><p class="muted" style="margin:4px 0 8px">Only a consultation can be booked until the family confirms.</p><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a></div>` : ""}
+${user.role === "admin" && p.stage === "consultation" && p.hold_status !== "hold" && p.hold_status !== "talking" ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
 <p class="muted" style="margin:4px 0 8px">Regular sessions can be booked once the consultation is confirmed. Confirm it from the consultation appointment, or here if it happened outside the app.</p>
 <div class="row" style="gap:8px;flex:0 0 auto"><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a>
 <form method="post" action="/patients/${p.id}/stage" style="margin:0;flex:0 0 auto"><button class="secondary" name="stage" value="active">Consultation done: allow sessions</button></form></div></div>` : ""}
