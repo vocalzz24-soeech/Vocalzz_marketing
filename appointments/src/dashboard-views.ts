@@ -147,7 +147,7 @@ ${opts.therapists.filter((t) => !t.deleted_at).map((t) => html`<option value="${
   var f = document.querySelector("form.filters"), sel = document.getElementById("therapist"), period = f.querySelector('input[name="period"]');
   period.value = "${p.key}";
   ["from", "to"].forEach(function (id) { document.getElementById(id).addEventListener("change", function () { period.value = "custom"; }); });
-  sel.addEventListener("change", function () { f.submit(); });
+  sel.addEventListener("change", function () { f.requestSubmit ? f.requestSubmit() : f.submit(); });
 })();
 </script>
 

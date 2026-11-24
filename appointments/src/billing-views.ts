@@ -72,7 +72,7 @@ export function newBillPage(user: User, patients: PatientRow[], form: {
 <h1>New bill</h1>
 <form method="get" action="/bills/new" class="card">
 <div class="row" style="align-items:end">
-<div><label for="patient_id">Patient</label><select id="patient_id" name="patient_id" required onchange="this.form.submit()"><option value="">Choose…</option>
+<div><label for="patient_id">Patient</label><select id="patient_id" name="patient_id" required onchange="(this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit())"><option value="">Choose…</option>
 ${patients.map((p) => html`<option value="${p.id}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""}</option>`)}</select></div>
 <div><label for="month">Fill sessions from</label><input id="month" type="month" name="month" value="${form.month}"></div>
 <button class="secondary" style="flex:0 0 auto">Fill from sessions</button></div>

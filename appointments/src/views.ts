@@ -119,7 +119,24 @@ export function layout(title: string, user: User | null, body: H | string, flash
 <link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Vocalzz"><meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>${raw(CSS)}</style>
-<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(function () {});</script></head>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(function () {});</script>
+<meta name="turbo-cache-control" content="no-cache"><meta name="turbo-prefetch" content="false">
+<script>
+// Installed app only: switch pages in place (no full reload, no browser loading bar). The website in a browser is unchanged.
+(function () {
+  if (!(matchMedia("(display-mode: standalone)").matches || navigator.standalone)) return;
+  var s = document.createElement("script"); s.src = "/vendor/turbo-8.0.12.js"; s.defer = true;
+  s.onload = function () { try { Turbo.setProgressBarDelay(100000); } catch (e) {} };
+  document.head.appendChild(s);
+  // Downloads, uploads and pages that leave the app keep normal browser behaviour.
+  function mark() {
+    document.querySelectorAll('a[href$=".pdf"], a[href*="report.pdf"], a[href*="/file"], a[href^="/messages/"][href$="/send"], a[download]').forEach(function (a) { a.setAttribute("data-turbo", "false"); });
+    document.querySelectorAll('form[enctype="multipart/form-data"]').forEach(function (f) { f.setAttribute("data-turbo", "false"); });
+  }
+  document.addEventListener("DOMContentLoaded", mark); document.addEventListener("turbo:load", mark);
+})();
+</script>
+<style>.turbo-progress-bar{display:none!important}</style></head>
 <body>
 <header>
 <a class="home-link" href="${user ? "/" : "/login"}" aria-label="Vocalzz Appointments: go to the schedule"><img src="/logo-mark.png" width="28" height="28" alt="">VOCALZZ <span class="app-word">Appointments</span></a>
@@ -158,8 +175,8 @@ ${user.role === "admin" ? html`<div class="sep"></div><div class="label">Admin</
     e.preventDefault();
     if (prompt) { prompt.prompt(); prompt.userChoice.then(function () { prompt = null; }); return; }
     alert(ios
-      ? "To install on iPhone/iPad: open this page in Safari, tap the Share button (square with arrow), then \"Add to Home Screen\"."
-      : "To install: tap Chrome's menu (⋮, top right), then \"Install app\" or \"Add to Home screen\". If you don't see it, the app may already be installed: look for the Vocalzz icon on your home screen.");
+      ? "To install on iPhone/iPad: open this page in Safari, tap the Share button (square with arrow), then “Add to Home Screen”."
+      : "To install: tap Chrome's menu (⋮, top right), then “Install app” or “Add to Home screen”. If you don't see it, the app may already be installed: look for the Vocalzz icon on your home screen.");
   });
 })();
 </script>` : html`<a class="site-link" href="https://vocalzz.com/" style="color:var(--bar-ink);text-decoration:none">← Website</a>`}
@@ -262,7 +279,7 @@ ${followUps.length ? html`<div class="card followup-banner"><strong>⚠ Follow u
 <a class="btn secondary small" href="${q(`day=${win.prevStart}&start=${win.prevStart}`)}">‹ Prev week</a>
 <a class="btn secondary small" href="${q(`day=${win.nextStart}&start=${win.nextStart}`)}">Next week ›</a>
 <a class="btn secondary small" href="${q("")}">Today</a>
-<form method="get" action="/" style="margin:0"><input type="date" name="day" value="${day}" onchange="this.form.submit()" aria-label="Jump to a date">${mineOnly ? html`<input type="hidden" name="mine" value="1">` : ""}</form>
+<form method="get" action="/" style="margin:0"><input type="date" name="day" value="${day}" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" aria-label="Jump to a date">${mineOnly ? html`<input type="hidden" name="mine" value="1">` : ""}</form>
 ${user.role === "therapist" ? html`<span class="seg"><a class="${mineOnly ? "" : "on"}" href="/?day=${day}&start=${win.start}">Everyone</a><a class="${mineOnly ? "on" : ""}" href="/?day=${day}&start=${win.start}&mine=1">Only my sessions</a></span>` : ""}
 </div>
 <div class="week">${chips.map(chip)}</div>
@@ -732,7 +749,7 @@ ${range.key !== "all" && range.from ? html`<p class="muted" style="font-size:13p
 ${range.key === "custom" ? html`<div style="flex:0 0 auto"><label for="from">From</label><input id="from" type="date" name="from" value="${range.from ?? ""}"></div>
 <div style="flex:0 0 auto"><label for="to">To</label><input id="to" type="date" name="to" value="${range.to ?? ""}"></div>` : ""}
 <div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div>
-<div style="flex:0 0 auto"><label for="sort">Sort by</label><select id="sort" name="sort" onchange="this.form.submit()">
+<div style="flex:0 0 auto"><label for="sort">Sort by</label><select id="sort" name="sort" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
 <option value="newest" ${sort === "newest" ? "selected" : ""}>Newest first</option>
 <option value="oldest" ${sort === "oldest" ? "selected" : ""}>Oldest first</option>
 <option value="name" ${sort === "name" ? "selected" : ""}>Name (A–Z)</option></select></div>
@@ -743,7 +760,7 @@ ${range.key === "custom" ? html`<div style="flex:0 0 auto"><label for="from">Fro
 function statusSelect(p: PatientRow) {
   const cur = p.stage === "closed" ? "closed" : p.hold_status === "hold" ? "hold" : p.hold_status === "talking" ? "talking" : "active";
   const opt = (v: string, l: string) => html`<option value="${v}" ${v === cur ? "selected" : ""}>${l}</option>`;
-  return html`<form method="post" action="/patients/${p.id}/status" style="margin:0"><select name="status" aria-label="Status of ${p.name}" onchange="this.form.submit()">
+  return html`<form method="post" action="/patients/${p.id}/status" style="margin:0"><select name="status" aria-label="Status of ${p.name}" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
 ${opt("active", "Active")}${opt("talking", "In talks")}${opt("hold", "On hold")}${opt("closed", "Not going ahead")}</select><noscript><button class="secondary small">Save</button></noscript></form>`;
 }
 
