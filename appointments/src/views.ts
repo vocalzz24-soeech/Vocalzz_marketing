@@ -686,17 +686,21 @@ ${patients.length === 0 ? html`<div class="card"><p class="muted" style="margin:
 /** Patients list: status tabs (with counts), search, and sort. */
 function patientFilters(q: string, view: string, sort: string, counts: Record<string, number>, range: { key: string; from?: string; to?: string }) {
   const VIEWS: [string, string][] = [["all", "All"], ["active", "Active"], ["talking", "In talks"], ["hold", "On hold"], ["closed", "Not going ahead"]];
-  const RANGES: [string, string][] = [["all", "Any date"], ["7", "Last 7 days"], ["30", "Last 1 month"], ["90", "Last 3 months"], ["custom", "Custom dates"]];
+  const RANGES: [string, string][] = [["all", "All"], ["7", "Last 7 days"], ["30", "Last 1 month"], ["90", "Last 3 months"], ["custom", "Custom dates"]];
   const keep = (extra: Record<string, string>) => {
     const p: Record<string, string> = { view, sort, added: range.key, ...(q ? { q } : {}), ...(range.key === "custom" && range.from ? { from: range.from } : {}), ...(range.key === "custom" && range.to ? { to: range.to } : {}), ...extra };
     if (p.added !== "custom") { delete p.from; delete p.to; }
     return `/patients?${new URLSearchParams(p)}`;
   };
   const dmy = (d?: string) => (d ? d.split("-").reverse().join("-") : "");
-  return html`<div class="seg" style="flex-wrap:wrap;margin:0 0 8px">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${keep({ view: v })}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
-<div style="display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 8px"><span class="muted" style="font-size:13px">Added:</span>
-<span class="seg" style="flex-wrap:wrap">${RANGES.map(([k, l]) => html`<a class="${k === range.key ? "on" : ""}" href="${k === "custom" ? keep({ added: "custom", from: range.from ?? "", to: range.to ?? "" }) : keep({ added: k })}">${l}</a>`)}</span>
-${range.key !== "all" && range.from ? html`<span class="muted" style="font-size:13px">${dmy(range.from)} to ${dmy(range.to)}</span>` : ""}</div>
+  return html`<style>.pbars{display:flex;flex-direction:column;gap:8px;width:min(100%,720px);margin:0 0 8px}
+.pbars .seg{display:grid;grid-template-columns:repeat(5,1fr);width:100%}
+.pbars .seg a{text-align:center;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 6px;line-height:1.2}
+.pbars .seg a + a{border-left:1px solid var(--line)}
+@media (max-width:560px){.pbars .seg a{flex-direction:column;gap:2px;font-size:13px;padding:7px 3px}}</style>
+<div class="pbars"><div class="seg">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${keep({ view: v })}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
+<div class="seg" aria-label="Added on">${RANGES.map(([k, l]) => html`<a class="${k === range.key ? "on" : ""}" href="${k === "custom" ? keep({ added: "custom", from: range.from ?? "", to: range.to ?? "" }) : keep({ added: k })}">${l}</a>`)}</div></div>
+${range.key !== "all" && range.from ? html`<p class="muted" style="font-size:13px;margin:0 0 8px">Added between ${dmy(range.from)} and ${dmy(range.to)}</p>` : ""}
 <form method="get" action="/patients" class="row" style="align-items:end">
 <input type="hidden" name="view" value="${view}">
 <input type="hidden" name="added" value="${range.key}">
