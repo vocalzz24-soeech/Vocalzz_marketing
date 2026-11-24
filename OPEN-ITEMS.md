@@ -111,7 +111,8 @@ section. Last updated: 24 Nov 2026.
 - [x] 24 Nov: new WhatsApp Business Account "Vocalzz Speech & Audio" (ID 1159744520344325) created; +91 88263 34323 added and shows "Registered"; Phone Number ID 1463521223511569 (not secret; goes into Cloudflare secret WHATSAPP_PHONE_NUMBER_ID). Webhooks skipped (app only sends)
 - [x] 24 Nov: payment method added to the WhatsApp account; business verification submitted (CIN U86905UP2024OPC207222, record with Ayush's email), status "In process"
 - [x] 24 Nov: all 15 Utility templates submitted (English, 12 h validity except reminder); status In review. vocalzz_therapist_series reworded as "Schedule update: …" after Meta flagged it as marketing (app updated)
-- [ ] Check templates Active (WhatsApp Manager → Message templates); then: message templates (owner to approve texts in appointments/docs/whatsapp-messages-review.md first); system user + permanent token → Cloudflare WHATSAPP_TOKEN; publish app; test from book.vocalzz.com → WhatsApp setup
+- [x] 24 Nov: system user vocalzz-app (Admin; app + WhatsApp account full access); permanent token generated; Cloudflare runtime secrets WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID added
+- [ ] Check templates Active; then book.vocalzz.com → WhatsApp setup → register number (6-digit PIN, keep it safe) → send test; publish the Meta app if messages to non-admins fail (owner to approve texts in appointments/docs/whatsapp-messages-review.md first); system user + permanent token → Cloudflare WHATSAPP_TOKEN; publish app; test from book.vocalzz.com → WhatsApp setup
 
 ### Booking app
 - [ ] Give therapists logins; set joining dates and opening leave balances (Leave page)
