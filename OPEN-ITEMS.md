@@ -120,6 +120,7 @@ section. Last updated: 24 Nov 2026.
 - [ ] Delete test bills and test patients
 - [ ] Weekly report email: Resend account, domain vocalzz.com, then Cloudflare secrets RESEND_API_KEY and REPORT_EMAIL_TO
 - [ ] Optional: change your admin login from 8800230240 to 9910671188 (ask Claude)
+- [ ] NOT STARTED (owner, 24 Nov: "not today"): Prepaid consultation with 10% off. Decided: plain UPI link/QR (no gateway); cancellation rule = non-refundable, one free reschedule with 24 h notice, no-show/late cancel = kept; link only in booking messages (private page book.vocalzz.com/pay/…, no price on the public website). Owner to send: business UPI ID (not personal) + consultation fee (normal price; prepaid = exact 10% off or a rounded figure). Claude then builds: pay page (UPI button + QR + rule), "Copy payment message", "Mark as paid" with UPI ref, bill with 10% discount, reschedule limit; later a WhatsApp template with the link
 
 ### One login for everything (owner's decision, 23 Nov)
 - Google side: vocalzz24@gmail.com owns Google Ads, Search Console (Owner), Business Profile, Cloudflare, Windsor, Google Cloud project "Digital-marketing-vocalzz". Keep tanugarg.india@gmail.com as a second owner on Search Console/Business Profile as a backup
