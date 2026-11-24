@@ -148,14 +148,18 @@ ${user.role === "admin" ? html`<div class="sep"></div><div class="label">Admin</
 (function () {
   var link = document.getElementById("install-app"); if (!link) return;
   var standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  if (standalone) return; // already running as the app
-  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent), prompt = null;
-  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); prompt = e; link.hidden = false; });
-  if (ios) link.hidden = false;
+  if (standalone) return; // already running as the installed app
+  var ua = navigator.userAgent, ios = /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && "ontouchend" in document);
+  var prompt = null;
+  link.hidden = false; // always offered; the browser's own prompt is used when it is available
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); prompt = e; });
+  window.addEventListener("appinstalled", function () { link.hidden = true; });
   link.addEventListener("click", function (e) {
     e.preventDefault();
-    if (prompt) { prompt.prompt(); prompt.userChoice.then(function () { prompt = null; link.hidden = true; }); }
-    else alert("To install on iPhone/iPad: tap the Share button in Safari, then \"Add to Home Screen\".");
+    if (prompt) { prompt.prompt(); prompt.userChoice.then(function () { prompt = null; }); return; }
+    alert(ios
+      ? "To install on iPhone/iPad: open this page in Safari, tap the Share button (square with arrow), then \"Add to Home Screen\"."
+      : "To install: tap Chrome's menu (⋮, top right), then \"Install app\" or \"Add to Home screen\". If you don't see it, the app may already be installed: look for the Vocalzz icon on your home screen.");
   });
 })();
 </script>` : html`<a class="site-link" href="https://vocalzz.com/" style="color:var(--bar-ink);text-decoration:none">← Website</a>`}
