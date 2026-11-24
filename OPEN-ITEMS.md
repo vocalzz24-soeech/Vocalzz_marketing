@@ -2,7 +2,7 @@
 
 Running list of things still to do. When the owner asks about open or pending items, read this file, remind them
 of what is open (owner's items first), and update it when something is done. Newest additions at the top of each
-section. Last updated: 23 Nov 2026.
+section. Last updated: 24 Nov 2026.
 
 ## Owner (you)
 
@@ -17,7 +17,7 @@ section. Last updated: 23 Nov 2026.
       WhatsApp messages 7 days a week, so we'll get back to you shortly. Please share the patient's name, age and main concern."
 - [x] (done, owner 23 Nov) Quick reply /timing: "Clinic visits are Monday to Saturday, 10 am to 8 pm, by appointment. You can WhatsApp us any day of the week."
 - [x] Logo as profile photo (owner confirmed 23 Nov)
-- [ ] Still to check: address written as
+- [x] (covered by the Check line above) Still to check: address written as
       "Tower E-004, Logix Blossom County, Sector 137, Noida, Uttar Pradesh 201304", email contactus@vocalzz.com,
       About line, username reserved, two-step verification PIN set, daily chat backup on
 - [x] Labels done (24 Nov)
@@ -34,7 +34,7 @@ section. Last updated: 23 Nov 2026.
 - [x] Opening date on Business Profile: 4 July 2022 (seen 23 Nov); website About page now says "serving Noida families since July 2022"
 - [x] Attributes "women-owned" / "LGBTQ+ friendly": owner confirmed intended (23 Nov). Description keeps behavioural therapy (owner's call; only ads were changed)
 - [ ] MERGE PLAN (owner asked 23 Nov): wait for the phone appeal to be approved, then ask GBP support to MERGE "Vocalzz Audiology centre" into "Vocalzz -speech and audio" (reviews may move; do NOT mark closed or remove from account). Before that, owner to send: Audiology listing's review count/rating (ad preview showed ~5.0★ (100)) and what its red-dot pending item is; find who owns "Vocalzz -Rehabilitation clinic"
-- [ ] Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 23 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
+- [x] (merged into other items) Remove the duplicate "Vocalzz Audiology centre" listing (E-0004, Blossom County). Checked 23 Nov: Google Ads is linked to vocalzz24@gmail.com's Business Profile with 2 locations, "All locations selected"; main listing got all 12 impressions so far
 
 ### Number switch (88002 30240 → 99106 71188) — owner unsure what's done (23 Nov); check each
 - [ ] Until Google shows the new number: answer 88002 30240 for clinic calls, or forward its calls to 99106 71188
@@ -57,7 +57,7 @@ section. Last updated: 23 Nov 2026.
 - [x] 23 Nov: negative keyword "tickles" (competitor) added to the Search campaign; total 39 negatives
 - [x] (resolved 24 Nov, ₹2,000 credited) URGENT 23 Nov: balance only ₹949.97 (lasts ~2 days at ₹350/day + GST). Top up ₹3,000 by UPI (Billing → Add funds)
 - [ ] 24 Nov: Billing settings: Prepay selected; Postpay offered but "You can't change how you pay at the moment" (new account). Recheck in a few weeks (Billing → Settings → How you pay). Visa ••0007 saved. ₹2,000 card payment of 23 Nov credited (balance ₹2,326.92 at 12:09 pm, 24 Nov)
-- [ ] Keep prepaid balance ≥ ~₹3,000 (₹350/day + GST ≈ ₹2,900/week); check Promotions progress every Monday. If daily spend stays well under ₹350 (₹40 click cap limits it), review CPC cap with Claude so the ₹20k target is met by 21 Jan
+- [ ] Keep prepaid balance ≥ ~₹3,500 (₹400/day + GST ≈ ₹3,300/week); Sunday reminder set; check Promotions progress weekly
 - [x] (superseded/done 23 Nov) Plan while chasing the credit: Google Search ₹335/day (~₹10k/month + GST), 5 ad groups (child speech, stammering,
       OT, autism/behaviour, hearing), 15 km radius; Meta ads paused for the 60 days (reels still posted organically)
 - [x] (superseded/done 23 Nov) Keep the manual-payment balance above ₹1,000 so ads never stop; check Billing → Promotions every Monday
@@ -120,7 +120,7 @@ section. Last updated: 23 Nov 2026.
 - [ ] Meta side: Meta logs in with a Facebook profile, not a Gmail; the single home is the business portfolio "Vocalzz Speech & Audio" (contact email vocalzz24@gmail.com). Put the Meta ad account, Facebook page, Instagram and WhatsApp accounts inside it, with 2 admins
 - [x] 23 Nov: Meta ad account "Vocalzz Speech & Audio – Ads" (ID 4649091728569565) created inside the business portfolio; 1 person assigned (Ayush's profile)
 - [ ] Invite the owner's own Facebook profile to the portfolio as Admin (Settings → People → Invite, by the email of that Facebook profile), then assign it to the ad account with Full control; add payment method (company name, registered address, no GST)
-- [ ] (was) Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
+- [x] (merged into other items) (was) Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
 
 ### Physiotherapy removed (23 Nov)
 - [x] Website: physiotherapy page removed, /physiotherapy/ → /occupational-therapy/ (301); home card replaced by "Therapy at home"; footer, schema and service lists updated
