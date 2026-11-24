@@ -105,6 +105,7 @@ section. Last updated: 24 Nov 2026.
 - [ ] Check the third listing "Vocalzz -Rehabilitation clinic" (seen in Windsor, locations/13587561885596827742) — whose account owns it; fold into the duplicate clean-up
 
 ### Automatic WhatsApp messages (API)
+- [x] 24 Nov: Meta developer account registered (Ayush's profile, verified via 88002 30240); app "Vocalzz Appointments" created in portfolio Vocalzz Speech & Audio (WhatsApp use case). Next: API Setup → add 88263 34323
 - [x] 24 Nov: API SIM bought: +91 88263 34323 (automatic messages only; no WhatsApp app on it; keep it recharged)
 - [ ] Then follow appointments/docs/whatsapp-setup-guide.md from Phase 2; submit templates only after the number switch
 
@@ -119,6 +120,7 @@ section. Last updated: 24 Nov 2026.
 - Google side: vocalzz24@gmail.com owns Google Ads, Search Console (Owner), Business Profile, Cloudflare, Windsor, Google Cloud project "Digital-marketing-vocalzz". Keep tanugarg.india@gmail.com as a second owner on Search Console/Business Profile as a backup
 - [ ] Meta side: Meta logs in with a Facebook profile, not a Gmail; the single home is the business portfolio "Vocalzz Speech & Audio" (contact email vocalzz24@gmail.com). Put the Meta ad account, Facebook page, Instagram and WhatsApp accounts inside it, with 2 admins
 - [x] 23 Nov: Meta ad account "Vocalzz Speech & Audio – Ads" (ID 4649091728569565) created inside the business portfolio; 1 person assigned (Ayush's profile)
+- [ ] Meta alert 24 Nov: "Verify your ad account to keep running ads" (free) — do before Meta ads start; don't boost posts meanwhile
 - [ ] Invite the owner's own Facebook profile to the portfolio as Admin (Settings → People → Invite, by the email of that Facebook profile), then assign it to the ad account with Full control; add payment method (company name, registered address, no GST)
 - [x] (merged into other items) (was) Before Meta ads (~early Dec): ad account owned by the business portfolio (create new there, or move the "Ayush Goyal" ad account in if Meta allows), payment method added
 
