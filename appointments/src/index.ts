@@ -194,16 +194,17 @@ async function patientList(env: Env, q = "") {
 }
 
 /** New patients start with a consultation; other sessions wait until it is confirmed. */
-function consultationGate(p: { name: string; stage: string }, service: string): string | null {
+function consultationGate(p: { name: string; stage: string; hold_status?: string | null }, service: string): string | null {
   if (service === CONSULTATION) return null;
   if (p.stage === "consultation") return `${p.name} is a new patient. Book their consultation first. Regular sessions open up once the consultation is confirmed (the "Confirmed: book therapy sessions" button on the consultation).`;
-  if (p.stage === "closed") return `${p.name} did not go ahead after the consultation. Reopen them on their patient page first.`;
+  if (p.stage === "closed") return `${p.name} is marked "Not going ahead". Change their status on the Patients page first.`;
+  if (p.hold_status) return `${p.name} is marked "${p.hold_status === "hold" ? "On hold" : "In talks"}". Change their status to Active on the Patients page first.`;
   return null;
 }
 
 /** New patients with no upcoming consultation booked. */
 const consultsToBookStmt = (env: Env) => env.DB.prepare(
-  `SELECT p.name FROM patients p WHERE p.stage = 'consultation'
+  `SELECT p.name FROM patients p WHERE p.stage = 'consultation' AND p.hold_status IS NULL
      AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.service = ? AND a.status IN ('booked','completed'))
    ORDER BY p.id DESC LIMIT 20`,
 ).bind(CONSULTATION);
@@ -900,6 +901,25 @@ app.post("/patients", adminOnly, async (c) => {
   const appt = (await loadAppointment(c.env, Number(ins.meta.last_row_id)))!;
   await notifyBooked(c.env, appt);
   return redirectWith(c, `/appointments/${appt.id}`, { type: "ok", text: `${f.name} added and their consultation is booked. Consultation messages are ready for the parent and the therapist.` });
+});
+
+/** Patients page status: active (normal), talking, hold, closed (not going ahead). */
+app.post("/patients/:id/status", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const status = str((await c.req.parseBody()).status);
+  const p = await c.env.DB.prepare("SELECT id, name, stage FROM patients WHERE id = ?").bind(id).first<{ id: number; name: string; stage: string }>();
+  if (!p || !["active", "talking", "hold", "closed"].includes(status)) return c.text("Bad request", 400);
+  const now = new Date().toISOString();
+  if (status === "closed") {
+    await c.env.DB.prepare("UPDATE patients SET stage = 'closed', hold_status = NULL, stage_changed_at = ? WHERE id = ?").bind(now, id).run();
+  } else {
+    // Leaving "Not going ahead" reopens them as a new patient (consultation first), as before.
+    const stage = p.stage === "closed" ? "consultation" : p.stage;
+    await c.env.DB.prepare("UPDATE patients SET stage = ?, hold_status = ?, stage_changed_at = ? WHERE id = ?")
+      .bind(stage, status === "active" ? null : status, now, id).run();
+  }
+  const label = { active: "Active", talking: "In talks", hold: "On hold", closed: "Not going ahead" }[status];
+  return redirectWith(c, "/patients", { type: "ok", text: `${p.name}: status set to ${label}.` });
 });
 
 app.post("/patients/:id/stage", adminOnly, async (c) => {

@@ -189,7 +189,7 @@ export function setupPage(error?: string) {
 
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number; deleted_at?: string | null }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null; stage?: string;
-  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null }
+  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null; hold_status?: string | null }
 
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
@@ -293,7 +293,7 @@ ${patients.length === 0 ? html`<div class="card">${user.role === "admin" ? html`
 <form class="card" method="post" action="/appointments">
 <label for="patient_id">Patient</label>
 <select id="patient_id" name="patient_id" required><option value="">Choose…</option>
-${patients.filter((p) => p.stage !== "closed" || String(p.id) === form.patient_id).map((p) => html`<option value="${p.id}" data-stage="${p.stage ?? "active"}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}${p.stage === "consultation" ? " · NEW: consultation first" : ""}</option>`)}
+${patients.filter((p) => (p.stage !== "closed" && !p.hold_status) || String(p.id) === form.patient_id).map((p) => html`<option value="${p.id}" data-stage="${p.stage ?? "active"}" ${String(p.id) === form.patient_id ? "selected" : ""}>${p.name}${p.guardian_name ? ` (parent: ${p.guardian_name})` : ""} · ${p.phone.slice(2)}${p.stage === "consultation" ? " · NEW: consultation first" : ""}</option>`)}
 </select>
 <div id="consult-hint" class="card consult-card" style="margin:8px 0 0;padding:10px 12px" hidden>New patient: book their <strong>consultation</strong> first. Regular sessions open up once the consultation is confirmed.</div>
 <p class="muted">${user.role === "admin" ? html`New patient? <a href="/patients">Add them first</a>.` : "New patient? Ask the clinic admin to add them first."}</p>
@@ -594,7 +594,9 @@ export function patientsPage(user: User, patients: PatientRow[], q: string, flas
   const isNew = fresh || f.is_new === "1";
   const consults = opts.consults ?? new Map();
   const stageBadge = (p: PatientRow) => {
-    if (p.stage === "closed") return html` <span class="badge cancelled">Did not go ahead</span>`;
+    if (p.stage === "closed") return html` <span class="badge cancelled">Not going ahead</span>`;
+    if (p.hold_status === "hold") return html` <span class="badge no_show">On hold</span>`;
+    if (p.hold_status === "talking") return html` <span class="badge consult">In talks</span>`;
     if (p.stage !== "consultation") return "";
     const at = consults.get(p.id);
     return at ? html` <span class="badge consult">New · consultation ${formatDateTime(new Date(at))}</span>` : html` <span class="badge no_show">New · book consultation</span>`;
@@ -646,12 +648,21 @@ ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "
 })();
 </script>
 <form method="get" action="/patients" class="row" style="align-items:end"><div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div><button class="secondary">Search</button></form>
-<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th></th></tr>
+<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th>Status</th><th></th></tr>
 ${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source || p.contact_channel ? html`<div class="muted" style="font-size:12px">${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</div>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
-<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a> <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a></td></tr>`)}
+<td>${statusSelect(p)}</td>
+<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>${p.stage === "closed" || p.hold_status ? "" : html` <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}</td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
 `, flash);
+}
+
+/** Patients list: one-tap status. Changing it submits straight away. */
+function statusSelect(p: PatientRow) {
+  const cur = p.stage === "closed" ? "closed" : p.hold_status === "hold" ? "hold" : p.hold_status === "talking" ? "talking" : "active";
+  const opt = (v: string, l: string) => html`<option value="${v}" ${v === cur ? "selected" : ""}>${l}</option>`;
+  return html`<form method="post" action="/patients/${p.id}/status" style="margin:0"><select name="status" aria-label="Status of ${p.name}" onchange="this.form.submit()" style="margin:0;padding:4px 8px;width:auto">
+${opt("active", "Active")}${opt("talking", "In talks")}${opt("hold", "On hold")}${opt("closed", "Not going ahead")}</select><noscript><button class="secondary small">Save</button></noscript></form>`;
 }
 
 export function therapistsPage(user: User, therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }) {
@@ -855,7 +866,8 @@ export function patientSummaryPage(user: User, p: PatientRow, month: string, app
 <p><a href="/patients">← Patients</a></p>
 <h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
 ${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong> · contacted us by <strong>${channelLabel(p.contact_channel)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}` : ""} · <a href="/patients/${p.id}/edit">change</a></p>` : ""}
-${user.role === "admin" && p.stage === "consultation" ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
+${user.role === "admin" && p.hold_status ? html`<div class="card"><strong>${p.hold_status === "hold" ? "On hold" : "In talks"}</strong><p class="muted" style="margin:4px 0 0">Booking is paused for this patient. Change the status to Active on the Patients page to book again.</p></div>` : ""}
+${user.role === "admin" && p.stage === "consultation" && !p.hold_status ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
 <p class="muted" style="margin:4px 0 8px">Regular sessions can be booked once the consultation is confirmed. Confirm it from the consultation appointment, or here if it happened outside the app.</p>
 <div class="row" style="gap:8px;flex:0 0 auto"><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a>
 <form method="post" action="/patients/${p.id}/stage" style="margin:0;flex:0 0 auto"><button class="secondary" name="stage" value="active">Consultation done: allow sessions</button></form></div></div>` : ""}
