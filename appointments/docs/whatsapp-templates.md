@@ -138,7 +138,7 @@ Sample values:
 ## vocalzz_therapist_series
 
 ```
-New weekly sessions for you: {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.
+Schedule update: weekly sessions have been booked for {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.
 ```
 
 Sample values:

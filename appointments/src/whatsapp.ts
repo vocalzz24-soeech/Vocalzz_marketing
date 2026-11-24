@@ -31,7 +31,7 @@ export const TEMPLATES = {
     "Address: Tower E-004, Logix Blossom County, Sector 137, Noida 201304.\n" +
     "To cancel or change a session, please WhatsApp us on +91 99106 71188.",
   vocalzz_therapist_series:
-    "New weekly sessions for you: {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.",
+    "Schedule update: weekly sessions have been booked for {{1}} ({{2}}) at {{3}} on {{4}}. Please check the schedule for details.",
   vocalzz_series_cancelled:
     "Hello {{1}}, these {{2}} sessions for {{3}} at Vocalzz Speech & Audio have been cancelled: {{4}}.\n\n" +
     "To book new times, please WhatsApp us on +91 99106 71188.",
