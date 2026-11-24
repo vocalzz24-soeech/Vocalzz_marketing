@@ -565,7 +565,7 @@ export function messageTable(messages: MessageRow[]) {
   })}</div>`;
 }
 
-export interface NewPatientForm { name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string; source?: string; enquiry_date?: string; contact_channel?: string;
+export interface NewPatientForm { name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string; source?: string; enquiry_date?: string; contact_channel?: string; self?: string;
   is_new?: string; therapist_id?: string; date?: string; time?: string; duration?: string }
 
 /** "How did you hear about us?" and first-contact date, shared by the add and edit forms. */
@@ -604,7 +604,10 @@ export function patientsPage(user: User, patients: PatientRow[], q: string, flas
 <details class="card" ${opts.open || flash?.type === "error" ? "open" : ""}><summary><strong>+ Add patient</strong></summary>
 <form method="post" action="/patients">
 <label for="name">Patient name</label><input id="name" name="name" required maxlength="80" value="${f.name ?? ""}">
-<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80" value="${f.guardian_name ?? ""}">
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" id="self" name="self" value="1" ${f.self ? "checked" : ""}> The patient is an adult and comes for themselves (no parent / guardian)</label>
+<div id="guardian-box" ${f.self ? "hidden" : ""}>
+<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80" value="${f.guardian_name ?? ""}"></div>
+<script>(function(){var c=document.getElementById("self"),b=document.getElementById("guardian-box"),g=document.getElementById("guardian_name");function s(){b.hidden=c.checked;if(c.checked)g.value="";}c.addEventListener("change",s);s();})();</script>
 <label for="phone">WhatsApp number</label><input id="phone" name="phone" inputmode="tel" required placeholder="98XXXXXXXX" value="${f.phone ?? ""}">
 <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${fresh || f.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>
@@ -677,7 +680,10 @@ export function patientEditPage(user: User, p: PatientRow, flash?: { type: "ok" 
 <h1>Edit patient</h1>
 <form class="card" method="post" action="/patients/${p.id}">
 <label for="name">Patient name</label><input id="name" name="name" required maxlength="80" value="${p.name}">
-<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80" value="${p.guardian_name ?? ""}">
+<label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" id="self" name="self" value="1" ${p.guardian_name ? "" : "checked"}> The patient is an adult and comes for themselves (no parent / guardian)</label>
+<div id="guardian-box" ${p.guardian_name ? "" : "hidden"}>
+<label for="guardian_name">Parent / guardian name (for children)</label><input id="guardian_name" name="guardian_name" maxlength="80" value="${p.guardian_name ?? ""}"></div>
+<script>(function(){var c=document.getElementById("self"),b=document.getElementById("guardian-box"),g=document.getElementById("guardian_name");function s(){b.hidden=c.checked;if(c.checked)g.value="";}c.addEventListener("change",s);s();})();</script>
 <label for="phone">WhatsApp number</label><input id="phone" name="phone" inputmode="tel" required value="${p.phone.slice(2)}">
 <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${p.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>

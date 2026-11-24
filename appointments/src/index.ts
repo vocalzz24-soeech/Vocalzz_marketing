@@ -865,7 +865,7 @@ app.get("/patients", adminOnly, async (c) => renderPatients(c, (c.req.query("q")
 app.post("/patients", adminOnly, async (c) => {
   const body = await c.req.parseBody();
   const f: NewPatientForm = Object.fromEntries(
-    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "source", "enquiry_date", "contact_channel", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
+    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "source", "enquiry_date", "contact_channel", "self", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
   );
   const again = (text: string) => renderPatients(c, "", { type: "error", text }, f, 400);
   const phone = normalisePhone(f.phone ?? "");
@@ -885,7 +885,7 @@ app.post("/patients", adminOnly, async (c) => {
 
   const res = await c.env.DB.prepare(
     "INSERT INTO patients (name, guardian_name, phone, whatsapp_consent, notes, stage, stage_changed_at, source, enquiry_date, contact_channel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  ).bind(f.name.slice(0, 80), (f.guardian_name ?? "").slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, (f.notes ?? "").slice(0, 200) || null,
+  ).bind(f.name.slice(0, 80), f.self ? null : (f.guardian_name ?? "").slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, (f.notes ?? "").slice(0, 200) || null,
     isNew ? "consultation" : "active", new Date().toISOString(), cleanSource(f.source), cleanDate(f.enquiry_date), cleanChannel(f.contact_channel)).run();
   const patientId = Number(res.meta.last_row_id);
 
@@ -990,7 +990,7 @@ app.post("/patients/:id", adminOnly, async (c) => {
   const phone = normalisePhone(str(f.phone));
   if (!str(f.name) || !phone) return redirectWith(c, `/patients/${id}/edit`, { type: "error", text: "Enter the patient's name and a valid 10-digit mobile number." });
   await c.env.DB.prepare("UPDATE patients SET name = ?, guardian_name = ?, phone = ?, whatsapp_consent = ?, notes = ?, source = ?, enquiry_date = ?, contact_channel = ? WHERE id = ?")
-    .bind(str(f.name).slice(0, 80), str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null,
+    .bind(str(f.name).slice(0, 80), str(f.self) ? null : str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null,
       cleanSource(str(f.source)), cleanDate(str(f.enquiry_date)), cleanChannel(str(f.contact_channel)), id).run();
   return redirectWith(c, "/patients", { type: "ok", text: `${str(f.name)} updated.` });
 });

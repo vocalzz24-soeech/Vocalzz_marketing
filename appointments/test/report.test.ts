@@ -56,3 +56,9 @@ test("report counts by status, day, therapist and patient", () => {
   assert.equal(r.newConsultations, 1);
   assert.equal(attendance({ completed: 0, no_show: 0, upcoming: 3, unmarked: 0, cancelled: 0 }), null);
 });
+
+test("messages say 'you' for adult patients with no parent", async () => {
+  const { forWhom } = await import("../src/notify.ts");
+  assert.equal(forWhom({ guardian_name: "Priya", patient_name: "Aarav" }), "Aarav");
+  assert.equal(forWhom({ guardian_name: null, patient_name: "Rahul" }), "you");
+});

@@ -3,7 +3,7 @@
 Updated 24 Nov 2026. Example names, dates and times are made up; the app fills in the real ones.
 Messages 1–16 go out **automatically** once the WhatsApp API number is connected (until then they wait on the
 **Messages** page with a one-tap "Send on WhatsApp" button). Messages 17–18 are **sent by you** with a button.
-Patient messages go only to patients with WhatsApp consent ticked.
+Patient messages go only to patients with WhatsApp consent ticked. For an adult patient with no parent/guardian, the message greets the patient by name and says "for you" instead of the child's name (e.g. "the Speech therapy session for you with…").
 
 Note: each automatic message is a Meta "template". Changing wording later means resubmitting that template to Meta
 for approval (usually minutes), so it's best to finalise the wording now, before the API setup.
