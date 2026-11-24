@@ -189,7 +189,7 @@ export function setupPage(error?: string) {
 
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number; deleted_at?: string | null }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null; stage?: string;
-  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null; hold_status?: string | null }
+  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null; hold_status?: string | null; added_on?: string | null }
 
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
@@ -588,7 +588,7 @@ ${CHANNELS.map((c) => html`<option value="${c.key}" ${c.key === channel ? "selec
 export type ConsultState = Map<number, string | null>;
 
 export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set(),
-  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean } = {}) {
+  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean; view?: string; sort?: string; counts?: Record<string, number> } = {}) {
   const f = opts.form ?? {};
   const fresh = !opts.form;
   const isNew = fresh || f.is_new === "1";
@@ -647,14 +647,29 @@ ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "
   cb.addEventListener("change", sync); date.addEventListener("change", sync); sync();
 })();
 </script>
-<form method="get" action="/patients" class="row" style="align-items:end"><div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div><button class="secondary">Search</button></form>
-<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th>Status</th><th></th></tr>
-${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source || p.contact_channel ? html`<div class="muted" style="font-size:12px">${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</div>` : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
+${patientFilters(q, opts.view ?? "all", opts.sort ?? "newest", opts.counts ?? {})}
+<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Added on</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th>Status</th><th></th></tr>
+${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source || p.contact_channel ? html`<div class="muted" style="font-size:12px">${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</div>` : ""}</td><td style="white-space:nowrap">${p.added_on ? p.added_on.split("-").reverse().join("-") : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
 <td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
 <td>${statusSelect(p)}</td>
 <td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "talking" ? html` <a class="btn small" href="/appointments/new?patient_id=${p.id}&service=consultation">Book consultation</a>` : html` <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}</td></tr>`)}
 </table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
 `, flash);
+}
+
+/** Patients list: status tabs (with counts), search, and sort. */
+function patientFilters(q: string, view: string, sort: string, counts: Record<string, number>) {
+  const VIEWS: [string, string][] = [["all", "All"], ["active", "Active"], ["talking", "In talks"], ["hold", "On hold"], ["closed", "Not going ahead"]];
+  const link = (v: string) => `/patients?${new URLSearchParams({ view: v, sort, ...(q ? { q } : {}) })}`;
+  return html`<div class="seg" style="flex-wrap:wrap;margin:0 0 10px">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${link(v)}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
+<form method="get" action="/patients" class="row" style="align-items:end">
+<input type="hidden" name="view" value="${view}">
+<div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div>
+<div style="flex:0 0 auto"><label for="sort">Sort by</label><select id="sort" name="sort" onchange="this.form.submit()">
+<option value="newest" ${sort === "newest" ? "selected" : ""}>Newest first</option>
+<option value="oldest" ${sort === "oldest" ? "selected" : ""}>Oldest first</option>
+<option value="name" ${sort === "name" ? "selected" : ""}>Name (A–Z)</option></select></div>
+<button class="secondary">Search</button></form>`;
 }
 
 /** Patients list: one-tap status. Changing it submits straight away. */

@@ -856,9 +856,38 @@ function followUpsFrom(results: FollowUpRow[]) {
 }
 
 // --- Patients ------------------------------------------------------------------------------------
+/** Patients page: filter by status and sort. "added" = first-contact date, or the day they were added (IST). */
+export const PATIENT_VIEWS = ["all", "active", "talking", "hold", "closed"] as const;
+export const PATIENT_SORTS = ["newest", "oldest", "name"] as const;
+const ADDED = "COALESCE(enquiry_date, date(created_at, '+330 minutes'))";
+async function patientsForPage(env: Env, q: string, view: string, sort: string) {
+  const like = `%${q}%`;
+  const where = {
+    all: "1=1",
+    active: "stage != 'closed' AND hold_status IS NULL",
+    talking: "stage != 'closed' AND hold_status = 'talking'",
+    hold: "stage != 'closed' AND hold_status = 'hold'",
+    closed: "stage = 'closed'",
+  }[view] ?? "1=1";
+  const order = sort === "name" ? "name COLLATE NOCASE" : sort === "oldest" ? `${ADDED} ASC, id ASC` : `${ADDED} DESC, id DESC`;
+  const { results } = await env.DB.prepare(
+    `SELECT *, ${ADDED} AS added_on FROM patients WHERE (? = '' OR name LIKE ? OR guardian_name LIKE ? OR phone LIKE ?) AND ${where} ORDER BY ${order} LIMIT 500`,
+  ).bind(q, like, like, like).all<PatientRow>();
+  const { results: counts } = await env.DB.prepare(
+    `SELECT CASE WHEN stage = 'closed' THEN 'closed' WHEN hold_status = 'hold' THEN 'hold' WHEN hold_status = 'talking' THEN 'talking' ELSE 'active' END AS k, COUNT(*) AS n FROM patients GROUP BY k`,
+  ).all<{ k: string; n: number }>();
+  const n: Record<string, number> = { all: 0, active: 0, talking: 0, hold: 0, closed: 0 };
+  for (const r of counts) { n[r.k] = r.n; n.all += r.n; }
+  return { results, counts: n };
+}
+
 async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientForm, status = 200) {
-  return c.html(patientsPage(c.get("user"), await patientList(c.env, q), q, flash, new Set((await followUps(c.env)).map((f) => f.id)), {
-    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form,
+  const v = c.req.query("view") ?? "all", s = c.req.query("sort") ?? "newest";
+  const view = (PATIENT_VIEWS as readonly string[]).includes(v) ? v : "all";
+  const sort = (PATIENT_SORTS as readonly string[]).includes(s) ? s : "newest";
+  const list = await patientsForPage(c.env, q, view, sort);
+  return c.html(patientsPage(c.get("user"), list.results, q, flash, new Set((await followUps(c.env)).map((f) => f.id)), {
+    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form, view, sort, counts: list.counts,
   }), status as 200);
 }
 
@@ -920,7 +949,10 @@ app.post("/patients/:id/status", adminOnly, async (c) => {
       .bind(stage, status === "active" ? null : status, now, id).run();
   }
   const label = { active: "Active", talking: "In talks", hold: "On hold", closed: "Not going ahead" }[status];
-  return redirectWith(c, "/patients", { type: "ok", text: `${p.name}: status set to ${label}.` });
+  // Stay on the same tab / sort the change was made from.
+  let back = "/patients";
+  try { const r = new URL(c.req.header("referer") ?? ""); if (r.pathname === "/patients") back = r.pathname + r.search; } catch { /* no referer */ }
+  return redirectWith(c, back, { type: "ok", text: `${p.name}: status set to ${label}.` });
 });
 
 app.post("/patients/:id/stage", adminOnly, async (c) => {
