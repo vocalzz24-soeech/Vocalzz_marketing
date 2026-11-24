@@ -648,12 +648,38 @@ ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "
 })();
 </script>
 ${patientFilters(q, opts.view ?? "all", opts.sort ?? "newest", opts.counts ?? {})}
-<div class="card" style="overflow-x:auto"><table><tr><th>Name</th><th>Added on</th><th>Parent</th><th>WhatsApp</th><th>Consent</th><th>Status</th><th></th></tr>
-${patients.map((p) => html`<tr><td><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html` <span class="badge no_show">Follow up</span>` : ""}${p.source || p.contact_channel ? html`<div class="muted" style="font-size:12px">${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</div>` : ""}</td><td style="white-space:nowrap">${p.added_on ? p.added_on.split("-").reverse().join("-") : ""}</td><td>${p.guardian_name ?? ""}</td><td>+${p.phone}</td>
-<td><form method="post" action="/patients/${p.id}/consent" style="margin:0"><button class="secondary" style="margin:0;padding:4px 10px" name="value" value="${p.whatsapp_consent ? "0" : "1"}">${p.whatsapp_consent ? "Yes" : "No"}</button></form></td>
-<td>${statusSelect(p)}</td>
-<td style="white-space:nowrap"><a class="btn secondary small" href="/patients/${p.id}/summary">History</a> <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "talking" ? html` <a class="btn small" href="/appointments/new?patient_id=${p.id}&service=consultation">Book consultation</a>` : html` <a class="btn small" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}</td></tr>`)}
-</table>${patients.length === 0 ? html`<p class="muted">No patients found.</p>` : ""}</div>
+<style>
+.plist{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:start}
+.pcard .pname{font-size:17px;font-weight:700;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pcard .pname a{text-decoration:none}.pcard .pname .badge{font-size:12px;font-weight:600}
+.pcard .pmeta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 18px;font-size:14px;color:var(--muted)}
+.pcard .pmeta b{color:var(--ink);font-weight:600}
+.pcard .pstatus{justify-self:end}.pcard .pstatus select{margin:0;padding:6px 10px;width:auto;min-width:150px}
+.pcard .pactions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
+.pcard .pactions form{margin:0}.pcard .pactions .btn,.pcard .pactions button{margin:0}.pcard .pactions button.small{padding:4px 12px;font-size:14px}
+.pcard .pactions .push{margin-left:auto}
+@media (max-width:560px){.pcard{grid-template-columns:1fr}.pcard .pstatus{justify-self:start}.pcard .pactions .push{margin-left:0}}
+</style>
+<div class="plist">
+${patients.map((p) => html`<div class="pcard">
+<div class="pname"><a href="/patients/${p.id}/summary">${p.name}</a>${stageBadge(p)}${flagged.has(p.id) ? html`<span class="badge no_show">Follow up</span>` : ""}</div>
+<div class="pstatus">${statusSelect(p)}</div>
+<div class="pmeta">
+<span>Added <b>${p.added_on ? p.added_on.split("-").reverse().join("-") : "–"}</b></span>
+${p.guardian_name ? html`<span>Parent <b>${p.guardian_name}</b></span>` : ""}
+<span>WhatsApp <b>+${p.phone}</b></span>
+${p.source || p.contact_channel ? html`<span>${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</span>` : ""}
+</div>
+<div class="pactions">
+<a class="btn secondary small" href="/patients/${p.id}/summary">History</a>
+<a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>
+<form method="post" action="/patients/${p.id}/consent"><button class="secondary small" name="value" value="${p.whatsapp_consent ? "0" : "1"}" title="Tap to change">WhatsApp consent: ${p.whatsapp_consent ? "Yes" : "No"}</button></form>
+${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "talking" ? html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">Book consultation</a>` : html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}
+</div>
+</div>`)}
+${patients.length === 0 ? html`<div class="card"><p class="muted" style="margin:0">No patients found.</p></div>` : ""}
+</div>
 `, flash);
 }
 
@@ -676,7 +702,7 @@ function patientFilters(q: string, view: string, sort: string, counts: Record<st
 function statusSelect(p: PatientRow) {
   const cur = p.stage === "closed" ? "closed" : p.hold_status === "hold" ? "hold" : p.hold_status === "talking" ? "talking" : "active";
   const opt = (v: string, l: string) => html`<option value="${v}" ${v === cur ? "selected" : ""}>${l}</option>`;
-  return html`<form method="post" action="/patients/${p.id}/status" style="margin:0"><select name="status" aria-label="Status of ${p.name}" onchange="this.form.submit()" style="margin:0;padding:4px 8px;width:auto">
+  return html`<form method="post" action="/patients/${p.id}/status" style="margin:0"><select name="status" aria-label="Status of ${p.name}" onchange="this.form.submit()">
 ${opt("active", "Active")}${opt("talking", "In talks")}${opt("hold", "On hold")}${opt("closed", "Not going ahead")}</select><noscript><button class="secondary small">Save</button></noscript></form>`;
 }
 
