@@ -107,7 +107,8 @@ section. Last updated: 24 Nov 2026.
 ### Automatic WhatsApp messages (API)
 - [x] 24 Nov: Meta developer account registered (Ayush's profile, verified via 88002 30240); app "Vocalzz Appointments" created in portfolio Vocalzz Speech & Audio (WhatsApp use case). Next: API Setup → add 88263 34323
 - [x] 24 Nov: API SIM bought: +91 88263 34323 (automatic messages only; no WhatsApp app on it; keep it recharged)
-- [ ] Then follow appointments/docs/whatsapp-setup-guide.md from Phase 2; submit templates only after the number switch
+- [x] 24 Nov: new WhatsApp Business Account "Vocalzz Speech & Audio" (ID 1159744520344325) created; +91 88263 34323 added and shows "Registered"; Phone Number ID 1463521223511569 (not secret; goes into Cloudflare secret WHATSAPP_PHONE_NUMBER_ID). Webhooks skipped (app only sends)
+- [ ] Next: payment method on the WhatsApp account; message templates (owner to approve texts in appointments/docs/whatsapp-messages-review.md first); system user + permanent token → Cloudflare WHATSAPP_TOKEN; publish app; test from book.vocalzz.com → WhatsApp setup
 
 ### Booking app
 - [ ] Give therapists logins; set joining dates and opening leave balances (Leave page)
