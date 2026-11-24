@@ -268,7 +268,7 @@ const formFrom = (f: Record<string, unknown>): ApptForm => ({
 
 app.get("/appointments/new", async (c) => {
   const form: ApptForm = { patient_id: c.req.query("patient_id") };
-  return c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, undefined, takeFlash(c)));
+  return c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, undefined, consultMin(c.env), takeFlash(c)));
 });
 
 app.post("/appointments", async (c) => {
@@ -277,7 +277,7 @@ app.post("/appointments", async (c) => {
   // Therapists can only book sessions for themselves.
   if (user.role === "therapist") form.therapist_id = String(user.therapist_id);
   const fail = async (msg: string) =>
-    c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, msg), 400);
+    c.html(newAppointmentPage(c.get("user"), await patientList(c.env), await therapistList(c.env), Number(c.env.DEFAULT_DURATION_MIN), form, msg, consultMin(c.env)), 400);
   const patient = await c.env.DB.prepare("SELECT id, name, stage FROM patients WHERE id = ?").bind(Number(form.patient_id)).first<{ id: number; name: string; stage: string }>();
   if (!patient) return fail("Choose a patient.");
   const stageError = consultationGate(patient, form.service ?? "");
@@ -856,7 +856,7 @@ function followUpsFrom(results: FollowUpRow[]) {
 // --- Patients ------------------------------------------------------------------------------------
 async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientForm, status = 200) {
   return c.html(patientsPage(c.get("user"), await patientList(c.env, q), q, flash, new Set((await followUps(c.env)).map((f) => f.id)), {
-    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consults: await consultStates(c.env), form, open: !!form,
+    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form,
   }), status as 200);
 }
 
@@ -1018,6 +1018,9 @@ app.get("/dashboard", adminOnly, async (c) => {
   const sources = await sourceReport(c.env, report.period.from, report.period.to);
   return c.html(dashboardPage(c.get("user"), report, { therapists, therapistId: therapist?.id, query, emailReady: emailReady(c.env), flash: takeFlash(c), sources }));
 });
+
+/** Default consultation length in minutes. */
+const consultMin = (env: Env) => Number(env.CONSULT_DURATION_MIN) || 30;
 
 app.get("/seo", adminOnly, async (c) => {
   const today = istDay(new Date());

@@ -8,6 +8,8 @@ export interface Env {
   CLINIC_EMAIL: string;
   CLINIC_WEBSITE: string;
   DEFAULT_DURATION_MIN: string;
+  /** Default length of a consultation, in minutes (30 if not set). */
+  CONSULT_DURATION_MIN?: string;
   OPEN_HOUR: string;
   CLOSE_HOUR: string;
   WHATSAPP_TEMPLATE_LANG: string;

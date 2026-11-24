@@ -286,7 +286,7 @@ const statusLabel = (s: string) => ({ booked: "Booked", cancelled: "Cancelled", 
 export interface ApptForm { patient_id?: string; therapist_id?: string; service?: string; start?: string; duration?: string; extra?: string; notes?: string;
   repeat?: string; repeat_days?: string[]; repeat_until?: string; repeat_until_date?: string }
 
-export function newAppointmentPage(user: User, patients: PatientRow[], therapists: TherapistRow[], defaultDuration: number, form: ApptForm = {}, error?: string, flash?: { type: "ok" | "error"; text: string }) {
+export function newAppointmentPage(user: User, patients: PatientRow[], therapists: TherapistRow[], defaultDuration: number, form: ApptForm = {}, error?: string, consultDuration = 30, flash?: { type: "ok" | "error"; text: string }) {
   return layout("Book appointment", user, html`
 <h1>Book an appointment</h1>
 ${patients.length === 0 ? html`<div class="card">${user.role === "admin" ? html`Add a patient first on the <a href="/patients">Patients</a> page.` : "No patients yet. Ask the clinic admin to add the patient first."}</div>` : ""}
@@ -306,9 +306,13 @@ ${repeatFields(form)}
   var pick = document.getElementById("patient_id"), hint = document.getElementById("consult-hint"), svc = document.getElementById("service");
   var rep = document.getElementById("repeat"), box = rep && rep.closest(".repeat-box");
   function isNew() { var o = pick.options[pick.selectedIndex]; return !!o && o.getAttribute("data-stage") === "consultation"; }
+  // Default length: consultation vs regular session, unless someone typed their own length.
+  var dur = document.getElementById("duration"), touched = ${raw(form.duration ? "true" : "false")};
+  dur.addEventListener("input", function () { touched = true; });
   function sync() {
     hint.hidden = !isNew();
     var consult = svc.value === "${CONSULTATION}";
+    if (!touched) dur.value = consult ? "${consultDuration}" : "${defaultDuration}";
     if (box) box.hidden = consult;
     if (consult && rep && rep.checked) rep.click();
   }
@@ -584,7 +588,7 @@ ${CHANNELS.map((c) => html`<option value="${c.key}" ${c.key === channel ? "selec
 export type ConsultState = Map<number, string | null>;
 
 export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set(),
-  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean } = {}) {
+  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean } = {}) {
   const f = opts.form ?? {};
   const fresh = !opts.form;
   const isNew = fresh || f.is_new === "1";
@@ -620,7 +624,7 @@ ${(opts.therapists ?? []).filter((t) => t.active).map((t) => html`<option value=
 <div><label for="c_time">Time</label><select id="c_time" name="time"><option value="">Choose time…</option>
 ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "selected" : ""}>${t.label}</option>`)}
 </select></div>
-<div><label for="c_duration">Length (minutes)</label><input id="c_duration" name="duration" type="number" min="15" max="180" step="5" value="${f.duration ?? String(opts.defaultDuration ?? 45)}"></div>
+<div><label for="c_duration">Length (minutes)</label><input id="c_duration" name="duration" type="number" min="15" max="180" step="5" value="${f.duration ?? String(opts.consultDuration ?? 30)}"></div>
 </div>
 <p class="muted" style="margin:6px 0 0">The parent gets a consultation message on WhatsApp, and the therapist gets one too. Don't know the time yet? Leave the date empty and book it later: the patient shows as <em>New · book consultation</em>.</p>
 </div></div>
