@@ -62,3 +62,13 @@ test("messages say 'you' for adult patients with no parent", async () => {
   assert.equal(forWhom({ guardian_name: "Priya", patient_name: "Aarav" }), "Aarav");
   assert.equal(forWhom({ guardian_name: null, patient_name: "Rahul" }), "you");
 });
+
+test("patient added-on date filter", async () => {
+  const { patientDateRange } = await import("../src/index.ts");
+  assert.deepEqual(patientDateRange("2026-11-24", "7"), { key: "7", from: "2026-11-18", to: "2026-11-24" });
+  assert.deepEqual(patientDateRange("2026-11-24", "30"), { key: "30", from: "2026-10-26", to: "2026-11-24" });
+  assert.deepEqual(patientDateRange("2026-11-24", "90"), { key: "90", from: "2026-08-27", to: "2026-11-24" });
+  assert.deepEqual(patientDateRange("2026-11-24", "custom", "2026-11-20", "2026-11-10"), { key: "custom", from: "2026-11-10", to: "2026-11-20" });
+  assert.deepEqual(patientDateRange("2026-11-24", "custom"), { key: "custom" });
+  assert.deepEqual(patientDateRange("2026-11-24", "junk"), { key: "all" });
+});

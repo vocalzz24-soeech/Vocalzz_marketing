@@ -588,7 +588,7 @@ ${CHANNELS.map((c) => html`<option value="${c.key}" ${c.key === channel ? "selec
 export type ConsultState = Map<number, string | null>;
 
 export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set(),
-  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean; view?: string; sort?: string; counts?: Record<string, number> } = {}) {
+  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean; view?: string; sort?: string; counts?: Record<string, number>; range?: { key: string; from?: string; to?: string } } = {}) {
   const f = opts.form ?? {};
   const fresh = !opts.form;
   const isNew = fresh || f.is_new === "1";
@@ -647,7 +647,7 @@ ${TIME_SLOTS.map((t) => html`<option value="${t.value}" ${t.value === f.time ? "
   cb.addEventListener("change", sync); date.addEventListener("change", sync); sync();
 })();
 </script>
-${patientFilters(q, opts.view ?? "all", opts.sort ?? "newest", opts.counts ?? {})}
+${patientFilters(q, opts.view ?? "all", opts.sort ?? "newest", opts.counts ?? {}, opts.range ?? { key: "all" })}
 <style>
 .plist{display:flex;flex-direction:column;gap:10px;margin-top:14px}
 .pcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:start}
@@ -684,18 +684,30 @@ ${patients.length === 0 ? html`<div class="card"><p class="muted" style="margin:
 }
 
 /** Patients list: status tabs (with counts), search, and sort. */
-function patientFilters(q: string, view: string, sort: string, counts: Record<string, number>) {
+function patientFilters(q: string, view: string, sort: string, counts: Record<string, number>, range: { key: string; from?: string; to?: string }) {
   const VIEWS: [string, string][] = [["all", "All"], ["active", "Active"], ["talking", "In talks"], ["hold", "On hold"], ["closed", "Not going ahead"]];
-  const link = (v: string) => `/patients?${new URLSearchParams({ view: v, sort, ...(q ? { q } : {}) })}`;
-  return html`<div class="seg" style="flex-wrap:wrap;margin:0 0 10px">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${link(v)}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
+  const RANGES: [string, string][] = [["all", "Any date"], ["7", "Last 7 days"], ["30", "Last 1 month"], ["90", "Last 3 months"], ["custom", "Custom dates"]];
+  const keep = (extra: Record<string, string>) => {
+    const p: Record<string, string> = { view, sort, added: range.key, ...(q ? { q } : {}), ...(range.key === "custom" && range.from ? { from: range.from } : {}), ...(range.key === "custom" && range.to ? { to: range.to } : {}), ...extra };
+    if (p.added !== "custom") { delete p.from; delete p.to; }
+    return `/patients?${new URLSearchParams(p)}`;
+  };
+  const dmy = (d?: string) => (d ? d.split("-").reverse().join("-") : "");
+  return html`<div class="seg" style="flex-wrap:wrap;margin:0 0 8px">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${keep({ view: v })}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 8px"><span class="muted" style="font-size:13px">Added:</span>
+<span class="seg" style="flex-wrap:wrap">${RANGES.map(([k, l]) => html`<a class="${k === range.key ? "on" : ""}" href="${k === "custom" ? keep({ added: "custom", from: range.from ?? "", to: range.to ?? "" }) : keep({ added: k })}">${l}</a>`)}</span>
+${range.key !== "all" && range.from ? html`<span class="muted" style="font-size:13px">${dmy(range.from)} to ${dmy(range.to)}</span>` : ""}</div>
 <form method="get" action="/patients" class="row" style="align-items:end">
 <input type="hidden" name="view" value="${view}">
+<input type="hidden" name="added" value="${range.key}">
+${range.key === "custom" ? html`<div style="flex:0 0 auto"><label for="from">From</label><input id="from" type="date" name="from" value="${range.from ?? ""}"></div>
+<div style="flex:0 0 auto"><label for="to">To</label><input id="to" type="date" name="to" value="${range.to ?? ""}"></div>` : ""}
 <div><label for="q">Search name or phone</label><input id="q" name="q" value="${q}"></div>
 <div style="flex:0 0 auto"><label for="sort">Sort by</label><select id="sort" name="sort" onchange="this.form.submit()">
 <option value="newest" ${sort === "newest" ? "selected" : ""}>Newest first</option>
 <option value="oldest" ${sort === "oldest" ? "selected" : ""}>Oldest first</option>
 <option value="name" ${sort === "name" ? "selected" : ""}>Name (A–Z)</option></select></div>
-<button class="secondary">Search</button></form>`;
+<button class="secondary">${range.key === "custom" ? "Show" : "Search"}</button></form>`;
 }
 
 /** Patients list: one-tap status. Changing it submits straight away. */

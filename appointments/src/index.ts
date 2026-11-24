@@ -860,7 +860,23 @@ function followUpsFrom(results: FollowUpRow[]) {
 export const PATIENT_VIEWS = ["all", "active", "talking", "hold", "closed"] as const;
 export const PATIENT_SORTS = ["newest", "oldest", "name"] as const;
 const ADDED = "COALESCE(enquiry_date, date(created_at, '+330 minutes'))";
-async function patientsForPage(env: Env, q: string, view: string, sort: string) {
+export interface DateFilter { key: string; from?: string; to?: string }
+/** Added-on date filter: all, last 7 days, last 30 days, last 90 days, or a custom from/to (IST days, both included). */
+export function patientDateRange(today: string, key: string, from?: string, to?: string): DateFilter {
+  const ok = (d?: string) => !!d && /^\d{4}-\d{2}-\d{2}$/.test(d);
+  if (key === "7") return { key, from: addDays(today, -6), to: today };
+  if (key === "30") return { key, from: addDays(today, -29), to: today };
+  if (key === "90") return { key, from: addDays(today, -89), to: today };
+  if (key === "custom" && (ok(from) || ok(to))) {
+    let a = ok(from) ? from! : "2000-01-01", b = ok(to) ? to! : today;
+    if (a > b) [a, b] = [b, a];
+    return { key, from: a, to: b };
+  }
+  if (key === "custom") return { key }; // no dates picked yet: show everything, with the date boxes open
+  return { key: "all" };
+}
+
+async function patientsForPage(env: Env, q: string, view: string, sort: string, range: DateFilter = { key: "all" }) {
   const like = `%${q}%`;
   const where = {
     all: "1=1",
@@ -871,11 +887,13 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string) 
   }[view] ?? "1=1";
   const order = sort === "name" ? "name COLLATE NOCASE" : sort === "oldest" ? `${ADDED} ASC, id ASC` : `${ADDED} DESC, id DESC`;
   const { results } = await env.DB.prepare(
-    `SELECT *, ${ADDED} AS added_on FROM patients WHERE (? = '' OR name LIKE ? OR guardian_name LIKE ? OR phone LIKE ?) AND ${where} ORDER BY ${order} LIMIT 500`,
-  ).bind(q, like, like, like).all<PatientRow>();
+    `SELECT *, ${ADDED} AS added_on FROM patients WHERE (? = '' OR name LIKE ? OR guardian_name LIKE ? OR phone LIKE ?) AND ${where}
+       AND ${ADDED} BETWEEN ? AND ? ORDER BY ${order} LIMIT 500`,
+  ).bind(q, like, like, like, range.from ?? "0000-01-01", range.to ?? "9999-12-31").all<PatientRow>();
   const { results: counts } = await env.DB.prepare(
-    `SELECT CASE WHEN stage = 'closed' THEN 'closed' WHEN hold_status = 'hold' THEN 'hold' WHEN hold_status = 'talking' THEN 'talking' ELSE 'active' END AS k, COUNT(*) AS n FROM patients GROUP BY k`,
-  ).all<{ k: string; n: number }>();
+    `SELECT CASE WHEN stage = 'closed' THEN 'closed' WHEN hold_status = 'hold' THEN 'hold' WHEN hold_status = 'talking' THEN 'talking' ELSE 'active' END AS k, COUNT(*) AS n
+       FROM patients WHERE ${ADDED} BETWEEN ? AND ? GROUP BY k`,
+  ).bind(range.from ?? "0000-01-01", range.to ?? "9999-12-31").all<{ k: string; n: number }>();
   const n: Record<string, number> = { all: 0, active: 0, talking: 0, hold: 0, closed: 0 };
   for (const r of counts) { n[r.k] = r.n; n.all += r.n; }
   return { results, counts: n };
@@ -885,9 +903,10 @@ async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientF
   const v = c.req.query("view") ?? "all", s = c.req.query("sort") ?? "newest";
   const view = (PATIENT_VIEWS as readonly string[]).includes(v) ? v : "all";
   const sort = (PATIENT_SORTS as readonly string[]).includes(s) ? s : "newest";
-  const list = await patientsForPage(c.env, q, view, sort);
+  const range = patientDateRange(istDay(new Date()), c.req.query("added") ?? "all", c.req.query("from"), c.req.query("to"));
+  const list = await patientsForPage(c.env, q, view, sort, range);
   return c.html(patientsPage(c.get("user"), list.results, q, flash, new Set((await followUps(c.env)).map((f) => f.id)), {
-    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form, view, sort, counts: list.counts,
+    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form, view, sort, counts: list.counts, range,
   }), status as 200);
 }
 
