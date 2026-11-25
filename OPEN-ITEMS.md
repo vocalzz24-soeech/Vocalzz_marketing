@@ -146,6 +146,7 @@ section. Last updated: 24 Nov 2026.
 - [x] 24 Nov: Explorer access approved (2,880 ops/day on production)
 - [x] 24 Nov: Google Ads report page LIVE at book.vocalzz.com/ads with real data; no developer token needed
 - [ ] Thu/Fri review: decide whether to count Google-hosted "Clicks to call" (call-button taps on ad/listing; 2 on 22–24 Nov, currently NOT in account goals) in the Contacts goal so bidding learns from calls; owner to approve. 22–24 Nov all conv. = 17: WhatsApp 1, call taps 2, directions 3, other listing engagements 11
+- [ ] Thu/Fri review: remove 7 redundant EXACT keywords (keep the PHRASE twin in the same ad group): Greater Noida [speech therapy in greater noida], [speech therapy greater noida], [speech therapist greater noida]; OT [occupational therapy noida]; Hearing [hearing test noida]; Child Speech [speech therapy noida], [speech therapist noida]. If using Google's "Remove redundant keywords" card, check it removes the exact ones. Also look at weak keywords: "audiologist noida" (45 impr, 0 clicks), "speech therapy centre" (65 impr, 1 click), 23–25 Nov
 - [ ] Thu/Fri review: candidate negatives from search terms (hearing competitors: hearing point, insono, aura hearing, earkart, hearwell, star hearing, centre for hearing green park; info searches: ot exercises for kids, how to clear speech in kids, hearing test price for newborn?). Owner to approve
 
 ## Claude
