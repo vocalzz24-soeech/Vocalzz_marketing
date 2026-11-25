@@ -112,6 +112,7 @@ section. Last updated: 24 Nov 2026.
 - [x] 24 Nov: payment method added to the WhatsApp account; business verification submitted (CIN U86905UP2024OPC207222, record with Ayush's email), status "In process"
 - [x] 24 Nov: all 15 Utility templates submitted (English, 12 h validity except reminder); status In review. vocalzz_therapist_series reworded as "Schedule update: …" after Meta flagged it as marketing (app updated)
 - [x] 24 Nov: system user vocalzz-app (Admin; app + WhatsApp account full access); permanent token generated; Cloudflare runtime secrets WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID added
+- [ ] 25 Nov: patient templates (vocalzz_appt_*, vocalzz_consult_*) ACTIVE; 7 therapist + 3 series templates still In review (until approved those messages show "Failed, send it yourself" on the Messages page). Owner: send test from WhatsApp setup to own number; if it fails, publish the Meta app (Development → Live). Check none is Rejected
 - [ ] Check templates Active; then book.vocalzz.com → WhatsApp setup → register number (6-digit PIN, keep it safe) → send test; publish the Meta app if messages to non-admins fail (owner to approve texts in appointments/docs/whatsapp-messages-review.md first); system user + permanent token → Cloudflare WHATSAPP_TOKEN; publish app; test from book.vocalzz.com → WhatsApp setup
 
 ### Booking app
