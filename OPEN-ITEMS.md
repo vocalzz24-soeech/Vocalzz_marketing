@@ -145,6 +145,7 @@ section. Last updated: 24 Nov 2026.
 - [x] 24 Nov: service account vocalzz-seo-report@digital-marketing-vocalzz.iam.gserviceaccount.com added to 898-392-0631 as Read only (upgrade to Standard when the app's change features are built)
 - [x] 24 Nov: Explorer access approved (2,880 ops/day on production)
 - [x] 24 Nov: Google Ads report page LIVE at book.vocalzz.com/ads with real data; no developer token needed
+- [ ] Thu/Fri review: decide whether to count Google-hosted "Clicks to call" (call-button taps on ad/listing; 2 on 22–24 Nov, currently NOT in account goals) in the Contacts goal so bidding learns from calls; owner to approve. 22–24 Nov all conv. = 17: WhatsApp 1, call taps 2, directions 3, other listing engagements 11
 - [ ] Thu/Fri review: candidate negatives from search terms (hearing competitors: hearing point, insono, aura hearing, earkart, hearwell, star hearing, centre for hearing green park; info searches: ot exercises for kids, how to clear speech in kids, hearing test price for newborn?). Owner to approve
 
 ## Claude
