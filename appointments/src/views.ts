@@ -5,6 +5,7 @@ import { CONSULTATION, isConsultation, type ApptRow } from "./notify.ts";
 import { dateToIstLocal, formatDateTime, formatTime, istDay } from "./time.ts";
 import { endOf, MAX_SERIES, timeSlots } from "./schedule.ts";
 import { CHANNELS, channelLabel, SOURCES, sourceLabel } from "./sources.ts";
+import { clickTypeLabel, type ClickLine } from "./google-ads.ts";
 
 // Clinic hours 10:00–20:00, Mon–Sat (matches OPEN_HOUR / CLOSE_HOUR in wrangler.toml).
 const TIME_SLOTS = timeSlots(10, 20);
@@ -231,7 +232,8 @@ export function setupPage(error?: string) {
 
 export interface TherapistRow { id: number; name: string; phone: string; specialty: string | null; active: number; has_login: number; deleted_at?: string | null }
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null; stage?: string;
-  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null; hold_status?: string | null; added_on?: string | null }
+  source?: string | null; enquiry_date?: string | null; contact_channel?: string | null; hold_status?: string | null; added_on?: string | null;
+  enquiry_time?: string | null; ad_group?: string | null; ad_click_type?: string | null; ad_match?: string | null }
 
 /** One conversation note about a patient (call, WhatsApp chat, visit) with an optional next follow-up date. */
 export interface PatientNote { id: number; patient_id: number; body: string; next_followup: string | null; created_at: string; by_name: string | null }
@@ -638,17 +640,18 @@ export function messageTable(messages: MessageRow[]) {
   })}</div>`;
 }
 
-export interface NewPatientForm { name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string; source?: string; enquiry_date?: string; contact_channel?: string; self?: string;
+export interface NewPatientForm { enquiry_time?: string; name?: string; guardian_name?: string; phone?: string; whatsapp_consent?: string; notes?: string; source?: string; enquiry_date?: string; contact_channel?: string; self?: string;
   is_new?: string; therapist_id?: string; date?: string; time?: string; duration?: string }
 
 /** "How did you hear about us?" and first-contact date, shared by the add and edit forms. */
-function sourceFields(source: string | null | undefined, date: string | null | undefined, channel: string | null | undefined) {
+function sourceFields(source: string | null | undefined, date: string | null | undefined, channel: string | null | undefined, time?: string | null) {
   return html`<div class="row">
 <div><label for="source">How did they hear about us?</label>
 <select id="source" name="source"><option value="">Not asked / not sure</option>
 ${SOURCES.map((s) => html`<option value="${s.key}" ${s.key === source ? "selected" : ""}>${s.label}</option>`)}
 </select></div>
 <div><label for="enquiry_date">First contacted us on</label><input id="enquiry_date" name="enquiry_date" type="date" value="${date ?? ""}"></div>
+<div><label for="enquiry_time">At (time, optional)</label><input id="enquiry_time" name="enquiry_time" type="time" value="${time ?? ""}"></div>
 </div>
 <label for="contact_channel">How did they contact us?</label>
 <select id="contact_channel" name="contact_channel"><option value="">Not sure</option>
@@ -690,7 +693,7 @@ export function patientsPage(user: User, patients: PatientRow[], q: string, flas
 <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${fresh || f.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>
 <label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${f.notes ?? ""}">
-${sourceFields(f.source, fresh ? istDay(new Date()) : f.enquiry_date, f.contact_channel)}
+${sourceFields(f.source, fresh ? istDay(new Date()) : f.enquiry_date, f.contact_channel, f.enquiry_time)}
 <div class="repeat-box consult-box">
 <label class="repeat-toggle"><input type="checkbox" id="is_new" name="is_new" value="1" ${isNew ? "checked" : ""}> <span>New patient: first visit is a consultation</span></label>
 <p class="muted" style="margin:4px 0 0">Untick only for someone who is already in therapy with us.</p>
@@ -748,6 +751,7 @@ ${patients.map((p) => html`<div class="pcard">
 ${p.guardian_name ? html`<span>Parent <b>${p.guardian_name}</b></span>` : ""}
 <span>WhatsApp <b>+${p.phone}</b></span>
 ${p.source || p.contact_channel ? html`<span>${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</span>` : ""}
+${p.ad_group ? html`<span>Ad <b>${p.ad_group}</b> · ${clickTypeLabel(p.ad_click_type)}${p.ad_match === "confirmed" ? "" : " (likely)"}</span>` : ""}
 </div>
 ${(() => { const n = notes.get(p.id); return n
     ? html`<div class="pnote"><div class="muted"><strong style="color:var(--ink)">Last conversation</strong> · ${noteWhen(n)} ${followupTag(n.next_followup, today)}</div><p class="ptext">${n.body}</p></div>`
@@ -756,6 +760,7 @@ ${(() => { const n = notes.get(p.id); return n
 ${noteButton(p)}
 <a class="btn secondary small" href="/patients/${p.id}/summary">History</a>
 <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>
+${p.source === "google_ads" && !p.ad_group ? html`<a class="btn secondary small" href="/patients/${p.id}/ad-match">Match ad click</a>` : ""}
 <form method="post" action="/patients/${p.id}/consent"><button class="secondary small" name="value" value="${p.whatsapp_consent ? "0" : "1"}" title="Tap to change">WhatsApp consent: ${p.whatsapp_consent ? "Yes" : "No"}</button></form>
 ${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "talking" ? html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">Book consultation</a>` : html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}
 </div>
@@ -840,7 +845,7 @@ export function patientEditPage(user: User, p: PatientRow, flash?: { type: "ok" 
 <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" name="whatsapp_consent" value="1" ${p.whatsapp_consent ? "checked" : ""}>
 They agreed to get appointment messages on WhatsApp</label>
 <label for="notes">Admin note (optional, no medical details)</label><input id="notes" name="notes" maxlength="200" value="${p.notes ?? ""}">
-${sourceFields(p.source, p.enquiry_date, p.contact_channel)}
+${sourceFields(p.source, p.enquiry_date, p.contact_channel, p.enquiry_time)}
 <p class="muted">Changes apply to future messages. Messages already sent are not changed.</p>
 <button>Save changes</button> <a class="btn secondary" href="/patients">Cancel</a>
 </form>
@@ -1007,7 +1012,8 @@ export function patientSummaryPage(user: User, p: PatientRow, month: string, app
   return layout("Patient summary", user, html`
 <p><a href="/patients">← Patients</a></p>
 <h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
-${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong> · contacted us by <strong>${channelLabel(p.contact_channel)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}` : ""} · <a href="/patients/${p.id}/edit">change</a></p>` : ""}
+${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong> · contacted us by <strong>${channelLabel(p.contact_channel)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}${p.enquiry_time ? ` at ${p.enquiry_time}` : ""}` : ""} · <a href="/patients/${p.id}/edit">change</a>
+${p.ad_group ? html`<br>Google ad: <strong>${p.ad_group}</strong> · ${clickTypeLabel(p.ad_click_type)} (${p.ad_match === "confirmed" ? "confirmed" : "likely, matched by time"}) · <a href="/patients/${p.id}/ad-match">change</a>` : p.source === "google_ads" ? html`<br><a href="/patients/${p.id}/ad-match">Match to an ad click</a>` : ""}</p>` : ""}
 ${user.role === "admin" && p.hold_status === "hold" ? html`<div class="card"><strong>On hold</strong><p class="muted" style="margin:4px 0 0">Booking is paused for this patient. Change the status on the Patients page to book again.</p></div>` : ""}
 ${user.role === "admin" && p.hold_status === "talking" ? html`<div class="card consult-card"><strong>In talks</strong><p class="muted" style="margin:4px 0 8px">Only a consultation can be booked until the family confirms.</p><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a></div>` : ""}
 ${user.role === "admin" && p.stage === "consultation" && p.hold_status !== "hold" && p.hold_status !== "talking" ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
@@ -1053,4 +1059,32 @@ ${appts.map((a) => html`<a class="card appt" href="/appointments/${a.id}">
 export function consultBanner(names: string[]) {
   if (!names.length) return "";
   return html`<a class="card send-banner" style="border-color:var(--brand)" href="/patients"><strong>${names.length} new patient${names.length === 1 ? "" : "s"} waiting for a consultation booking: ${names.slice(0, 3).join(", ")}${names.length > 3 ? "…" : ""}</strong><span>Open →</span></a>`;
+}
+
+/** "Match ad click" page: the ad clicks around the time a patient contacted us; tap one to link it. */
+export function adMatchPage(user: User, p: PatientRow, opts: { clicks: ClickLine[]; all: ClickLine[]; error?: string; flash?: { type: "ok" | "error"; text: string } }) {
+  const when = p.enquiry_date ? `${p.enquiry_date.split("-").reverse().join("-")}${p.enquiry_time ? ` at ${p.enquiry_time}` : ""}` : "";
+  const hr = (h: number) => `${String(h).padStart(2, "0")}:00–${String(h + 1).padStart(2, "0")}:00`;
+  const linkForm = (c: ClickLine) => html`<form method="post" action="/patients/${p.id}/ad-match" style="margin:0;display:flex;gap:6px;flex-wrap:wrap">
+<input type="hidden" name="ad_group" value="${c.group}"><input type="hidden" name="ad_click_type" value="${c.type}">
+<button class="small" name="ad_match" value="likely">Link (likely)</button><button class="secondary small" name="ad_match" value="confirmed">Link (patient confirmed)</button></form>`;
+  return layout("Match ad click", user, html`<p><a href="/patients/${p.id}/summary">← ${p.name}</a></p>
+<h1>Which ad brought ${p.name}?</h1>
+${!p.enquiry_date || !p.enquiry_time ? html`<div class="card"><strong>Add the date and time they first contacted you.</strong>
+<form method="post" action="/patients/${p.id}/enquiry-time" class="row" style="align-items:end;margin-top:8px">
+<div><label for="d">Date</label><input id="d" type="date" name="enquiry_date" value="${p.enquiry_date ?? ""}" required></div>
+<div><label for="t">Time</label><input id="t" type="time" name="enquiry_time" value="${p.enquiry_time ?? ""}" required></div>
+<button style="flex:0 0 auto">Show ad clicks</button></form></div>` : html`
+<p class="muted">Contacted us on <strong>${when}</strong>${p.contact_channel ? html` by <strong>${channelLabel(p.contact_channel)}</strong>` : ""}. <a href="/patients/${p.id}/ad-match?edit=1">Change time</a></p>
+${opts.error ? html`<div class="flash error">Google said: ${opts.error}</div>` : ""}
+${p.ad_group ? html`<div class="card"><strong>Linked now:</strong> ${p.ad_group} · ${clickTypeLabel(p.ad_click_type)} (${p.ad_match === "confirmed" ? "confirmed" : "likely"})
+<form method="post" action="/patients/${p.id}/ad-match" style="margin:8px 0 0"><button class="secondary small" name="clear" value="1">Remove link</button></form></div>` : ""}
+${opts.error ? "" : html`<div class="card"><h2 style="margin-top:0">Ad clicks just before they contacted you</h2>
+${opts.clicks.length ? html`<div class="tbl-wrap"><table><tr><th>Hour</th><th>Ad group</th><th>Type of click</th><th class="n">Clicks</th><th></th></tr>
+${opts.clicks.map((c) => html`<tr><td>${hr(c.hour)}</td><td>${c.group}</td><td>${clickTypeLabel(c.type)}</td><td class="n">${c.clicks}</td><td>${linkForm(c)}</td></tr>`)}</table></div>`
+    : html`<p class="muted">No ad clicks in the 2 hours before that time. They probably found you another way (Google Maps without an ad, Instagram, a referral). You can change "How did they hear about us" on the Edit page.</p>`}
+<p class="muted" style="margin:8px 0 0">Google reports clicks by the hour, not by person, so this is the most likely match, not proof. A "call button" click in the same hour as a phone call is a strong match. Pick "patient confirmed" only if they told you they saw the ad.</p></div>`}
+${opts.all.length ? html`<details class="card"><summary><strong>All ad clicks that day</strong></summary><div class="tbl-wrap"><table><tr><th>Hour</th><th>Ad group</th><th>Type of click</th><th class="n">Clicks</th><th></th></tr>
+${opts.all.map((c) => html`<tr><td>${hr(c.hour)}</td><td>${c.group}</td><td>${clickTypeLabel(c.type)}</td><td class="n">${c.clicks}</td><td>${linkForm(c)}</td></tr>`)}</table></div></details>` : ""}`}
+`, opts.flash);
 }

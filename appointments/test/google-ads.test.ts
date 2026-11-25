@@ -38,3 +38,17 @@ test("search skips unknown API versions and follows pages", async () => {
     assert.ok(calls.every((u) => u.includes("/customers/8983920631/")));
   } finally { globalThis.fetch = real; }
 });
+
+test("candidates: same hour and up to 2 hours before, closest first, calls first", async () => {
+  const { candidates } = await import("../src/google-ads.ts");
+  const clicks = [
+    { hour: 16, group: "Child Speech", type: "URL_CLICKS", clicks: 1 },
+    { hour: 15, group: "Child Speech", type: "LOCATION_EXPANSION", clicks: 1 },
+    { hour: 15, group: "Child Speech", type: "CALLS", clicks: 1 },
+    { hour: 15, group: "Child Speech", type: "URL_CLICKS", clicks: 1 },
+    { hour: 12, group: "Greater Noida", type: "URL_CLICKS", clicks: 1 },
+    { hour: 13, group: "Adults", type: "LOCATION_EXPANSION", clicks: 1 },
+  ];
+  const got = candidates(clicks, "15:10").map((c) => `${c.hour} ${c.type}`);
+  assert.deepEqual(got, ["15 CALLS", "15 URL_CLICKS", "15 LOCATION_EXPANSION", "13 LOCATION_EXPANSION"]);
+});

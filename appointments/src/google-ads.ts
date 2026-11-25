@@ -141,3 +141,36 @@ export async function adsReport(env: Env, range: AdsRange): Promise<AdsReport> {
     conv: conv.map((r) => ({ action: String(r.segments?.conversionActionName ?? ""), conversions: num(r.metrics?.conversions) })).filter((c) => c.conversions > 0).sort((a, b) => b.conversions - a.conversions),
   };
 }
+
+// --- Matching a patient's enquiry time to ad clicks ---
+
+/** Plain-words names for Google's click types. */
+export const CLICK_TYPES: Record<string, string> = {
+  CALLS: "Call button on the ad",
+  URL_CLICKS: "Website visit from the ad",
+  SITELINKS: "Website visit (sitelink)",
+  LOCATION_EXPANSION: "Google listing shown with the ad",
+  GET_DIRECTIONS: "Directions from the ad",
+  CALL_TRACKING: "Call from the ad",
+};
+export const clickTypeLabel = (t: string | null | undefined) => (t ? CLICK_TYPES[t] ?? t.toLowerCase().replace(/_/g, " ") : "");
+
+export interface ClickLine { hour: number; group: string; type: string; clicks: number }
+
+/** Ad clicks on one day (account time zone, IST) per hour, ad group and click type. */
+export async function clicksOnDay(env: Env, day: string): Promise<ClickLine[]> {
+  const token = await googleToken(env, SCOPE);
+  const rows = await search(env, token, `SELECT segments.hour, segments.click_type, ad_group.name, metrics.clicks FROM ad_group WHERE segments.date = '${day}' AND metrics.clicks > 0`);
+  return rows.map((r) => ({ hour: num(r.segments?.hour), group: String(r.adGroup?.name ?? ""), type: String(r.segments?.clickType ?? ""), clicks: num(r.metrics?.clicks) }))
+    .sort((a, b) => a.hour - b.hour || b.clicks - a.clicks);
+}
+
+/**
+ * Clicks that could have led to an enquiry at `time` (HH:MM): the same hour and up to `before` hours earlier, closest first.
+ * Calls show first within an hour, since a call-button tap usually is the enquiry itself.
+ */
+export function candidates(clicks: ClickLine[], time: string, before = 2): ClickLine[] {
+  const h = Number(time.slice(0, 2));
+  const rank = (t: string) => (t === "CALLS" ? 0 : t === "URL_CLICKS" || t === "SITELINKS" ? 1 : 2);
+  return clicks.filter((c) => c.hour <= h && c.hour >= h - before).sort((a, b) => b.hour - a.hour || rank(a.type) - rank(b.type));
+}

@@ -17,8 +17,8 @@ import { dashboardPage } from "./dashboard-views.ts";
 import { cleanChannel, cleanDate, cleanSource, sourceReport } from "./sources.ts";
 import { earliestDay, gscConfigured, latestDay, resolveRange, seoReport } from "./search-console.ts";
 import { seoPage } from "./seo-views.ts";
-import { adsEarliest, adsReport, resolveAdsRange } from "./google-ads.ts";
-import { adsPage } from "./ads-views.ts";
+import { adsEarliest, adsReport, candidates, clicksOnDay, resolveAdsRange, type ClickLine } from "./google-ads.ts";
+import { adsPage, type AdLead } from "./ads-views.ts";
 import { numberStatus, registerNumber, sendTest, whatsappSetupPage } from "./whatsapp-admin.ts";
 import { MOVE_TABLES, moveStatus, moveStep, movePage } from "./move-db.ts";
 import { leavePage, pendingLeaveBanner, type BalanceRow, type LeaveRow } from "./leave-views.ts";
@@ -30,7 +30,7 @@ import {
 } from "./notify.ts";
 import {
   appointmentPage, loginPage, messagesPage, newAppointmentPage, patientsPage, schedulePage,
-  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, consultBanner, type ApptForm, type ConsultState, type NewPatientForm, type CommentRow, type MessageRow, type PatientNote, type PatientRow, type TherapistRow,
+  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, consultBanner, type ApptForm, type ConsultState, type NewPatientForm, type CommentRow, type MessageRow, type PatientNote, type PatientRow, type TherapistRow, adMatchPage,
 } from "./views.ts";
 
 type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -928,7 +928,7 @@ app.get("/patients", adminOnly, async (c) => renderPatients(c, (c.req.query("q")
 app.post("/patients", adminOnly, async (c) => {
   const body = await c.req.parseBody();
   const f: NewPatientForm = Object.fromEntries(
-    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "source", "enquiry_date", "contact_channel", "self", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
+    ["name", "guardian_name", "phone", "whatsapp_consent", "notes", "source", "enquiry_date", "enquiry_time", "contact_channel", "self", "is_new", "therapist_id", "date", "time", "duration"].map((k) => [k, str(body[k])]),
   );
   const again = (text: string) => renderPatients(c, "", { type: "error", text }, f, 400);
   const phone = normalisePhone(f.phone ?? "");
@@ -951,6 +951,7 @@ app.post("/patients", adminOnly, async (c) => {
   ).bind(f.name.slice(0, 80), f.self ? null : (f.guardian_name ?? "").slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, (f.notes ?? "").slice(0, 200) || null,
     isNew ? "consultation" : "active", new Date().toISOString(), cleanSource(f.source), cleanDate(f.enquiry_date), cleanChannel(f.contact_channel)).run();
   const patientId = Number(res.meta.last_row_id);
+  if (cleanTime(f.enquiry_time)) await c.env.DB.prepare("UPDATE patients SET enquiry_time = ? WHERE id = ?").bind(cleanTime(f.enquiry_time), patientId).run();
 
   if (!isNew) return redirectWith(c, `/appointments/new?patient_id=${patientId}`, { type: "ok", text: `${f.name} added. Book their sessions below.` });
   if (!bookNow || !slot || "error" in slot) {
@@ -1095,10 +1096,48 @@ app.post("/patients/:id", adminOnly, async (c) => {
   const f = await c.req.parseBody();
   const phone = normalisePhone(str(f.phone));
   if (!str(f.name) || !phone) return redirectWith(c, `/patients/${id}/edit`, { type: "error", text: "Enter the patient's name and a valid 10-digit mobile number." });
-  await c.env.DB.prepare("UPDATE patients SET name = ?, guardian_name = ?, phone = ?, whatsapp_consent = ?, notes = ?, source = ?, enquiry_date = ?, contact_channel = ? WHERE id = ?")
+  await c.env.DB.prepare("UPDATE patients SET name = ?, guardian_name = ?, phone = ?, whatsapp_consent = ?, notes = ?, source = ?, enquiry_date = ?, contact_channel = ?, enquiry_time = ? WHERE id = ?")
     .bind(str(f.name).slice(0, 80), str(f.self) ? null : str(f.guardian_name).slice(0, 80) || null, phone, f.whatsapp_consent ? 1 : 0, str(f.notes).slice(0, 200) || null,
-      cleanSource(str(f.source)), cleanDate(str(f.enquiry_date)), cleanChannel(str(f.contact_channel)), id).run();
+      cleanSource(str(f.source)), cleanDate(str(f.enquiry_date)), cleanChannel(str(f.contact_channel)), cleanTime(str(f.enquiry_time)), id).run();
   return redirectWith(c, "/patients", { type: "ok", text: `${str(f.name)} updated.` });
+});
+
+const cleanTime = (v: string | undefined) => (v && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null);
+
+/** Match a patient to the Google ad click that most likely brought them, using the time they first contacted us. */
+app.get("/patients/:id/ad-match", adminOnly, async (c) => {
+  const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(c.req.param("id"))).first<PatientRow>();
+  if (!p) return c.notFound();
+  const editing = c.req.query("edit") === "1";
+  const view = editing ? { ...p, enquiry_time: null } : p;
+  let all: ClickLine[] = [], error: string | undefined;
+  if (!editing && p.enquiry_date && p.enquiry_time) {
+    try { all = await clicksOnDay(c.env, p.enquiry_date); } catch (e) { error = e instanceof Error ? e.message : String(e); }
+  }
+  return c.html(adMatchPage(c.get("user"), view, { clicks: p.enquiry_time ? candidates(all, p.enquiry_time) : [], all, error, flash: takeFlash(c) }));
+});
+
+app.post("/patients/:id/enquiry-time", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const f = await c.req.parseBody();
+  const d = cleanDate(str(f.enquiry_date)), t = cleanTime(str(f.enquiry_time));
+  if (!d || !t) return redirectWith(c, `/patients/${id}/ad-match`, { type: "error", text: "Enter both the date and the time." });
+  await c.env.DB.prepare("UPDATE patients SET enquiry_date = ?, enquiry_time = ? WHERE id = ?").bind(d, t, id).run();
+  return c.redirect(`/patients/${id}/ad-match`);
+});
+
+app.post("/patients/:id/ad-match", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const f = await c.req.parseBody();
+  if (str(f.clear)) {
+    await c.env.DB.prepare("UPDATE patients SET ad_group = NULL, ad_click_type = NULL, ad_match = NULL WHERE id = ?").bind(id).run();
+    return redirectWith(c, `/patients/${id}/ad-match`, { type: "ok", text: "Ad link removed." });
+  }
+  const group = str(f.ad_group).slice(0, 80), type = str(f.ad_click_type).replace(/[^A-Z_]/g, "").slice(0, 40);
+  const match = str(f.ad_match) === "confirmed" ? "confirmed" : "likely";
+  if (!group || !type) return redirectWith(c, `/patients/${id}/ad-match`, { type: "error", text: "Pick a click to link." });
+  await c.env.DB.prepare("UPDATE patients SET ad_group = ?, ad_click_type = ?, ad_match = ?, source = 'google_ads' WHERE id = ?").bind(group, type, match, id).run();
+  return redirectWith(c, `/patients/${id}/summary`, { type: "ok", text: `Linked to the ${group} ad (${match}).` });
 });
 
 app.post("/patients/:id/consent", adminOnly, async (c) => {
@@ -1143,7 +1182,13 @@ app.get("/seo", adminOnly, async (c) => {
 app.get("/ads", adminOnly, async (c) => {
   const today = istDay(new Date());
   const range = resolveAdsRange(today, { p: c.req.query("p"), from: c.req.query("from"), to: c.req.query("to") });
-  const opts = { range, today, earliest: adsEarliest(today) };
+  let leads: AdLead[] = [];
+  try {
+    leads = (await c.env.DB.prepare(`SELECT id, name, enquiry_date, enquiry_time, ad_group, ad_click_type, ad_match, stage, hold_status FROM patients
+      WHERE source = 'google_ads' AND COALESCE(enquiry_date, date(created_at, '+330 minutes')) BETWEEN ? AND ? ORDER BY enquiry_date DESC, enquiry_time DESC LIMIT 200`)
+      .bind(range.start, range.end).all<AdLead>()).results;
+  } catch { /* columns not added yet */ }
+  const opts = { range, today, earliest: adsEarliest(today), leads };
   if (!gscConfigured(c.env)) return c.html(adsPage(c.get("user"), null, { ...opts, configured: false }));
   try {
     return c.html(adsPage(c.get("user"), await adsReport(c.env, range), { ...opts, configured: true }));

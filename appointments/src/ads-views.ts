@@ -1,7 +1,7 @@
 // "Google Ads" admin page: results of the clinic's own Google Ads account (read-only).
 import { html } from "hono/html";
 import type { User } from "./auth.ts";
-import type { AdsRange, AdsReport, Metrics } from "./google-ads.ts";
+import { clickTypeLabel, type AdsRange, type AdsReport, type Metrics } from "./google-ads.ts";
 import { shortDate } from "./report.ts";
 import { barChart, CSS, dayLabel } from "./seo-views.ts";
 import { layout } from "./views.ts";
@@ -30,7 +30,23 @@ function rowCells(m: Metrics) {
 }
 const HEAD = html`<th class="n">Shown</th><th class="n">Clicks</th><th class="n">Click rate</th><th class="n">Cost</th><th class="n">Conv.</th><th class="n">Cost/conv.</th>`;
 
-export function adsPage(user: User, r: AdsReport | null, opts: { range: AdsRange; today: string; earliest: string; configured: boolean; error?: string }) {
+/** A patient recorded as coming from a Google ad (booking app data, not Google's). */
+export interface AdLead { id: number; name: string; enquiry_date: string | null; enquiry_time: string | null; ad_group: string | null; ad_click_type: string | null; ad_match: string | null; stage: string; hold_status: string | null }
+
+function leadsCard(leads: AdLead[]) {
+  const by = new Map<string, number>();
+  for (const l of leads) by.set(l.ad_group ?? "Not matched yet", (by.get(l.ad_group ?? "Not matched yet") ?? 0) + 1);
+  const status = (l: AdLead) => (l.stage === "closed" ? "Not going ahead" : l.hold_status === "hold" ? "On hold" : l.hold_status === "talking" ? "In talks" : l.stage === "consultation" ? "New" : "Active");
+  return html`<div class="card"><h2 style="margin-top:0">Patients from ads (your records)</h2>
+${leads.length ? html`<p style="margin:0 0 8px"><strong>${leads.length}</strong> patient${leads.length === 1 ? "" : "s"} marked "Google ad" in this period: ${[...by].map(([g, n], i) => html`${i ? " · " : ""}${g} <strong>${n}</strong>`)}</p>
+<div class="tbl-wrap"><table><tr><th>Patient</th><th>Contacted</th><th>Ad group</th><th>Type of click</th><th>Status</th></tr>
+${leads.map((l) => html`<tr><td><a href="/patients/${l.id}/summary">${l.name}</a></td><td>${l.enquiry_date ? shortDate(l.enquiry_date) : "–"}${l.enquiry_time ? ` ${l.enquiry_time}` : ""}</td>
+<td>${l.ad_group ? html`${l.ad_group}${l.ad_match === "confirmed" ? "" : html` <span class="brand">likely</span>`}` : html`<a href="/patients/${l.id}/ad-match">Match ad click</a>`}</td><td>${clickTypeLabel(l.ad_click_type)}</td><td>${status(l)}</td></tr>`)}</table></div>`
+    : html`<p class="muted" style="margin:0">No patients marked "How did they hear about us: Google ad" in this period.</p>`}
+<p class="muted" style="margin:8px 0 0">These are real enquiries from the Patients page. Google's "Conversions" misses most calls, so this is the truer count.</p></div>`;
+}
+
+export function adsPage(user: User, r: AdsReport | null, opts: { range: AdsRange; today: string; earliest: string; configured: boolean; error?: string; leads?: AdLead[] }) {
   const g = opts.range;
   const preset = (key: string, label: string) => html`<a class="${key === g.preset ? "on" : ""}" href="/ads?p=${key}">${label}</a>`;
   return layout("Google Ads", user, html`<style>${CSS}</style>
@@ -58,6 +74,7 @@ ${r ? html`
 <div class="tile"><span>Conversions</span><b>${cnt(r.total.conversions)}</b>${change(r.total.conversions, r.totalPrev.conversions)}</div>
 <div class="tile"><span>Cost per conversion</span><b>${cpa(r.total)}</b></div>
 </div>
+${leadsCard(opts.leads ?? [])}
 ${r.conv.length ? html`<p class="muted" style="margin:-4px 0 12px">Conversions by type: ${r.conv.map((c, i) => html`${i ? " · " : ""}${c.action} <strong>${cnt(c.conversions)}</strong>`)}</p>` : ""}
 ${r.daily.length > 1 ? html`<h2 style="margin:18px 0 6px">Day by day</h2>
 <p class="muted" style="margin:0 0 8px">Tap a bar or a date to see that single day.</p>
