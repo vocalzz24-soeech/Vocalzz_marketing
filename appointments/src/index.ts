@@ -30,7 +30,7 @@ import {
 } from "./notify.ts";
 import {
   appointmentPage, loginPage, messagesPage, newAppointmentPage, patientsPage, schedulePage,
-  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, consultBanner, type ApptForm, type ConsultState, type NewPatientForm, type CommentRow, type MessageRow, type PatientRow, type TherapistRow,
+  setupPage, therapistsPage, patientEditPage, therapistEditPage, holidaysPage, patientSummaryPage, SERVICES, consultBanner, type ApptForm, type ConsultState, type NewPatientForm, type CommentRow, type MessageRow, type PatientNote, type PatientRow, type TherapistRow,
 } from "./views.ts";
 
 type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -858,7 +858,7 @@ function followUpsFrom(results: FollowUpRow[]) {
 // --- Patients ------------------------------------------------------------------------------------
 /** Patients page: filter by status and sort. "added" = first-contact date, or the day they were added (IST). */
 export const PATIENT_VIEWS = ["all", "active", "talking", "hold", "closed"] as const;
-export const PATIENT_SORTS = ["newest", "oldest", "name"] as const;
+export const PATIENT_SORTS = ["newest", "oldest", "name", "followup"] as const;
 const ADDED = "COALESCE(enquiry_date, date(created_at, '+330 minutes'))";
 export interface DateFilter { key: string; from?: string; to?: string }
 /** Added-on date filter: all, last 7 days, last 30 days, last 90 days, or a custom from/to (IST days, both included). */
@@ -885,7 +885,9 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
     hold: "stage != 'closed' AND hold_status = 'hold'",
     closed: "stage = 'closed'",
   }[view] ?? "1=1";
-  const order = sort === "name" ? "name COLLATE NOCASE" : sort === "oldest" ? `${ADDED} ASC, id ASC` : `${ADDED} DESC, id DESC`;
+  const nextFu = "(SELECT next_followup FROM patient_notes n WHERE n.patient_id = patients.id ORDER BY n.id DESC LIMIT 1)";
+  const order = sort === "name" ? "name COLLATE NOCASE" : sort === "oldest" ? `${ADDED} ASC, id ASC`
+    : sort === "followup" ? `${nextFu} IS NULL, ${nextFu} ASC, ${ADDED} DESC, id DESC` : `${ADDED} DESC, id DESC`;
   const { results } = await env.DB.prepare(
     `SELECT *, ${ADDED} AS added_on FROM patients WHERE (? = '' OR name LIKE ? OR guardian_name LIKE ? OR phone LIKE ?) AND ${where}
        AND ${ADDED} BETWEEN ? AND ? ORDER BY ${order} LIMIT 500`,
@@ -899,6 +901,17 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
   return { results, counts: n };
 }
 
+/** The latest conversation note for every patient that has one (empty if the notes table isn't there yet). */
+async function latestNotes(env: Env): Promise<Map<number, PatientNote>> {
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT n.id, n.patient_id, n.body, n.next_followup, n.created_at, u.name AS by_name FROM patient_notes n LEFT JOIN users u ON u.id = n.user_id
+         WHERE n.id IN (SELECT MAX(id) FROM patient_notes GROUP BY patient_id)`,
+    ).all<PatientNote>();
+    return new Map(results.map((r) => [r.patient_id, r]));
+  } catch { return new Map(); }
+}
+
 async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientForm, status = 200) {
   const v = c.req.query("view") ?? "all", s = c.req.query("sort") ?? "newest";
   const view = (PATIENT_VIEWS as readonly string[]).includes(v) ? v : "all";
@@ -906,7 +919,7 @@ async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientF
   const range = patientDateRange(istDay(new Date()), c.req.query("added") ?? "all", c.req.query("from"), c.req.query("to"));
   const list = await patientsForPage(c.env, q, view, sort, range);
   return c.html(patientsPage(c.get("user"), list.results, q, flash, new Set((await followUps(c.env)).map((f) => f.id)), {
-    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form, view, sort, counts: list.counts, range,
+    therapists: await therapistList(c.env), defaultDuration: Number(c.env.DEFAULT_DURATION_MIN), consultDuration: consultMin(c.env), consults: await consultStates(c.env), form, open: !!form, view, sort, counts: list.counts, range, notes: await latestNotes(c.env), today: istDay(new Date()),
   }), status as 200);
 }
 
@@ -1000,6 +1013,21 @@ app.post("/appointments/:id/consultation", adminOnly, async (c) => {
   return redirectWith(c, `/appointments/new?patient_id=${appt.patient_id}`, { type: "ok", text: `Consultation confirmed for ${appt.patient_name}. Book their therapy sessions below.` });
 });
 
+/** Adds a conversation note (and optional next follow-up date) for a patient. Goes back to the page it came from. */
+app.post("/patients/:id/notes", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const body = await c.req.parseBody();
+  const text = str(body.body).trim().slice(0, 500);
+  const next = cleanDate(str(body.next_followup));
+  const p = await c.env.DB.prepare("SELECT id, name FROM patients WHERE id = ?").bind(id).first<{ id: number; name: string }>();
+  if (!p) return c.notFound();
+  let back = `/patients/${id}/summary`;
+  try { const r = new URL(c.req.header("referer") ?? ""); if (r.pathname === "/patients" || r.pathname === back) back = r.pathname + r.search; } catch { /* no referer */ }
+  if (!text) return redirectWith(c, back, { type: "error", text: "Note not saved: write what was discussed." });
+  await c.env.DB.prepare("INSERT INTO patient_notes (patient_id, user_id, body, next_followup) VALUES (?, ?, ?, ?)").bind(id, c.get("user").id, text, next).run();
+  return redirectWith(c, back, { type: "ok", text: `Note saved for ${p.name}${next ? `; follow up on ${next.split("-").reverse().join("-")}` : ""}.` });
+});
+
 app.get("/patients/:id/summary", adminOnly, async (c) => {
   const p = await c.env.DB.prepare("SELECT * FROM patients WHERE id = ?").bind(Number(c.req.param("id"))).first<PatientRow>();
   if (!p) return c.notFound();
@@ -1011,7 +1039,12 @@ app.get("/patients/:id/summary", adminOnly, async (c) => {
     .bind(p.id, from.toISOString(), to.toISOString()).all<ApptRow>();
   const flag = (await followUps(c.env)).find((f) => f.id === p.id) ?? null;
   const { results: pBills } = await c.env.DB.prepare("SELECT * FROM bills WHERE patient_id = ? ORDER BY id DESC LIMIT 20").bind(p.id).all<BillRow>();
-  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c), patientBillsCard(p, pBills, month)));
+  let notes: PatientNote[] = [];
+  try {
+    notes = (await c.env.DB.prepare(`SELECT n.id, n.patient_id, n.body, n.next_followup, n.created_at, u.name AS by_name FROM patient_notes n LEFT JOIN users u ON u.id = n.user_id
+      WHERE n.patient_id = ? ORDER BY n.id DESC LIMIT 100`).bind(p.id).all<PatientNote>()).results;
+  } catch { /* notes table not created yet */ }
+  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c), patientBillsCard(p, pBills, month), notes, istDay(new Date())));
 });
 
 app.post("/patients/:id/followed-up", adminOnly, async (c) => {
@@ -1047,6 +1080,7 @@ app.post("/patients/:id/delete", adminOnly, async (c) => {
     c.env.DB.prepare(`DELETE FROM appointment_comments WHERE appointment_id IN (${sub})`).bind(p.id),
     c.env.DB.prepare(`DELETE FROM messages WHERE appointment_id IN (${sub})`).bind(p.id),
     c.env.DB.prepare("DELETE FROM appointments WHERE patient_id = ?").bind(p.id),
+    c.env.DB.prepare("DELETE FROM patient_notes WHERE patient_id = ?").bind(p.id),
     // Bills are financial records and are kept (with their own copy of the name); only the link is removed.
     c.env.DB.prepare("UPDATE bills SET patient_id = NULL WHERE patient_id = ?").bind(p.id),
     c.env.DB.prepare("DELETE FROM patients WHERE id = ?").bind(p.id),

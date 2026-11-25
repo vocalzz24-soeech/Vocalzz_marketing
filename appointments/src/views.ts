@@ -233,6 +233,37 @@ export interface TherapistRow { id: number; name: string; phone: string; special
 export interface PatientRow { id: number; name: string; guardian_name: string | null; phone: string; whatsapp_consent: number; notes: string | null; stage?: string;
   source?: string | null; enquiry_date?: string | null; contact_channel?: string | null; hold_status?: string | null; added_on?: string | null }
 
+/** One conversation note about a patient (call, WhatsApp chat, visit) with an optional next follow-up date. */
+export interface PatientNote { id: number; patient_id: number; body: string; next_followup: string | null; created_at: string; by_name: string | null }
+
+const dmyDate = (d: string) => d.split("-").reverse().join("-");
+/** "Follow up 27-11-2026", tagged today / overdue / in N days, relative to `today` (IST YYYY-MM-DD). */
+function followupTag(next: string | null, today: string) {
+  if (!next) return "";
+  const days = Math.round((Date.parse(`${next}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86400000);
+  const when = days === 0 ? "today" : days < 0 ? `${-days} day${days === -1 ? "" : "s"} overdue` : days === 1 ? "tomorrow" : `in ${days} days`;
+  return html`<span class="badge ${days <= 0 ? "no_show" : "consult"}">Follow up ${dmyDate(next)} · ${when}</span>`;
+}
+/** "24-11-2026, 4:10 pm · Tanu" for a note. */
+const noteWhen = (n: PatientNote) => `${formatDateTime(new Date(n.created_at))}${n.by_name ? ` · ${n.by_name}` : ""}`;
+
+/** Shared "Add conversation note" pop-up for the Patients list and the patient page. Opened by noteButton(). */
+export function noteDialog(today: string) {
+  return html`<dialog id="note-dlg" class="note-dlg"><form method="post" id="note-form">
+<h3 style="margin:0 0 4px">Conversation note</h3><p class="muted" id="note-who" style="margin:0 0 10px"></p>
+<label for="note-body">What was discussed? (no medical details)</label>
+<textarea id="note-body" name="body" required maxlength="500" rows="4" placeholder="e.g. Spoke to mother. Wants Saturday slot; will confirm after talking to father."></textarea>
+<label for="note-next">Next follow-up (optional)</label><input id="note-next" name="next_followup" type="date" min="${today}">
+<div class="row" style="gap:8px;margin-top:10px"><button style="flex:0 0 auto">Save note</button>
+<button type="button" class="secondary" style="flex:0 0 auto" onclick="this.closest('dialog').close()">Cancel</button></div></form></dialog>
+<style>.note-dlg{border:1px solid var(--line);border-radius:12px;padding:16px;width:min(92vw,480px);background:var(--card);color:var(--ink)}.note-dlg::backdrop{background:rgba(0,0,0,.4)}.note-dlg textarea{width:100%;box-sizing:border-box;font:inherit}</style>
+<script>window.openNote=function(b){var d=document.getElementById("note-dlg");if(!d||!d.showModal){location.href="/patients/"+b.dataset.id+"/summary#notes";return;}
+document.getElementById("note-form").action="/patients/"+b.dataset.id+"/notes";document.getElementById("note-who").textContent=b.dataset.name;
+document.getElementById("note-body").value="";document.getElementById("note-next").value="";d.showModal();document.getElementById("note-body").focus();};</script>`;
+}
+const noteButton = (p: { id: number; name: string }, label = "Add note") =>
+  html`<button type="button" class="secondary small" data-id="${p.id}" data-name="${p.name}" onclick="openNote(this)">${label}</button>`;
+
 export interface DayChip { day: string; booked: number; holiday?: string }
 export interface FollowUp { id: number; name: string; missed: number; lastMissed: string }
 
@@ -630,7 +661,10 @@ ${CHANNELS.map((c) => html`<option value="${c.key}" ${c.key === channel ? "selec
 export type ConsultState = Map<number, string | null>;
 
 export function patientsPage(user: User, patients: PatientRow[], q: string, flash?: { type: "ok" | "error"; text: string }, flagged: Set<number> = new Set(),
-  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean; view?: string; sort?: string; counts?: Record<string, number>; range?: { key: string; from?: string; to?: string } } = {}) {
+  opts: { therapists?: TherapistRow[]; defaultDuration?: number; consultDuration?: number; consults?: ConsultState; form?: NewPatientForm; open?: boolean; view?: string; sort?: string; counts?: Record<string, number>; range?: { key: string; from?: string; to?: string };
+    notes?: Map<number, PatientNote>; today?: string } = {}) {
+  const notes = opts.notes ?? new Map<number, PatientNote>();
+  const today = opts.today ?? istDay(new Date());
   const f = opts.form ?? {};
   const fresh = !opts.form;
   const isNew = fresh || f.is_new === "1";
@@ -701,6 +735,8 @@ ${patientFilters(q, opts.view ?? "all", opts.sort ?? "newest", opts.counts ?? {}
 .pcard .pactions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
 .pcard .pactions form{margin:0}.pcard .pactions .btn,.pcard .pactions button{margin:0}.pcard .pactions button.small{padding:4px 12px;font-size:14px}
 .pcard .pactions .push{margin-left:auto}
+.pcard .pnote{grid-column:1/-1;background:var(--bg);border-left:3px solid var(--brand);border-radius:8px;padding:8px 10px;font-size:14px}
+.pcard .pnote .ptext{white-space:pre-wrap;margin:2px 0 0;color:var(--ink)}.pcard .pnote.none{border-left-color:var(--line);color:var(--muted)}
 @media (max-width:560px){.pcard{grid-template-columns:1fr}.pcard .pstatus{justify-self:start}.pcard .pactions .push{margin-left:0}}
 </style>
 <div class="plist">
@@ -713,7 +749,11 @@ ${p.guardian_name ? html`<span>Parent <b>${p.guardian_name}</b></span>` : ""}
 <span>WhatsApp <b>+${p.phone}</b></span>
 ${p.source || p.contact_channel ? html`<span>${p.source ? `via ${sourceLabel(p.source)}` : ""}${p.source && p.contact_channel ? " · " : ""}${p.contact_channel ? channelLabel(p.contact_channel) : ""}</span>` : ""}
 </div>
+${(() => { const n = notes.get(p.id); return n
+    ? html`<div class="pnote"><div class="muted"><strong style="color:var(--ink)">Last conversation</strong> · ${noteWhen(n)} ${followupTag(n.next_followup, today)}</div><p class="ptext">${n.body}</p></div>`
+    : html`<div class="pnote none">No conversation noted yet.</div>`; })()}
 <div class="pactions">
+${noteButton(p)}
 <a class="btn secondary small" href="/patients/${p.id}/summary">History</a>
 <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>
 <form method="post" action="/patients/${p.id}/consent"><button class="secondary small" name="value" value="${p.whatsapp_consent ? "0" : "1"}" title="Tap to change">WhatsApp consent: ${p.whatsapp_consent ? "Yes" : "No"}</button></form>
@@ -722,6 +762,7 @@ ${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "tal
 </div>`)}
 ${patients.length === 0 ? html`<div class="card"><p class="muted" style="margin:0">No patients found.</p></div>` : ""}
 </div>
+${noteDialog(today)}
 `, flash);
 }
 
@@ -752,7 +793,8 @@ ${range.key === "custom" ? html`<div style="flex:0 0 auto"><label for="from">Fro
 <div style="flex:0 0 auto"><label for="sort">Sort by</label><select id="sort" name="sort" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
 <option value="newest" ${sort === "newest" ? "selected" : ""}>Newest first</option>
 <option value="oldest" ${sort === "oldest" ? "selected" : ""}>Oldest first</option>
-<option value="name" ${sort === "name" ? "selected" : ""}>Name (A–Z)</option></select></div>
+<option value="name" ${sort === "name" ? "selected" : ""}>Name (A–Z)</option>
+<option value="followup" ${sort === "followup" ? "selected" : ""}>Follow-up date (soonest first)</option></select></div>
 <button class="secondary">${range.key === "custom" ? "Show" : "Search"}</button></form>`;
 }
 
@@ -948,7 +990,8 @@ ${rows.map((h) => html`<tr><td>${formatDateTime(new Date(`${h.day}T06:30:00Z`)).
 </div>`, flash);
 }
 
-export function patientSummaryPage(user: User, p: PatientRow, month: string, appts: ApptRow[], flag: FollowUp | null, flash?: { type: "ok" | "error"; text: string }, billsCard: unknown = "") {
+export function patientSummaryPage(user: User, p: PatientRow, month: string, appts: ApptRow[], flag: FollowUp | null, flash?: { type: "ok" | "error"; text: string }, billsCard: unknown = "",
+  notes: PatientNote[] = [], today: string = istDay(new Date())) {
   const now = Date.now();
   const count = (st: string) => appts.filter((a) => a.status === st).length;
   const attended = count("completed"), missed = count("no_show"), cancelled = count("cancelled");
@@ -979,6 +1022,12 @@ ${flag ? html`<div class="card followup-banner"><strong>⚠ Missed ${flag.missed
 ${p.whatsapp_consent ? html`<a class="btn wa-send" style="flex:0 0 auto" target="_blank" rel="noopener" href="https://wa.me/${p.phone}?text=${encodeURIComponent(`Hello ${greetName}, we missed ${p.name} at the last couple of sessions at Vocalzz. We hope everything is okay. Would you like us to find a time that suits you better? Just reply to this message.`)}">Message ${greetName} on WhatsApp</a>` : ""}
 <a class="btn secondary" style="flex:0 0 auto" href="tel:+${p.phone}">Call ${greetName}</a>
 <form method="post" action="/patients/${p.id}/followed-up" style="margin:0;flex:0 0 auto"><button class="secondary">Mark as followed up</button></form></div></div>` : ""}
+${user.role === "admin" ? html`<div class="card" id="notes"><div class="row" style="align-items:center;gap:8px"><h2 style="margin:0;flex:1 1 auto">Conversations</h2><span style="flex:0 0 auto">${noteButton(p, "+ Add note")}</span></div>
+${notes.length ? html`<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">${notes.map((n, i) => html`<div style="border-left:3px solid ${i ? "var(--line)" : "var(--brand)"};padding:2px 0 2px 10px">
+<div class="muted" style="font-size:13px">${noteWhen(n)} ${i === 0 ? followupTag(n.next_followup, today) : n.next_followup ? html`· follow-up was ${dmyDate(n.next_followup)}` : ""}</div>
+<div style="white-space:pre-wrap">${n.body}</div></div>`)}</div>`
+    : html`<p class="muted" style="margin:8px 0 0">No conversation noted yet. After each call or WhatsApp chat, add a line: what was said and when to contact them next.</p>`}</div>
+${noteDialog(today)}` : ""}
 <div class="weeknav"><a class="btn secondary small" href="/patients/${p.id}/summary?month=${shift(-1)}">‹ ${shortMonth(-1)}</a>
 <strong style="padding:0 6px">${label}</strong>
 <a class="btn secondary small" href="/patients/${p.id}/summary?month=${shift(1)}">${shortMonth(1)} ›</a></div>
