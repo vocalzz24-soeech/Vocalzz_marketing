@@ -196,9 +196,8 @@ async function patientList(env: Env, q = "") {
 /** New patients start with a consultation; other sessions wait until it is confirmed. */
 function consultationGate(p: { name: string; stage: string; hold_status?: string | null }, service: string): string | null {
   if (p.stage === "closed") return `${p.name} is marked "Not going ahead". Change their status on the Patients page first.`;
-  if (p.hold_status === "hold") return `${p.name} is marked "On hold". Change their status on the Patients page first.`;
   if (service === CONSULTATION) return null;
-  if (p.hold_status === "talking") return `${p.name} is marked "In talks": only a consultation can be booked. Change their status to Active to book sessions.`;
+  if (p.hold_status === "talking" || p.hold_status === "hold") return `${p.name} is marked "${p.hold_status === "hold" ? "Follow up" : "In talks"}": only a consultation can be booked. Change their status to Active to book sessions.`;
   if (p.stage === "consultation") return `${p.name} is a new patient. Book their consultation first. Regular sessions open up once the consultation is confirmed (the "Confirmed: book therapy sessions" button on the consultation).`;
   return null;
 }
@@ -878,6 +877,8 @@ export function patientDateRange(today: string, key: string, from?: string, to?:
 
 /** The follow-up date from a patient's latest conversation note (NULL when the latest note has none). */
 const NEXT_FU = "(SELECT next_followup FROM patient_notes n WHERE n.patient_id = patients.id ORDER BY n.id DESC LIMIT 1)";
+/** Follow-up date and time together ("YYYY-MM-DD HH:MM"), so the list sorts by both; no time sorts first within the day. */
+const NEXT_FU_AT = "(SELECT next_followup || ' ' || COALESCE(next_followup_time, '00:00') FROM patient_notes n WHERE n.patient_id = patients.id ORDER BY n.id DESC LIMIT 1)";
 
 async function patientsForPage(env: Env, q: string, view: string, sort: string, range: DateFilter = { key: "all" }) {
   const like = `%${q}%`;
@@ -886,12 +887,12 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
     active: "stage != 'closed' AND hold_status IS NULL",
     talking: "stage != 'closed' AND hold_status = 'talking'",
     hold: "stage != 'closed' AND hold_status = 'hold'",
-    followup: `stage != 'closed' AND ${NEXT_FU} IS NOT NULL`,
+    followup: `stage != 'closed' AND (hold_status = 'hold' OR ${NEXT_FU} IS NOT NULL)`,
     closed: "stage = 'closed'",
   }[view] ?? "1=1";
   const nextFu = NEXT_FU;
   const order = sort === "name" ? "name COLLATE NOCASE" : sort === "oldest" ? `${ADDED} ASC, id ASC`
-    : sort === "followup" ? `${nextFu} IS NULL, ${nextFu} ASC, ${ADDED} DESC, id DESC` : `${ADDED} DESC, id DESC`;
+    : sort === "followup" ? `${nextFu} IS NULL, ${NEXT_FU_AT} ASC, ${ADDED} DESC, id DESC` : `${ADDED} DESC, id DESC`;
   const { results } = await env.DB.prepare(
     `SELECT *, ${ADDED} AS added_on FROM patients WHERE (? = '' OR name LIKE ? OR guardian_name LIKE ? OR phone LIKE ?) AND ${where}
        AND ${ADDED} BETWEEN ? AND ? ORDER BY ${order} LIMIT 500`,
@@ -902,7 +903,7 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
   ).bind(range.from ?? "0000-01-01", range.to ?? "9999-12-31").all<{ k: string; n: number }>();
   const n: Record<string, number> = { all: 0, active: 0, talking: 0, hold: 0, followup: 0, closed: 0 };
   for (const r of counts) { n[r.k] = r.n; n.all += r.n; }
-  const fu = await env.DB.prepare(`SELECT COUNT(*) AS n FROM patients WHERE stage != 'closed' AND ${NEXT_FU} IS NOT NULL AND ${ADDED} BETWEEN ? AND ?`)
+  const fu = await env.DB.prepare(`SELECT COUNT(*) AS n FROM patients WHERE stage != 'closed' AND (hold_status = 'hold' OR ${NEXT_FU} IS NOT NULL) AND ${ADDED} BETWEEN ? AND ?`)
     .bind(range.from ?? "0000-01-01", range.to ?? "9999-12-31").first<{ n: number }>();
   n.followup = fu?.n ?? 0;
   return { results, counts: n };
@@ -912,7 +913,7 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
 async function latestNotes(env: Env): Promise<Map<number, PatientNote>> {
   try {
     const { results } = await env.DB.prepare(
-      `SELECT n.id, n.patient_id, n.body, n.next_followup, n.created_at, u.name AS by_name FROM patient_notes n LEFT JOIN users u ON u.id = n.user_id
+      `SELECT n.id, n.patient_id, n.body, n.next_followup, n.next_followup_time, n.created_at, u.name AS by_name FROM patient_notes n LEFT JOIN users u ON u.id = n.user_id
          WHERE n.id IN (SELECT MAX(id) FROM patient_notes GROUP BY patient_id)`,
     ).all<PatientNote>();
     return new Map(results.map((r) => [r.patient_id, r]));
@@ -989,7 +990,7 @@ app.post("/patients/:id/status", adminOnly, async (c) => {
     await c.env.DB.prepare("UPDATE patients SET stage = ?, hold_status = ?, stage_changed_at = ? WHERE id = ?")
       .bind(stage, status === "active" ? null : status, now, id).run();
   }
-  const label = { active: "Active", talking: "In talks", hold: "On hold", closed: "Not going ahead" }[status];
+  const label = { active: "Active", talking: "In talks", hold: "Follow up", closed: "Not going ahead" }[status];
   // Stay on the same tab / sort the change was made from.
   let back = "/patients";
   try { const r = new URL(c.req.header("referer") ?? ""); if (r.pathname === "/patients") back = r.pathname + r.search; } catch { /* no referer */ }
@@ -1004,6 +1005,28 @@ app.post("/patients/:id/stage", adminOnly, async (c) => {
   return redirectWith(c, stage === "active" ? `/appointments/new?patient_id=${id}` : `/patients/${id}/summary`, {
     type: "ok", text: stage === "active" ? "Consultation marked as done. You can now book therapy sessions." : "Reopened as a new patient: book their consultation.",
   });
+});
+
+/** The consultation happened outside the app (or before it was used): record when, with whom and a note, and open up sessions. */
+app.post("/patients/:id/consult-done", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const p = await c.env.DB.prepare("SELECT id, name FROM patients WHERE id = ?").bind(id).first<{ id: number; name: string }>();
+  if (!p) return c.notFound();
+  const f = await c.req.parseBody();
+  const day = cleanDate(str(f.date)) ?? istDay(new Date());
+  if (day > istDay(new Date())) return redirectWith(c, `/patients/${id}/summary`, { type: "error", text: "The consultation date can't be in the future. To book one, use Book consultation." });
+  const time = cleanTime(str(f.time));
+  const t = Number(str(f.therapist_id)) || 0;
+  const who = t ? (await c.env.DB.prepare("SELECT name FROM therapists WHERE id = ?").bind(t).first<{ name: string }>())?.name : undefined;
+  const extra = str(f.note).trim().slice(0, 400);
+  const text = `Consultation done on ${day.split("-").reverse().join("-")}${time ? ` at ${time}` : ""}${who ? ` with ${who}` : ""} (recorded, outside the app).${extra ? ` ${extra}` : ""}`;
+  const now = new Date().toISOString();
+  const stmts = [
+    c.env.DB.prepare("UPDATE patients SET stage = 'active', hold_status = NULL, stage_changed_at = ? WHERE id = ?").bind(now, id),
+    c.env.DB.prepare("INSERT INTO patient_notes (patient_id, user_id, body) VALUES (?, ?, ?)").bind(id, c.get("user").id, text),
+  ];
+  try { await c.env.DB.batch(stmts); } catch { await stmts[0].run(); } // notes table missing: still open up sessions
+  return redirectWith(c, `/appointments/new?patient_id=${id}`, { type: "ok", text: `${p.name}: consultation recorded as done. You can now book therapy sessions.` });
 });
 
 /** After the consultation: the family confirmed (sessions open up) or is not going ahead. */
@@ -1022,19 +1045,22 @@ app.post("/appointments/:id/consultation", adminOnly, async (c) => {
   return redirectWith(c, `/appointments/new?patient_id=${appt.patient_id}`, { type: "ok", text: `Consultation confirmed for ${appt.patient_name}. Book their therapy sessions below.` });
 });
 
+const cleanTime = (v: string | undefined) => (v && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null);
+
 /** Adds a conversation note (and optional next follow-up date) for a patient. Goes back to the page it came from. */
 app.post("/patients/:id/notes", adminOnly, async (c) => {
   const id = Number(c.req.param("id"));
   const body = await c.req.parseBody();
   const text = str(body.body).trim().slice(0, 500);
   const next = cleanDate(str(body.next_followup));
+  const nextTime = next ? cleanTime(str(body.next_followup_time)) : null;
   const p = await c.env.DB.prepare("SELECT id, name FROM patients WHERE id = ?").bind(id).first<{ id: number; name: string }>();
   if (!p) return c.notFound();
   let back = `/patients/${id}/summary`;
   try { const r = new URL(c.req.header("referer") ?? ""); if (r.pathname === "/patients" || r.pathname === back) back = r.pathname + r.search; } catch { /* no referer */ }
   if (!text) return redirectWith(c, back, { type: "error", text: "Note not saved: write what was discussed." });
-  await c.env.DB.prepare("INSERT INTO patient_notes (patient_id, user_id, body, next_followup) VALUES (?, ?, ?, ?)").bind(id, c.get("user").id, text, next).run();
-  return redirectWith(c, back, { type: "ok", text: `Note saved for ${p.name}${next ? `; follow up on ${next.split("-").reverse().join("-")}` : ""}.` });
+  await c.env.DB.prepare("INSERT INTO patient_notes (patient_id, user_id, body, next_followup, next_followup_time) VALUES (?, ?, ?, ?, ?)").bind(id, c.get("user").id, text, next, nextTime).run();
+  return redirectWith(c, back, { type: "ok", text: `Note saved for ${p.name}${next ? `; follow up on ${next.split("-").reverse().join("-")}${nextTime ? ` at ${nextTime}` : ""}` : ""}.` });
 });
 
 app.get("/patients/:id/summary", adminOnly, async (c) => {
@@ -1050,10 +1076,10 @@ app.get("/patients/:id/summary", adminOnly, async (c) => {
   const { results: pBills } = await c.env.DB.prepare("SELECT * FROM bills WHERE patient_id = ? ORDER BY id DESC LIMIT 20").bind(p.id).all<BillRow>();
   let notes: PatientNote[] = [];
   try {
-    notes = (await c.env.DB.prepare(`SELECT n.id, n.patient_id, n.body, n.next_followup, n.created_at, u.name AS by_name FROM patient_notes n LEFT JOIN users u ON u.id = n.user_id
+    notes = (await c.env.DB.prepare(`SELECT n.id, n.patient_id, n.body, n.next_followup, n.next_followup_time, n.created_at, u.name AS by_name FROM patient_notes n LEFT JOIN users u ON u.id = n.user_id
       WHERE n.patient_id = ? ORDER BY n.id DESC LIMIT 100`).bind(p.id).all<PatientNote>()).results;
   } catch { /* notes table not created yet */ }
-  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c), patientBillsCard(p, pBills, month), notes, istDay(new Date())));
+  return c.html(patientSummaryPage(c.get("user"), p, month, results, flag, takeFlash(c), patientBillsCard(p, pBills, month), notes, istDay(new Date()), await therapistList(c.env)));
 });
 
 app.post("/patients/:id/followed-up", adminOnly, async (c) => {
@@ -1109,8 +1135,6 @@ app.post("/patients/:id", adminOnly, async (c) => {
       cleanSource(str(f.source)), cleanDate(str(f.enquiry_date)), cleanChannel(str(f.contact_channel)), cleanTime(str(f.enquiry_time)), id).run();
   return redirectWith(c, "/patients", { type: "ok", text: `${str(f.name)} updated.` });
 });
-
-const cleanTime = (v: string | undefined) => (v && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null);
 
 /** Match a patient to the Google ad click that most likely brought them, using the time they first contacted us. */
 app.get("/patients/:id/ad-match", adminOnly, async (c) => {

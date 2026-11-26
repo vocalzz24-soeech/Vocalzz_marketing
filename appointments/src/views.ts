@@ -236,15 +236,15 @@ export interface PatientRow { id: number; name: string; guardian_name: string | 
   enquiry_time?: string | null; ad_group?: string | null; ad_click_type?: string | null; ad_match?: string | null }
 
 /** One conversation note about a patient (call, WhatsApp chat, visit) with an optional next follow-up date. */
-export interface PatientNote { id: number; patient_id: number; body: string; next_followup: string | null; created_at: string; by_name: string | null }
+export interface PatientNote { id: number; patient_id: number; body: string; next_followup: string | null; next_followup_time?: string | null; created_at: string; by_name: string | null }
 
 const dmyDate = (d: string) => d.split("-").reverse().join("-");
 /** "Follow up 27-11-2026", tagged today / overdue / in N days, relative to `today` (IST YYYY-MM-DD). */
-function followupTag(next: string | null, today: string) {
+function followupTag(next: string | null, today: string, time?: string | null) {
   if (!next) return "";
   const days = Math.round((Date.parse(`${next}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86400000);
   const when = days === 0 ? "today" : days < 0 ? `${-days} day${days === -1 ? "" : "s"} overdue` : days === 1 ? "tomorrow" : `in ${days} days`;
-  return html`<span class="badge ${days <= 0 ? "no_show" : "consult"}">Follow up ${dmyDate(next)} · ${when}</span>`;
+  return html`<span class="badge ${days <= 0 ? "no_show" : "consult"}">Follow up ${dmyDate(next)}${time ? ` at ${time}` : ""} · ${when}</span>`;
 }
 /** "24-11-2026, 4:10 pm · Tanu" for a note. */
 const noteWhen = (n: PatientNote) => `${formatDateTime(new Date(n.created_at))}${n.by_name ? ` · ${n.by_name}` : ""}`;
@@ -255,13 +255,14 @@ export function noteDialog(today: string) {
 <h3 style="margin:0 0 4px">Conversation note</h3><p class="muted" id="note-who" style="margin:0 0 10px"></p>
 <label for="note-body">What was discussed? (no medical details)</label>
 <textarea id="note-body" name="body" required maxlength="500" rows="4" placeholder="e.g. Spoke to mother. Wants Saturday slot; will confirm after talking to father."></textarea>
-<label for="note-next">Next follow-up (optional)</label><input id="note-next" name="next_followup" type="date" min="${today}">
+<div class="row" style="gap:8px"><div><label for="note-next">Next follow-up (optional)</label><input id="note-next" name="next_followup" type="date" min="${today}"></div>
+<div><label for="note-time">Time (optional)</label><input id="note-time" name="next_followup_time" type="time"></div></div>
 <div class="row" style="gap:8px;margin-top:10px"><button style="flex:0 0 auto">Save note</button>
 <button type="button" class="secondary" style="flex:0 0 auto" onclick="this.closest('dialog').close()">Cancel</button></div></form></dialog>
 <style>.note-dlg{border:1px solid var(--line);border-radius:12px;padding:16px;width:min(92vw,480px);background:var(--card);color:var(--ink)}.note-dlg::backdrop{background:rgba(0,0,0,.4)}.note-dlg textarea{width:100%;box-sizing:border-box;font:inherit}</style>
 <script>window.openNote=function(b){var d=document.getElementById("note-dlg");if(!d||!d.showModal){location.href="/patients/"+b.dataset.id+"/summary#notes";return;}
 document.getElementById("note-form").action="/patients/"+b.dataset.id+"/notes";document.getElementById("note-who").textContent=b.dataset.name;
-document.getElementById("note-body").value="";document.getElementById("note-next").value="";d.showModal();document.getElementById("note-body").focus();};</script>`;
+document.getElementById("note-body").value="";document.getElementById("note-next").value="";document.getElementById("note-time").value="";d.showModal();document.getElementById("note-body").focus();};</script>`;
 }
 const noteButton = (p: { id: number; name: string }, label = "Add note") =>
   html`<button type="button" class="secondary small" data-id="${p.id}" data-name="${p.name}" onclick="openNote(this)">${label}</button>`;
@@ -674,7 +675,7 @@ export function patientsPage(user: User, patients: PatientRow[], q: string, flas
   const consults = opts.consults ?? new Map();
   const stageBadge = (p: PatientRow) => {
     if (p.stage === "closed") return html` <span class="badge cancelled">Not going ahead</span>`;
-    if (p.hold_status === "hold") return html` <span class="badge no_show">On hold</span>`;
+    if (p.hold_status === "hold") return html` <span class="badge no_show">Follow up</span>`;
     if (p.hold_status === "talking") return html` <span class="badge consult">In talks</span>`;
     if (p.stage !== "consultation") return "";
     const at = consults.get(p.id);
@@ -754,7 +755,7 @@ ${p.source || p.contact_channel ? html`<span>${p.source ? `via ${sourceLabel(p.s
 ${p.ad_group ? html`<span>Ad <b>${p.ad_group}</b> · ${clickTypeLabel(p.ad_click_type)}${p.ad_match === "confirmed" ? "" : " (likely)"}</span>` : ""}
 </div>
 ${(() => { const n = notes.get(p.id); return n
-    ? html`<div class="pnote"><div class="muted"><strong style="color:var(--ink)">Last conversation</strong> · ${noteWhen(n)} ${followupTag(n.next_followup, today)}</div><p class="ptext">${n.body}</p></div>`
+    ? html`<div class="pnote"><div class="muted"><strong style="color:var(--ink)">Last conversation</strong> · ${noteWhen(n)} ${followupTag(n.next_followup, today, n.next_followup_time)}</div><p class="ptext">${n.body}</p></div>`
     : html`<div class="pnote none">No conversation noted yet.</div>`; })()}
 <div class="pactions">
 ${noteButton(p)}
@@ -762,7 +763,8 @@ ${noteButton(p)}
 <a class="btn secondary small" href="/patients/${p.id}/edit">Edit</a>
 ${p.source === "google_ads" && !p.ad_group ? html`<a class="btn secondary small" href="/patients/${p.id}/ad-match">Match ad click</a>` : ""}
 <form method="post" action="/patients/${p.id}/consent"><button class="secondary small" name="value" value="${p.whatsapp_consent ? "0" : "1"}" title="Tap to change">WhatsApp consent: ${p.whatsapp_consent ? "Yes" : "No"}</button></form>
-${p.stage === "closed" || p.hold_status === "hold" ? "" : p.hold_status === "talking" ? html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">Book consultation</a>` : html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}
+${p.stage === "consultation" && !consults.get(p.id) ? html`<a class="btn secondary small" href="/patients/${p.id}/summary#consult-done">Consultation already done?</a>` : ""}
+${p.stage === "closed" ? "" : p.hold_status === "talking" || p.hold_status === "hold" ? html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">Book consultation</a>` : html`<a class="btn small push" href="/appointments/new?patient_id=${p.id}">${p.stage === "consultation" && !consults.get(p.id) ? "Book consultation" : "Book"}</a>`}
 </div>
 </div>`)}
 ${patients.length === 0 ? html`<div class="card"><p class="muted" style="margin:0">No patients found.</p></div>` : ""}
@@ -809,7 +811,7 @@ function statusSelect(p: PatientRow) {
   const cur = p.stage === "closed" ? "closed" : p.hold_status === "hold" ? "hold" : p.hold_status === "talking" ? "talking" : "active";
   const opt = (v: string, l: string) => html`<option value="${v}" ${v === cur ? "selected" : ""}>${l}</option>`;
   return html`<form method="post" action="/patients/${p.id}/status" style="margin:0"><select name="status" aria-label="Status of ${p.name}" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
-${opt("active", "Active")}${opt("talking", "In talks")}${opt("hold", "On hold")}${opt("closed", "Not going ahead")}</select><noscript><button class="secondary small">Save</button></noscript></form>`;
+${opt("active", "Active")}${opt("talking", "In talks")}${opt("hold", "Follow up")}${opt("closed", "Not going ahead")}</select><noscript><button class="secondary small">Save</button></noscript></form>`;
 }
 
 export function therapistsPage(user: User, therapists: TherapistRow[], flash?: { type: "ok" | "error"; text: string }) {
@@ -997,7 +999,7 @@ ${rows.map((h) => html`<tr><td>${formatDateTime(new Date(`${h.day}T06:30:00Z`)).
 }
 
 export function patientSummaryPage(user: User, p: PatientRow, month: string, appts: ApptRow[], flag: FollowUp | null, flash?: { type: "ok" | "error"; text: string }, billsCard: unknown = "",
-  notes: PatientNote[] = [], today: string = istDay(new Date())) {
+  notes: PatientNote[] = [], today: string = istDay(new Date()), therapists: TherapistRow[] = []) {
   const now = Date.now();
   const count = (st: string) => appts.filter((a) => a.status === st).length;
   const attended = count("completed"), missed = count("no_show"), cancelled = count("cancelled");
@@ -1015,12 +1017,20 @@ export function patientSummaryPage(user: User, p: PatientRow, month: string, app
 <h1>${p.name}${p.guardian_name ? html` <span class="muted" style="font-size:16px">parent: ${p.guardian_name}</span>` : ""}</h1>
 ${user.role === "admin" ? html`<p class="muted" style="margin:-6px 0 12px">Came via: <strong>${sourceLabel(p.source)}</strong> · contacted us by <strong>${channelLabel(p.contact_channel)}</strong>${p.enquiry_date ? html` · first contacted us on ${p.enquiry_date.split("-").reverse().join("-")}${p.enquiry_time ? ` at ${p.enquiry_time}` : ""}` : ""} · <a href="/patients/${p.id}/edit">change</a>
 ${p.ad_group ? html`<br>Google ad: <strong>${p.ad_group}</strong> · ${clickTypeLabel(p.ad_click_type)} (${p.ad_match === "confirmed" ? "confirmed" : "likely, matched by time"}) · <a href="/patients/${p.id}/ad-match">change</a>` : p.source === "google_ads" ? html`<br><a href="/patients/${p.id}/ad-match">Match to an ad click</a>` : ""}</p>` : ""}
-${user.role === "admin" && p.hold_status === "hold" ? html`<div class="card"><strong>On hold</strong><p class="muted" style="margin:4px 0 0">Booking is paused for this patient. Change the status on the Patients page to book again.</p></div>` : ""}
+${user.role === "admin" && p.hold_status === "hold" ? html`<div class="card consult-card"><strong>Follow up</strong><p class="muted" style="margin:4px 0 8px">Contact them on the follow-up date (add a note below with the next date). Only a consultation can be booked until they confirm.</p><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a></div>` : ""}
 ${user.role === "admin" && p.hold_status === "talking" ? html`<div class="card consult-card"><strong>In talks</strong><p class="muted" style="margin:4px 0 8px">Only a consultation can be booked until the family confirms.</p><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a></div>` : ""}
 ${user.role === "admin" && p.stage === "consultation" && p.hold_status !== "hold" && p.hold_status !== "talking" ? html`<div class="card consult-card"><strong>New patient: consultation first</strong>
 <p class="muted" style="margin:4px 0 8px">Regular sessions can be booked once the consultation is confirmed. Confirm it from the consultation appointment, or here if it happened outside the app.</p>
 <div class="row" style="gap:8px;flex:0 0 auto"><a class="btn" style="flex:0 0 auto" href="/appointments/new?patient_id=${p.id}">Book consultation</a>
-<form method="post" action="/patients/${p.id}/stage" style="margin:0;flex:0 0 auto"><button class="secondary" name="stage" value="active">Consultation done: allow sessions</button></form></div></div>` : ""}
+</div>
+<details id="consult-done" style="margin-top:10px"><summary><strong>Consultation already done?</strong> <span class="muted">(outside the app, or in the past)</span></summary>
+<form method="post" action="/patients/${p.id}/consult-done" style="margin-top:8px">
+<div class="row"><div><label for="cd-date">Date</label><input id="cd-date" type="date" name="date" value="${today}" max="${today}" required></div>
+<div><label for="cd-time">Time (optional)</label><input id="cd-time" type="time" name="time"></div>
+<div><label for="cd-who">With (optional)</label><select id="cd-who" name="therapist_id"><option value="">Not recorded</option>
+${therapists.filter((t) => t.active).map((t) => html`<option value="${t.id}">${t.name}</option>`)}</select></div></div>
+<label for="cd-note">Note (optional, no medical details)</label><input id="cd-note" name="note" maxlength="400" placeholder="e.g. Family agreed to 2 sessions a week">
+<button class="secondary">Record consultation as done and allow sessions</button></form></details><script>if(location.hash==="#consult-done"){var d=document.getElementById("consult-done");if(d){d.open=true;d.scrollIntoView();}}</script></div>` : ""}
 ${user.role === "admin" && p.stage === "closed" ? html`<div class="card"><strong>Did not go ahead after the consultation</strong>
 <form method="post" action="/patients/${p.id}/stage" style="margin:6px 0 0"><button class="secondary" name="stage" value="consultation">Reopen as a new patient</button></form></div>` : ""}
 ${flag ? html`<div class="card followup-banner"><strong>⚠ Missed ${flag.missed} sessions in a row</strong> <span class="muted">(last on ${formatDateTime(new Date(flag.lastMissed))})</span>
@@ -1031,7 +1041,7 @@ ${p.whatsapp_consent ? html`<a class="btn wa-send" style="flex:0 0 auto" target=
 <form method="post" action="/patients/${p.id}/followed-up" style="margin:0;flex:0 0 auto"><button class="secondary">Mark as followed up</button></form></div></div>` : ""}
 ${user.role === "admin" ? html`<div class="card" id="notes"><div class="row" style="align-items:center;gap:8px"><h2 style="margin:0;flex:1 1 auto">Conversations</h2><span style="flex:0 0 auto">${noteButton(p, "+ Add note")}</span></div>
 ${notes.length ? html`<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">${notes.map((n, i) => html`<div style="border-left:3px solid ${i ? "var(--line)" : "var(--brand)"};padding:2px 0 2px 10px">
-<div class="muted" style="font-size:13px">${noteWhen(n)} ${i === 0 ? followupTag(n.next_followup, today) : n.next_followup ? html`· follow-up was ${dmyDate(n.next_followup)}` : ""}</div>
+<div class="muted" style="font-size:13px">${noteWhen(n)} ${i === 0 ? followupTag(n.next_followup, today, n.next_followup_time) : n.next_followup ? html`· follow-up was ${dmyDate(n.next_followup)}` : ""}</div>
 <div style="white-space:pre-wrap">${n.body}</div></div>`)}</div>`
     : html`<p class="muted" style="margin:8px 0 0">No conversation noted yet. After each call or WhatsApp chat, add a line: what was said and when to contact them next.</p>`}</div>
 ${noteDialog(today)}` : ""}
