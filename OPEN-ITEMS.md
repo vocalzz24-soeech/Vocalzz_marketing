@@ -44,6 +44,9 @@ section. Last updated: 24 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [x] 27 Nov: hearing ads offer = NONE for now (owner)
+- [x] 27 Nov: website: trust strip (4.9★/129 reviews, Dr. Tanu 10+ yrs, Sector 137, WhatsApp 7 days) on all service pages; new pages /child-not-talking/ and /speech-therapy-adults/ (in sitemap)
+- [ ] Point Child Speech ads → /child-not-talking/ and Adults ads → /speech-therapy-adults/ once live (owner to approve); request indexing of both new URLs in Search Console
 - [x] 27 Nov via Windsor (owner approved): 8 PHRASE keywords added, enabled. Stammering: stammering treatment near me, stammering therapy for adults, speech therapist for stammering, stammering clinic noida. Adults: speech therapy for adults near me, stroke speech therapy near me. Home Therapy: speech therapy at home near me. Greater Noida: best speech therapist in greater noida
 - [x] 27 Nov via Windsor (owner approved): 2nd responsive search ad ("RSA v2 (27 Nov)") added and ENABLED in Child Speech, Hearing, Occupational Therapy, Adults, Stammering (old ads kept running; Google rotates). Search words in headlines ("near you", "for kids", "centre"); no audiometry claim (owner). Text: marketing/ads/new-rsa-drafts-2026-11-27.json. Review in ~2 weeks: pause the weaker ad per group
 - [x] 27 Nov via Windsor (owner approved): ad schedule changed from 07:00–23:45 to 09:00–23:45 every day (IST). 7–9 am took ~10% of spend with no leads
