@@ -143,6 +143,63 @@ SERVICES = [
                   "Yes, online sessions are available for families and adults anywhere in India. We'll advise whether online sessions suit your needs.")],
     },
     {
+        "slug": "child-not-talking", "name": "Child Not Talking Yet? (Late Talkers)", "short": "Late talkers",
+        "title": "Child Not Talking Yet? Speech Therapy for Late Talkers in Noida | Vocalzz Speech & Audio",
+        "desc": "Is your 2 or 3 year old not talking yet? Speech therapy for late talkers and speech delay in Sector 137, Noida: assessment, a clear plan and simple activities to practise at home.",
+        "h1": "Child Not Talking Yet? Speech Therapy for Late Talkers in Noida",
+        "lead": "If your toddler is saying fewer words than other children their age, you're not alone and it's nobody's fault. A speech therapy assessment helps you understand where your child is, and what you can do at home starting this week.",
+        "wa": "Hi Vocalzz, my child is not talking yet. Age: ",
+        "who": ["Around 18 months: no words yet, or not pointing to show you things",
+                "Around 2 years: fewer than about 50 words, or not joining two words (\"more milk\", \"daddy go\")",
+                "Around 3 years: speech that family members find hard to understand, or not using short sentences",
+                "Any age: stopped using words they used to say, or not responding to their name",
+                "Children who understand a lot but don't say much, or who use gestures instead of words"],
+        "work": ["Understanding words and simple instructions",
+                 "First words, then joining words into short phrases",
+                 "Pointing, gestures, eye contact and turn-taking in play",
+                 "Clear speech sounds as words grow",
+                 "Simple everyday routines you can use at home: meals, bath time, play and reading"],
+        "extra": ("Should we wait and see?",
+                  "Some children catch up on their own, but many don't, and it's hard to know which group your child is in without an assessment. Getting advice early does no harm: if your child is on track, you'll have peace of mind; if they need support, you start sooner. Every child is different, so we don't promise timelines. After the assessment, we share realistic goals and show you activities to practise at home after every session."),
+        "faqs": [("My 2 year old isn't talking. Is that normal?",
+                  "Children develop at different speeds, but most 2 year olds use many single words and are starting to join two words. If your child isn't, an assessment helps you understand why and what to do next."),
+                 ("Is screen time causing my child's speech delay?",
+                  "Too much screen time can mean fewer chances to talk and play together. Reducing it often helps, but speech delay usually has more than one cause, which is why we start with an assessment."),
+                 ("Could it be autism?",
+                  "Late talking on its own doesn't mean autism. Our team looks at communication, play and social interaction during the assessment, and explains what we see in simple words."),
+                 ("How do I book?",
+                  "WhatsApp us on +91 99106 71188 with your child's age and your main concern. We reply 7 days a week. Clinic visits are Monday to Saturday, 10 am to 8 pm, at Sector 137, Noida.")],
+    },
+    {
+        "slug": "speech-therapy-adults", "name": "Speech Therapy for Adults", "short": "Adults",
+        "title": "Speech Therapy for Adults in Noida | Stammering, Voice, Stroke | Vocalzz Speech & Audio",
+        "desc": "Speech therapy for adults in Sector 137, Noida and online: stammering, voice problems, and speech, language or swallowing difficulties after a stroke. Led by Dr. Tanu Garg.",
+        "h1": "Speech Therapy for Adults in Noida",
+        "lead": "Speech therapy isn't only for children. We help adults who stammer, adults with voice problems, and people with speech, language or swallowing difficulties after a stroke or illness, at our Sector 137 clinic or online.",
+        "wa": "Hi Vocalzz, I'd like to know about speech therapy for an adult.",
+        "who": ["Adults who stammer on the phone, in meetings, in interviews or when introducing themselves",
+                "Teachers, singers, call-centre staff and others with a hoarse, tired or weak voice",
+                "People who find it hard to speak, find words or understand after a stroke (aphasia)",
+                "People with slurred or unclear speech after a stroke or neurological condition",
+                "Adults with difficulty chewing or swallowing safely",
+                "Family members who want to know how to help a parent at home"],
+        "work": ["Stammering: easier speech techniques and real-life practice for calls, meetings and interviews",
+                 "Voice: healthy voice use, rest and exercises guided by a therapist",
+                 "After a stroke: understanding, word-finding, speaking, reading and writing",
+                 "Clearer speech: strength, control and pacing of speech",
+                 "Swallowing: safer strategies and exercises, with guidance for family members"],
+        "extra": ("Clinic or online",
+                  "Many adults prefer online sessions around work, and practising in your own setting is part of the therapy. For swallowing difficulties and for some stroke-related needs, we usually suggest starting at the clinic. Family members are welcome to join so they know how to help. Every person is different, so we start with an assessment and set goals with you."),
+        "faqs": [("Is it too late to get help for stammering as an adult?",
+                  "No. Many adults start therapy later in life and find practical ways to speak more easily and with more confidence. We don't promise a cure; we focus on what helps you in daily life."),
+                 ("How soon after a stroke should speech therapy start?",
+                  "Usually as soon as the doctor says it's safe. Starting early can help, but people can still make progress months later. We'll explain what to expect after the assessment."),
+                 ("Do you offer online sessions for adults?",
+                  "Yes, online sessions are available for adults anywhere in India, for stammering and voice in particular. We'll advise whether online suits your needs."),
+                 ("How do I book?",
+                  "WhatsApp us on +91 99106 71188 with your main concern. We reply 7 days a week. Clinic visits are Monday to Saturday, 10 am to 8 pm, at Sector 137, Noida.")],
+    },
+    {
         "slug": "occupational-therapy", "name": "Occupational Therapy", "short": "Occupational therapy",
         "title": "Occupational Therapy for Children in Sector 137, Noida | Vocalzz Speech & Audio",
         "desc": "Paediatric occupational therapy in Sector 137, Noida: sensory integration, fine motor skills, handwriting, attention and daily living skills, with guidance for parents.",
@@ -345,6 +402,12 @@ def build_service(s):
 <a class="btn btn-wa" href="{esc(wa(s["wa"]))}" target="_blank" rel="noopener">Book an assessment</a>
 <a class="btn btn-ghost" href="{TEL}">Call +91 99106 71188</a>
 </div>
+<ul class="trust" aria-label="Why families trust us">
+<li><span class="star" aria-hidden="true">★</span> 4.9 on Google · 129 reviews</li>
+<li>Led by Dr. Tanu Garg · 10+ years</li>
+<li>Sector 137, Noida Expressway</li>
+<li>WhatsApp us 7 days a week</li>
+</ul>
 </header>
 <div class="content">
 <article class="prose">
