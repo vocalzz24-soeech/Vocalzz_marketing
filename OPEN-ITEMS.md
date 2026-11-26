@@ -44,6 +44,7 @@ section. Last updated: 24 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [x] 27 Nov via Windsor (owner approved): ad schedule changed from 07:00–23:45 to 09:00–23:45 every day (IST). 7–9 am took ~10% of spend with no leads
 - [x] 27 Nov (owner, in Google Ads): locations = 15 km radius around Sector 137, EXCLUDING Delhi (UT), Faridabad Division, Ghaziabad (city); Presence only. Reason: 22–26 Nov Delhi took 29% of spend (₹530) with 0 conversions, Faridabad 5% (₹91, 0); Noida+Greater Noida 54% (₹980) with 4 of 5 conversions. Ghaziabad had 1 conversion (excluded by owner choice). Idea for later: separate online-therapy campaign for outside Noida/GN (owner cancelled for now)
 - [ ] Owner (parked 27 Nov, "later"): Google Ads advertiser verification, last task "Submit your documents" (Policy → Account → Advertiser verification → Start task). DEADLINE 24 Dec 2026 or the account is paused. Upload Certificate of Incorporation of "Vocalzz Resonance Hearing Centre OPC Private Limited" (name/address must match "Ads funded by"); director ID if asked. Then add business logo asset
 - [x] 24 Nov (owner): 6 enquiries from ads by 24 Nov; 1 converted to patient, 5 consultations pending. Tag each in the booking app (source + contact channel) so the dashboard counts them
