@@ -4,6 +4,12 @@ Running list of things still to do. When the owner asks about open or pending it
 of what is open (owner's items first), and update it when something is done. Newest additions at the top of each
 section. Last updated: 24 Nov 2026.
 
+
+## ⏰ REMIND THE OWNER AT THE START OF THE NEXT CONVERSATION (added 27 Nov)
+1. SEO action plan for Google: the website (vocalzz.com) AND the Google Business Profile (listing). Build on marketing/seo-plan-2026-11.md; include GBP posts, reviews routine, categories/services, Q&A, photos, the duplicate-listing merge, new pages (/child-not-talking/, /speech-therapy-adults/), not-indexed list
+2. Check whether advertising on Meta (Facebook/Instagram) has any impact, positive or negative, on the website and on Google presence (SEO, Business Profile, Google Ads), given Meta ads have not brought relevant leads so far. Give a clear yes/no answer with evidence and what to do about Meta ads (parked)
+Also open: add Google Ads funds (urgent), 6 leads to match, budget step plan (₹400 → ₹600 → ₹800)
+
 ## Owner (you)
 
 ### WhatsApp Business on 99106 71188 (kept open on purpose; owner will finish later)
