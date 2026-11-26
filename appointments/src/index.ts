@@ -857,7 +857,7 @@ function followUpsFrom(results: FollowUpRow[]) {
 
 // --- Patients ------------------------------------------------------------------------------------
 /** Patients page: filter by status and sort. "added" = first-contact date, or the day they were added (IST). */
-export const PATIENT_VIEWS = ["all", "active", "talking", "hold", "closed"] as const;
+export const PATIENT_VIEWS = ["all", "active", "talking", "followup", "closed"] as const;
 export const PATIENT_SORTS = ["newest", "oldest", "name", "followup"] as const;
 const ADDED = "COALESCE(enquiry_date, date(created_at, '+330 minutes'))";
 export interface DateFilter { key: string; from?: string; to?: string }
@@ -876,6 +876,9 @@ export function patientDateRange(today: string, key: string, from?: string, to?:
   return { key: "all" };
 }
 
+/** The follow-up date from a patient's latest conversation note (NULL when the latest note has none). */
+const NEXT_FU = "(SELECT next_followup FROM patient_notes n WHERE n.patient_id = patients.id ORDER BY n.id DESC LIMIT 1)";
+
 async function patientsForPage(env: Env, q: string, view: string, sort: string, range: DateFilter = { key: "all" }) {
   const like = `%${q}%`;
   const where = {
@@ -883,9 +886,10 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
     active: "stage != 'closed' AND hold_status IS NULL",
     talking: "stage != 'closed' AND hold_status = 'talking'",
     hold: "stage != 'closed' AND hold_status = 'hold'",
+    followup: `stage != 'closed' AND ${NEXT_FU} IS NOT NULL`,
     closed: "stage = 'closed'",
   }[view] ?? "1=1";
-  const nextFu = "(SELECT next_followup FROM patient_notes n WHERE n.patient_id = patients.id ORDER BY n.id DESC LIMIT 1)";
+  const nextFu = NEXT_FU;
   const order = sort === "name" ? "name COLLATE NOCASE" : sort === "oldest" ? `${ADDED} ASC, id ASC`
     : sort === "followup" ? `${nextFu} IS NULL, ${nextFu} ASC, ${ADDED} DESC, id DESC` : `${ADDED} DESC, id DESC`;
   const { results } = await env.DB.prepare(
@@ -896,8 +900,11 @@ async function patientsForPage(env: Env, q: string, view: string, sort: string, 
     `SELECT CASE WHEN stage = 'closed' THEN 'closed' WHEN hold_status = 'hold' THEN 'hold' WHEN hold_status = 'talking' THEN 'talking' ELSE 'active' END AS k, COUNT(*) AS n
        FROM patients WHERE ${ADDED} BETWEEN ? AND ? GROUP BY k`,
   ).bind(range.from ?? "0000-01-01", range.to ?? "9999-12-31").all<{ k: string; n: number }>();
-  const n: Record<string, number> = { all: 0, active: 0, talking: 0, hold: 0, closed: 0 };
+  const n: Record<string, number> = { all: 0, active: 0, talking: 0, hold: 0, followup: 0, closed: 0 };
   for (const r of counts) { n[r.k] = r.n; n.all += r.n; }
+  const fu = await env.DB.prepare(`SELECT COUNT(*) AS n FROM patients WHERE stage != 'closed' AND ${NEXT_FU} IS NOT NULL AND ${ADDED} BETWEEN ? AND ?`)
+    .bind(range.from ?? "0000-01-01", range.to ?? "9999-12-31").first<{ n: number }>();
+  n.followup = fu?.n ?? 0;
   return { results, counts: n };
 }
 
@@ -913,8 +920,9 @@ async function latestNotes(env: Env): Promise<Map<number, PatientNote>> {
 }
 
 async function renderPatients(c: C, q: string, flash?: Flash, form?: NewPatientForm, status = 200) {
-  const v = c.req.query("view") ?? "all", s = c.req.query("sort") ?? "newest";
+  const v = c.req.query("view") ?? "all";
   const view = (PATIENT_VIEWS as readonly string[]).includes(v) ? v : "all";
+  const s = c.req.query("sort") ?? (view === "followup" ? "followup" : "newest");
   const sort = (PATIENT_SORTS as readonly string[]).includes(s) ? s : "newest";
   const range = patientDateRange(istDay(new Date()), c.req.query("added") ?? "all", c.req.query("from"), c.req.query("to"));
   const list = await patientsForPage(c.env, q, view, sort, range);

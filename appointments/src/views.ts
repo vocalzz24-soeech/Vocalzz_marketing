@@ -773,7 +773,7 @@ ${noteDialog(today)}
 
 /** Patients list: status tabs (with counts), search, and sort. */
 function patientFilters(q: string, view: string, sort: string, counts: Record<string, number>, range: { key: string; from?: string; to?: string }) {
-  const VIEWS: [string, string][] = [["all", "All"], ["active", "Active"], ["talking", "In talks"], ["hold", "On hold"], ["closed", "Not going ahead"]];
+  const VIEWS: [string, string][] = [["all", "All"], ["active", "Active"], ["talking", "In talks"], ["followup", "Follow up"], ["closed", "Not going ahead"]];
   const RANGES: [string, string][] = [["all", "All"], ["7", "Last 7 days"], ["30", "Last 1 month"], ["90", "Last 3 months"], ["custom", "Custom dates"]];
   const keep = (extra: Record<string, string>) => {
     const p: Record<string, string> = { view, sort, added: range.key, ...(q ? { q } : {}), ...(range.key === "custom" && range.from ? { from: range.from } : {}), ...(range.key === "custom" && range.to ? { to: range.to } : {}), ...extra };
@@ -786,8 +786,9 @@ function patientFilters(q: string, view: string, sort: string, counts: Record<st
 .pbars .seg a{text-align:center;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 6px;line-height:1.2}
 .pbars .seg a + a{border-left:1px solid var(--line)}
 @media (max-width:560px){.pbars .seg a{flex-direction:column;gap:2px;font-size:13px;padding:7px 3px}}</style>
-<div class="pbars"><div class="seg">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${keep({ view: v })}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
+<div class="pbars"><div class="seg">${VIEWS.map(([v, l]) => html`<a class="${v === view ? "on" : ""}" href="${keep({ view: v, sort: v === "followup" ? "followup" : sort === "followup" ? "newest" : sort })}">${l} <span class="muted" style="${v === view ? "color:inherit" : ""}">${counts[v] ?? 0}</span></a>`)}</div>
 <div class="seg" aria-label="Added on">${RANGES.map(([k, l]) => html`<a class="${k === range.key ? "on" : ""}" href="${k === "custom" ? keep({ added: "custom", from: range.from ?? "", to: range.to ?? "" }) : keep({ added: k })}">${l}</a>`)}</div></div>
+${view === "followup" ? html`<p class="muted" style="font-size:13px;margin:0 0 8px">Patients with a follow-up date, soonest (and overdue) first. After you contact them, tap <strong>Add note</strong>: set the next date, or leave the date empty to take them off this list.</p>` : ""}
 ${range.key !== "all" && range.from ? html`<p class="muted" style="font-size:13px;margin:0 0 8px">Added between ${dmy(range.from)} and ${dmy(range.to)}</p>` : ""}
 <form method="get" action="/patients" class="row" style="align-items:end">
 <input type="hidden" name="view" value="${view}">
