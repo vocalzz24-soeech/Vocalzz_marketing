@@ -44,6 +44,9 @@ section. Last updated: 24 Nov 2026.
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [ ] BUDGET PLAN (agreed 27 Nov): stay ₹400/day for 3–5 days after the 27 Nov changes; then ₹600 for 7 days, then ₹800 if leads (booking app "Patients from ads") keep rising. Estimated market after narrowing ≈ 850–900 eligible searches/day; useful range ₹600–1,000; likely sweet spot ≈ ₹800/day; ceiling ≈ ₹1,500 (beyond that only CPC rises). Owner to check Tools → Planning → Performance planner curve and send screenshot. Watch "Search lost IS (budget)": raise only if still >30%. Decide parked items (Autism/ABA, Behaviour & ADHD, Meta ads) at the same time
+- [ ] Owner: send the other 6 leads (name, date, time, call/WhatsApp, concern, area) → Claude says which ad click to link via Match ad click in the booking app
+- [ ] ~11 Dec: compare old vs new ads (RSA v2) per ad group and pause the weaker one
 - [x] 27 Nov: hearing ads offer = NONE for now (owner)
 - [x] 27 Nov: website: trust strip (4.9★/129 reviews, Dr. Tanu 10+ yrs, Sector 137, WhatsApp 7 days) on all service pages; new pages /child-not-talking/ and /speech-therapy-adults/ (in sitemap)
 - [x] 27 Nov via Windsor (owner approved): both Adults ads now open /speech-therapy-adults/ (edited in place, history kept). New ad group "Late Talkers" (id 206259561030), enabled, 1 ad → /child-not-talking/, 6 PHRASE keywords (child not talking, late talker, speech delay treatment, child not speaking, 2 year old not talking, speech delay in child); the 3 overlapping keywords removed from Child Speech. Child Speech stays on /speech-therapy... general page
