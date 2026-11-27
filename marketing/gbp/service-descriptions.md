@@ -177,12 +177,12 @@ Learning support for children with ADHD: attention, organisation, routines and s
 Learning support for autistic children, adapted to how each child learns best: communication, routines, early academics and independence.
 ```
 
-## Child health care centre (behaviour services) — ONLY if the clinic currently offers them
+## Child health care centre (behaviour services) (owner: add for now, 28 Nov)
 
 **ABA Therapy**
 
 ```
-(only keep if you currently offer ABA)
+Support for autistic children based on applied behaviour analysis (ABA) principles: building communication, play and daily-living skills step by step, with parents involved so practice continues at home. We start with an assessment.
 ```
 
 **Autism Behavior Therapy**
@@ -194,7 +194,7 @@ Support for autistic children with behaviour, routines and emotional regulation,
 **Behavioral Therapist**
 
 ```
-(only keep if a behaviour therapist is on the team)
+Behaviour support for children with ADHD, autism, tantrums or emotional regulation difficulties, planned together with our speech and occupational therapists. Parents get calm, practical strategies to use at home.
 ```
 
 **Child Behavior Therapy**
