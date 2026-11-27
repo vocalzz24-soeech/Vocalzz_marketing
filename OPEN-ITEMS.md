@@ -30,6 +30,8 @@ Also open: add Google Ads funds (urgent), 6 leads to match, budget step plan (�
 - [ ] Optional: UPI QR code
 
 ### Google Business Profile
+- [x] 28 Nov: categories cleaned (Physiotherapist, Health consultant, Doctor removed); description replaced (no physiotherapy); 8 new services added; service descriptions pasted (marketing/gbp/service-descriptions.md)
+- [ ] GBP checks: service area pending edit (confirm Hajipur 250002 + Indirapuram removed); Payments "No VISA/MasterCard" likely wrong; turn on "Online appointments" if offered; confirm accessibility/parking/nursing-room attributes are true; add holidays as Special hours; try category "Speech pathologist" (may not exist in India)
 - [ ] Reply to the new 5-star review from "L" (Claude can draft it; paste the review text)
 - [ ] "Vocalzz Audiology centre" listing shows a red dot on its edit pencil (something pending); look at it after the phone appeal; decide remove vs merge so its reviews aren't lost
 - [ ] Phone change to 099106 71188: REJECTED (seen 23 Nov); APPEAL SUBMITTED 23 Nov, case ID 4-2748000041681 (main listing id 12924698047389058106). Wait for Google's email (3–7 days); reply to it with evidence if asked. Appeal was via support.google.com/business → Edit your Business Information → Continue, with evidence: website contact page screenshot, clinic signboard/visiting card photo showing 99106 71188, SIM/phone bill. Keep answering 88002 30240 meanwhile. Business name stays as is until this is approved
