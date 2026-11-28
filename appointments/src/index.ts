@@ -107,6 +107,13 @@ app.post("/login", async (c) => {
   return c.redirect("/", 303);
 });
 
+// Server time per request, so slow pages can be told apart from slow networks (browser dev tools → Network → Timing).
+app.use("*", async (c, next) => {
+  const t0 = Date.now();
+  await next();
+  try { c.res.headers.set("Server-Timing", `app;dur=${Date.now() - t0}`); } catch { /* immutable response */ }
+});
+
 // --- Everything below needs a login ----------------------------------------------------------
 app.use("*", async (c, next) => {
   const user = await userForSession(c.env.DB, getCookie(c, SESSION_COOKIE));
