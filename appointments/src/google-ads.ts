@@ -7,6 +7,7 @@
 import type { Env } from "./env.ts";
 import { addDays } from "./schedule.ts";
 import { googleToken } from "./search-console.ts";
+import { cachedJson } from "./cache.ts";
 
 const SCOPE = "https://www.googleapis.com/auth/adwords";
 const HOST = "https://googleads.googleapis.com";
@@ -68,8 +69,27 @@ export function explain(status: number, body: Json): string {
 }
 
 /** Runs one GAQL query and returns all result rows (follows pages). Finds a working API version on first use. */
+/**
+ * The newest Ads API version that answers. Found once and kept in the edge cache for a day, so a fresh worker
+ * doesn't try v30, v29, ... one by one (each miss is a round trip to Google) before every report.
+ */
+async function apiVersion(env: Env, token: string): Promise<string | null> {
+  if (env.GADS_API_VERSION) return env.GADS_API_VERSION;
+  if (workingVersion) return workingVersion;
+  const found = await cachedJson<string | null>("gads-api-version", 86400, async () => {
+    // Ask all candidate versions at once and keep the newest that is not 404.
+    const probe = { query: "SELECT customer.id FROM customer LIMIT 1" };
+    const codes = await Promise.all(VERSIONS.map((v) => call(env, token, v, probe).then((r) => r.status).catch(() => 0)));
+    const i = codes.findIndex((st) => st !== 404 && st !== 0);
+    return i >= 0 ? VERSIONS[i] : null;
+  });
+  if (found) workingVersion = found;
+  return found;
+}
+
 export async function search(env: Env, token: string, gaql: string): Promise<Json[]> {
-  const versions = env.GADS_API_VERSION ? [env.GADS_API_VERSION] : workingVersion ? [workingVersion] : VERSIONS;
+  const known = await apiVersion(env, token).catch(() => null);
+  const versions = known ? [known] : VERSIONS;
   for (const v of versions) {
     const rows: Json[] = [];
     let pageToken: string | undefined;
@@ -121,9 +141,9 @@ export async function adsReport(env: Env, range: AdsRange): Promise<AdsReport> {
   const prev = previousAds(range);
   const token = await googleToken(env, SCOPE);
   const cur = between(range.start, range.end);
-  // First call alone, so the API version is found once before the parallel calls.
-  const daily = await search(env, token, `SELECT segments.date, ${M} FROM customer WHERE ${cur}`);
-  const [prevRows, groups, keywords, terms, conv] = await Promise.all([
+  await apiVersion(env, token).catch(() => null); // find the version once, then everything runs in parallel
+  const [daily, prevRows, groups, keywords, terms, conv] = await Promise.all([
+    search(env, token, `SELECT segments.date, ${M} FROM customer WHERE ${cur}`),
     search(env, token, `SELECT ${M} FROM customer WHERE ${between(prev.start, prev.end)}`),
     search(env, token, `SELECT ad_group.name, ad_group.status, ${M} FROM ad_group WHERE ${cur} AND campaign.advertising_channel_type = 'SEARCH'`),
     search(env, token, `SELECT ad_group.name, ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ${M} FROM keyword_view WHERE ${cur} AND ad_group_criterion.negative = FALSE AND ad_group_criterion.status != 'REMOVED'`),

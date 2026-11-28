@@ -51,7 +51,7 @@ export function adsPage(user: User, r: AdsReport | null, opts: { range: AdsRange
   const preset = (key: string, label: string) => html`<a class="${key === g.preset ? "on" : ""}" href="/ads?p=${key}">${label}</a>`;
   return layout("Google Ads", user, html`<style>${CSS}</style>
 <h1>Google Ads</h1>
-<p class="muted" style="margin-top:-6px">Paid search ads (account 898-392-0631). Numbers are close to live; conversions can take a few hours to appear.</p>
+<p class="muted" style="margin-top:-6px">Paid search ads (account 898-392-0631). Numbers are close to live (refreshed every 5 minutes for today, hourly for past days); conversions can take a few hours to appear. <a href="?${g.preset !== null ? `p=${g.preset}` : `from=${g.start}&to=${g.end}`}&fresh=1">Refresh now</a></p>
 <span class="seg">${preset("today", "Today")}${preset("yesterday", "Yesterday")}${preset("7", "Last 7 days")}${preset("28", "Last 28 days")}</span>
 <form class="range-form" method="get" action="/ads">
 <div><label for="from">From</label><input id="from" type="date" name="from" value="${g.start}" min="${opts.earliest}" max="${opts.today}"></div>
