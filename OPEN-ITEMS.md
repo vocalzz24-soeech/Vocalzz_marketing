@@ -52,6 +52,7 @@ Also open: add Google Ads funds (urgent), 6 leads to match, budget step plan (�
 - [ ] Meta portfolio → Messaging accounts: remove the old "Vocalzz" (88002 30240) WhatsApp account once 99106 71188 shows there
 
 ### Paid ads launch
+- [ ] 28 Nov early read of 27 Nov changes (only ~1.5 days, partial): CTR up (6–8% on 25–26 Nov → 11% on 27–28 Nov); clicks now only Noida + Greater Noida; no competitor/brand searches; "lost to budget" 80% → 6% (27 Nov) but "lost to rank" 72%. Re-check ~2 Dec with 5 full days + booking-app leads before raising budget (₹400 → ₹600)
 - [ ] BUDGET PLAN (agreed 27 Nov): stay ₹400/day for 3–5 days after the 27 Nov changes; then ₹600 for 7 days, then ₹800 if leads (booking app "Patients from ads") keep rising. Estimated market after narrowing ≈ 850–900 eligible searches/day; useful range ₹600–1,000; likely sweet spot ≈ ₹800/day; ceiling ≈ ₹1,500 (beyond that only CPC rises). Owner to check Tools → Planning → Performance planner curve and send screenshot. Watch "Search lost IS (budget)": raise only if still >30%. Decide parked items (Autism/ABA, Behaviour & ADHD, Meta ads) at the same time
 - [ ] Owner: send the other 6 leads (name, date, time, call/WhatsApp, concern, area) → Claude says which ad click to link via Match ad click in the booking app
 - [ ] ~11 Dec: compare old vs new ads (RSA v2) per ad group and pause the weaker one
