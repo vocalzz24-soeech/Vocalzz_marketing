@@ -1,4 +1,7 @@
-# Plan: stop promoting hearing / audiology, focus on speech (DRAFT, waiting for owner's go-ahead)
+# Plan: no paid ads for hearing / audiology (owner decision 28 Nov 2026)
+
+DECISION: only part A (Google Ads) applies. KEEP hearing on the website (B) and Business Profile (C) for organic enquiries; part D not needed.
+Status 28 Nov: part A not yet applied (Windsor actions were declined in the permission prompt); owner to apply in Google Ads or re-approve
 
 Owner, 28 Nov 2026: the audiology setup isn't ready; hearing leads can't be served well, which risks bad experiences and reviews.
 Nothing below is done yet. Voice therapy page is live separately (/voice-therapy/).

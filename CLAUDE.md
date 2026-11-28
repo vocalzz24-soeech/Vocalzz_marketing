@@ -24,7 +24,7 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - **Special education:** learning difficulties, dyslexia, academic support
 - **Audiology:** hearing tests for children and adults, hearing aid consultation
 - **Voice therapy (Dr. Tanu):** hoarse, tired or strained voice; teachers, singers, professionals (page vocalzz.com/voice-therapy/, added 28 Nov 2026)
-- **Hearing / audiology: owner is PLANNING to stop promoting it (28 Nov 2026, not yet confirmed).** Plan: marketing/hearing-pause-plan.md. Don't start new hearing ads or content meanwhile; don't remove anything until the owner confirms
+- **Hearing / audiology (owner decision, 28 Nov 2026): NO PAID ADS for hearing.** Keep audiology on the Google Business Profile and the website (organic enquiries are fine and go to the right person; services planned again in future). Don't push hearing in ads, offers or campaigns. Plan: marketing/hearing-pause-plan.md
 - **Not offered:** physiotherapy (removed from the website 23 Nov 2026; Dr. Samriddhi's PT qualification stays in her title only). Never advertise physiotherapy
 - **Formats:** one-on-one sessions, group sessions, online therapy, home sessions of speech therapy and occupational therapy in parts of Noida and Greater Noida (subject to therapist availability; page vocalzz.com/therapy-at-home/)
 
