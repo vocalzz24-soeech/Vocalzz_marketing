@@ -44,7 +44,7 @@ POSTS = [
 <p><strong>Please don't wait</strong> if your child <strong>stops using words or skills they had before</strong>, at any age. Speak to your paediatrician and get an assessment promptly.</p>
 
 <h2>Why hearing should be checked too</h2>
-<p>Children learn to talk by listening. Even a mild or temporary hearing problem, for example after repeated ear infections, can affect speech. If your child's speech is late, a hearing check is a simple and important first step.</p>
+<p>Children learn to talk by listening. Even a mild or temporary hearing problem, for example after repeated ear infections, can affect speech. If your child's speech is late, ask your paediatrician or an ENT doctor about a hearing check; it's a simple and important first step.</p>
 
 <h2>Things you can try at home, starting today</h2>
 <ul>
@@ -146,7 +146,7 @@ POSTS = [
 <p>Plenty of families do this, hoping it'll speed things up. Children can learn two languages, and dropping the home language often means parents end up speaking less naturally and less often. Speak the language you're most comfortable in, and speak it a lot. If you're unsure, ask your therapist; it's a fair question.</p>
 
 <h2>8. Not checking hearing</h2>
-<p>It gets skipped more than you'd think. Children learn to speak by hearing, and even a mild or on-and-off hearing problem, say after repeated ear infections, can slow speech down. If speech is late, a hearing check is one of the first things worth doing.</p>
+<p>It gets skipped more than you'd think. Children learn to speak by hearing, and even a mild or on-and-off hearing problem, say after repeated ear infections, can slow speech down. If speech is late, ask your paediatrician or an ENT doctor about a hearing check; it's one of the first things worth doing.</p>
 
 <h2>9. Comparing out loud</h2>
 <p>"Riya is younger and she talks so much." Children understand a lot more than they can say, and they hear this. Notice the small things instead. A new sound. A new gesture. Two words together for the first time. Say it out loud when it happens.</p>

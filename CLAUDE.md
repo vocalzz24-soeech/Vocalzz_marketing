@@ -22,7 +22,8 @@ You are working for **Vocalzz Speech & Audio** (Vocalzz), a speech, occupational
 - **Occupational therapy:** sensory integration, fine motor skills, handwriting, attention, daily living skills
 - **Behavioural therapy:** ADHD, autism behaviour support, tantrums, emotional regulation
 - **Special education:** learning difficulties, dyslexia, academic support
-- **Audiology:** hearing tests for children and adults, hearing aid consultation
+- **Voice therapy (Dr. Tanu):** hoarse, tired or strained voice; teachers, singers, professionals (page vocalzz.com/voice-therapy/, added 28 Nov 2026)
+- **Audiology: NOT promoted (owner, 28 Nov 2026).** The audiology setup is not ready, so no hearing ads, no hearing page (/audiology/ redirects to speech therapy), no hearing offers. Dr. Tanu keeps "Audiologist" in her title (qualification) and the name stays "Speech & Audio". Don't create hearing content or ads unless the owner restarts it
 - **Not offered:** physiotherapy (removed from the website 23 Nov 2026; Dr. Samriddhi's PT qualification stays in her title only). Never advertise physiotherapy
 - **Formats:** one-on-one sessions, group sessions, online therapy, home sessions of speech therapy and occupational therapy in parts of Noida and Greater Noida (subject to therapist availability; page vocalzz.com/therapy-at-home/)
 

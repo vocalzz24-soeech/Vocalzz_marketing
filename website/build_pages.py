@@ -278,30 +278,33 @@ SERVICES = [
                   "We recommend a schedule after the assessment, based on your child's needs.")],
     },
     {
-        "slug": "audiology", "name": "Audiology & Hearing Tests", "short": "Audiology",
-        "title": "Hearing Test & Audiologist in Sector 137, Noida | Children & Adults | Vocalzz Speech & Audio",
-        "desc": "Hearing tests for children and adults and hearing aid consultations in Sector 137, Noida, by an experienced audiologist.",
-        "h1": "Audiology & Hearing Tests in Sector 137, Noida",
-        "lead": "Hearing checks for every age and hearing aid consultations, with Dr. Tanu Garg, Speech-Language Therapist & Audiologist.",
-        "wa": "Hi Vocalzz, I'd like to book a hearing test.",
-        "who": ["Children whose speech is delayed, as hearing should be checked when speech is late",
-                "Children who don't respond to their name or seem to ignore sounds",
-                "Adults and seniors who find conversations, the TV or phone calls hard to follow",
-                "Anyone with ringing in the ears or a sudden change in hearing (please see a doctor urgently for sudden hearing loss)",
-                "People considering a hearing aid or reviewing their current one"],
-        "work": ["Hearing tests for children and adults",
-                 "Explaining results in simple words",
-                 "Hearing aid consultation and guidance",
-                 "Referral to an ENT doctor where needed",
-                 "Communication support alongside speech therapy"],
-        "extra": ("Hearing and speech, under one roof",
-                  "Hearing and speech are closely linked. Because our audiologist is also a speech therapist, a child with late speech can have hearing checked and speech assessed without going to different clinics."),
-        "faqs": [("Can young children have a hearing test?",
-                  "Yes. Tests are chosen to suit the child's age. Tell us your child's age when booking and we'll explain what to expect."),
-                 ("Do you sell hearing aids?",
-                  "We offer hearing aid consultations and guidance. Message us to discuss your needs."),
-                 ("How long does a hearing test take?",
-                  "It depends on the test and the person's age. We'll let you know when you book.")],
+        "slug": "voice-therapy", "name": "Voice Therapy", "short": "Voice therapy",
+        "title": "Voice Therapy in Sector 137, Noida | Hoarse or Tired Voice | Vocalzz Speech & Audio",
+        "desc": "Voice therapy in Sector 137, Noida and online for a hoarse, tired, weak or strained voice. Healthy voice use and guided exercises with Dr. Tanu Garg, Speech-Language Therapist.",
+        "h1": "Voice Therapy in Sector 137, Noida",
+        "lead": "If your voice often sounds hoarse, gets tired by evening, or feels strained when you talk, voice therapy may help. Sessions are with Dr. Tanu Garg, Speech-Language Therapist with 10+ years' experience, at our Sector 137 clinic or online.",
+        "wa": "Hi Vocalzz, I'd like to know about voice therapy.",
+        "who": ["Teachers, trainers and lecturers whose voice gets tired or hoarse after classes",
+                "Singers, anchors and people who use their voice a lot at work",
+                "Call-centre, sales and customer-service staff who talk all day",
+                "Anyone whose voice has sounded rough, breathy or weak for a few weeks",
+                "People who feel strain, effort or discomfort when speaking",
+                "People referred by an ENT doctor for voice therapy"],
+        "work": ["How you use your voice day to day, and habits that strain it",
+                 "Breathing support for speaking",
+                 "Gentle voice exercises, practised step by step",
+                 "Voice care: rest, hydration and pacing your voice through the day",
+                 "Using your voice in real situations: classes, calls, meetings and presentations"],
+        "extra": ("When to see a doctor first",
+                  "If your voice has been hoarse for more than 2–3 weeks, or you have pain, difficulty swallowing or breathing, or you cough up blood, please see an ENT doctor first. Voice therapy often works alongside the doctor's advice. Every voice is different, so we start with an assessment and set goals with you."),
+        "faqs": [("What is the difference between voice therapy and speech therapy?",
+                  "Voice therapy is one part of speech therapy. Speech therapy covers talking, understanding, clear speech, stammering and swallowing; voice therapy focuses on how your voice sounds and feels: loudness, pitch, quality and strain."),
+                 ("Can voice therapy be done online?",
+                  "Often, yes. Many adults practise well online around work. We'll suggest whether online suits you after the first conversation."),
+                 ("How many sessions will I need?",
+                  "Every person is different, so we don't promise a fixed number. After the assessment we share realistic goals and review progress with you."),
+                 ("How do I book?",
+                  "WhatsApp us on +91 99106 71188 with your main concern. We reply 7 days a week. Clinic visits are Monday to Saturday, 10 am to 8 pm, by appointment.")],
     },
     {
         "slug": "therapy-at-home", "name": "Therapy at Home", "short": "Therapy at home",
@@ -358,14 +361,13 @@ SERVICES = [
     {
         "slug": "speech-therapy-greater-noida", "name": "For Greater Noida Families", "short": "Greater Noida",
         "title": "Speech Therapy for Greater Noida Families | Clinic, Home & Online | Vocalzz Speech & Audio",
-        "desc": "Speech therapy, occupational therapy and hearing tests for families in Greater Noida and Greater Noida West: our Sector 137 clinic on the Expressway, home sessions in some areas, or online.",
+        "desc": "Speech therapy and occupational therapy for families in Greater Noida and Greater Noida West: our Sector 137 clinic on the Expressway, home sessions in some areas, or online.",
         "h1": "Speech Therapy for Families in Greater Noida",
         "lead": "We work with families from Greater Noida and Greater Noida West too. Choose what suits you: visits to our Sector 137 clinic on the Noida–Greater Noida Expressway, home sessions in some areas, or online sessions.",
         "wa": "Hi Vocalzz, we live in Greater Noida and I'd like to know about speech therapy.",
         "who": ["Children who are late talkers, have unclear speech, or show signs of autism or speech delay",
                 "Children who need help with sensory needs, fine motor skills, handwriting or attention (occupational therapy)",
-                "Teens and adults who stammer, and adults with speech or swallowing difficulties after a stroke",
-                "Children and adults who need a hearing test or hearing aid advice"],
+                "Teens and adults who stammer, and adults with speech or swallowing difficulties after a stroke"],
         "work": ["Clinic visits in Sector 137, Noida: right next to the Noida–Greater Noida Expressway, easy to reach from Greater Noida",
                  "Home sessions of speech therapy and occupational therapy in some parts of Greater Noida, depending on therapist availability",
                  "Online speech therapy sessions from home, with practice activities you can do between sessions",
@@ -450,12 +452,12 @@ def build_services_index():
     schema = [{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}/{s['slug']}/", "name": s["name"]} for i, s in enumerate(SERVICES)]}]
     page("/services/", "Therapy Services in Sector 137, Noida | Vocalzz Speech & Audio",
-         "Speech therapy, occupational therapy, behavioural therapy, special education and audiology in Sector 137, Noida, all under one roof.",
+         "Speech therapy, voice therapy, occupational therapy, behavioural therapy and special education in Sector 137, Noida, all under one roof.",
          [("Home", "/"), ("Services", "/services/")], body, schema)
 
 
 TEAM = [("TG", "Dr. Tanu Garg", "Founder · Speech-Language Therapist & Audiologist",
-         "10+ years' experience, previously at Fortis Noida and BL Kapoor Hospital. Leads speech, language and hearing services at Vocalzz.", True),
+         "10+ years' experience, previously at Fortis Noida and BL Kapoor Hospital. Leads speech, language and voice therapy at Vocalzz.", True),
         ("S", "Dr. Samriddhi", "Physiotherapist & Certified Occupational Therapist",
          "Helps children build movement, sensory and everyday skills.", False),
         ("TK", "Tanishk Kaushik", "Occupational Therapist",
@@ -477,7 +479,7 @@ def build_about():
 <figure class="team-photo team-chart" style="margin:0 auto 8px"><img src="/photos/team-chart-1080.webp?v=2" srcset="/photos/team-chart-540.webp?v=2 540w, /photos/team-chart-1080.webp?v=2 1080w" sizes="(min-width: 600px) 520px, 100vw" width="1080" height="1350" loading="lazy" decoding="async" alt="The Vocalzz team: Dr. Tanu Garg, founder, speech therapist and audiologist; Dr. Samriddhi; Minhaj Hashmi and Tanishk Kaushik"><figcaption>Our team at Vocalzz, Sector 137, Noida</figcaption></figure>
 <h2>Why families choose Vocalzz</h2>
 <ul>
-<li><strong>Every therapy under one roof:</strong> speech, occupational and behavioural therapy, special education and audiology.</li>
+<li><strong>Every therapy under one roof:</strong> speech, voice, occupational and behavioural therapy, and special education.</li>
 <li><strong>One team, one plan:</strong> our therapists share notes and agree goals together, so nothing pulls in different directions.</li>
 <li><strong>Parents are part of therapy:</strong> after every session you get simple activities to practise at home.</li>
 <li><strong>Honest guidance:</strong> every person is different, so we set realistic goals and review progress with you, without promising fixed results or timelines.</li>
@@ -497,7 +499,7 @@ def build_about():
         "@context": "https://schema.org",
         "employee": [{"@type": "Person", "name": name, "jobTitle": role} for _, name, role, _, _ in TEAM]})}]
     page("/about/", "About Vocalzz Speech & Audio | Therapy Team in Sector 137, Noida",
-         "Meet the Vocalzz team in Sector 137, Noida: speech therapy, audiology, occupational therapy and special education, planned together around each child.",
+         "Meet the Vocalzz team in Sector 137, Noida: speech and voice therapy, occupational therapy and special education, planned together around each child.",
          [("Home", "/"), ("About us", "/about/")], body, schema)
 
 
