@@ -5,6 +5,18 @@ of what is open (owner's items first), and update it when something is done. New
 section. Last updated: 24 Nov 2026.
 
 
+## ⏳ EXECUTION PLAN, WAITING FOR OWNER'S CONFIRMATION (owner, 28 Nov: "I'll confirm in the evening, act only then")
+Do NOTHING below until the owner confirms. Voice therapy page (/voice-therapy/) was already live before this; leave it as it is.
+1. Google Ads, hearing (plan: marketing/hearing-pause-plan.md, part A only):
+   a. Pause ad group "Hearing" (id 206025371207)
+   b. Edit 4 ads to remove hearing wording: Child Speech v2 (832857973120) headline "Speech & Hearing Clinic Noida" → "Speech Therapy Clinic Noida" + description; Child Speech old (832441924541), OT (832310643486, 832803822231) description "…hearing… under one roof" → "Speech, OT, behaviour support & special education under one roof. WhatsApp us 7 days."
+   c. Campaign negatives (phrase): hearing test, hearing aid, hearing aids, audiologist, audiometry, ear test, bera test, oae test, pta test
+   Keep hearing on the website and Business Profile (organic only)
+2. Voice therapy in ads: add voice keywords / point Adults voice searches to /voice-therapy/ (to plan with owner)
+3. Structured snippet asset (Services: Speech therapy, Stammering, Occupational therapy, Voice therapy, Special education); image assets once owner sends 6–8 photos
+4. Budget step ₹400 → ₹600 around 2 Dec, after re-checking 5 full days + booking-app leads
+5. Directory clean-up sheet (after owner answers: was the clinic ever at "Tower-P, Ajnara Element"?)
+
 ## ⏰ REMIND THE OWNER AT THE START OF THE NEXT CONVERSATION (added 27 Nov)
 1. SEO action plan for Google: the website (vocalzz.com) AND the Google Business Profile (listing). Build on marketing/seo-plan-2026-11.md; include GBP posts, reviews routine, categories/services, Q&A, photos, the duplicate-listing merge, new pages (/child-not-talking/, /speech-therapy-adults/), not-indexed list
 2. Check whether advertising on Meta (Facebook/Instagram) has any impact, positive or negative, on the website and on Google presence (SEO, Business Profile, Google Ads), given Meta ads have not brought relevant leads so far. Give a clear yes/no answer with evidence and what to do about Meta ads (parked)
