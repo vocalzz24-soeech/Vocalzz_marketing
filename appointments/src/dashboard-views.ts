@@ -12,11 +12,22 @@ const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const CSS = `
 .viz{--s-completed:#2a78d6;--s-no_show:#eb6834;--s-upcoming:#1baf7a;--s-unmarked:#eda100;--s-cancelled:#e87ba4;--grid:#e1e0d9;--axis:#c3c2b7;--surface:var(--card)}
 @media (prefers-color-scheme:dark){.viz{--s-completed:#3987e5;--s-no_show:#d95926;--s-upcoming:#199e70;--s-unmarked:#c98500;--s-cancelled:#d55181;--grid:#2c2c2a;--axis:#383835}}
-.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:12px}
-.filters .seg a{white-space:nowrap}.filters .seg{flex-wrap:wrap}
-.filters select,.filters input{width:auto;padding:6px 10px}
-.filters .custom{display:flex;gap:6px;align-items:end;flex-wrap:wrap}
-.filters .custom label{margin:0 0 2px;font-size:12px}
+.dbars{display:flex;flex-direction:column;gap:10px;width:min(100%,820px);margin:0 0 14px}
+.dbars .seg{display:grid;grid-template-columns:repeat(6,1fr);width:100%}
+.dbars .seg a{text-align:center;display:flex;align-items:center;justify-content:center;padding:9px 6px;line-height:1.2;white-space:nowrap}
+.dbars .seg a + a{border-left:1px solid var(--line)}
+.filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:end;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0}
+.filters > div{flex:0 1 auto;min-width:0}
+.filters label{margin:0 0 3px;font-size:12px;color:var(--muted);display:block}
+.filters select,.filters input{width:auto;max-width:100%;padding:6px 10px;margin:0}
+.filters button{margin:0}
+@media (max-width:640px){
+  .dbars .seg{grid-template-columns:repeat(3,1fr)}
+  .dbars .seg a{font-size:13px;padding:8px 4px;white-space:normal}
+  .dbars .seg a:nth-child(4){border-left:0}
+  .dbars .seg a:nth-child(n+4){border-top:1px solid var(--line)}
+  .filters > div{flex:1 1 40%}.filters select,.filters input{width:100%}
+}
 .report-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin:6px 0 10px}
 .report-head h2{margin:0}
 .report-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.report-actions .btn,.report-actions button{margin:0;white-space:nowrap}.report-actions form{margin:0}
@@ -131,22 +142,21 @@ export function dashboardPage(user: User, r: Report, opts: { therapists: Therapi
   const link = (key: string) => `/dashboard?period=${key}${opts.therapistId ? `&therapist=${opts.therapistId}` : ""}`;
   return layout("Dashboard", user, html`<style>${raw(CSS)}</style>
 <h1>Dashboard</h1>
+<div class="dbars">
+<span class="seg" aria-label="Period">${PERIODS.map((x) => html`<a class="${x.key === p.key ? "on" : ""}" href="${x.key === "custom" ? `/dashboard?period=custom&from=${p.from}&to=${p.to}${opts.therapistId ? `&therapist=${opts.therapistId}` : ""}` : link(x.key)}">${x.key === "custom" ? "Custom dates" : x.label}</a>`)}</span>
 <form class="filters" method="get" action="/dashboard">
-<span class="seg">${PERIODS.filter((x) => x.key !== "custom").map((x) => html`<a class="${x.key === p.key ? "on" : ""}" href="${link(x.key)}">${x.label}</a>`)}</span>
-<div class="custom"><input type="hidden" name="period" value="custom">
-<div><label for="from">From</label><input id="from" type="date" name="from" value="${p.from}"></div>
-<div><label for="to">To</label><input id="to" type="date" name="to" value="${p.to}"></div></div>
-<div><label for="therapist" style="margin:0 0 2px;font-size:12px">Therapist</label>
+<input type="hidden" name="period" value="${p.key}">
+<div><label for="therapist">Therapist</label>
 <select id="therapist" name="therapist"><option value="">All therapists</option>
 ${opts.therapists.filter((t) => !t.deleted_at).map((t) => html`<option value="${t.id}" ${t.id === opts.therapistId ? "selected" : ""}>${t.name}</option>`)}</select></div>
-<button class="secondary" style="margin:0">Show</button>
-</form>
+${p.key === "custom" ? html`<div><label for="from">From</label><input id="from" type="date" name="from" value="${p.from}"></div>
+<div><label for="to">To</label><input id="to" type="date" name="to" value="${p.to}"></div>
+<button class="secondary">Show</button>` : ""}
+</form></div>
 <script>
-// Changing the therapist keeps the chosen preset period; changing a date switches to custom dates.
+// Changing the therapist reloads straight away, keeping the chosen period.
 (function () {
-  var f = document.querySelector("form.filters"), sel = document.getElementById("therapist"), period = f.querySelector('input[name="period"]');
-  period.value = "${p.key}";
-  ["from", "to"].forEach(function (id) { document.getElementById(id).addEventListener("change", function () { period.value = "custom"; }); });
+  var f = document.querySelector("form.filters"), sel = document.getElementById("therapist");
   sel.addEventListener("change", function () { f.requestSubmit ? f.requestSubmit() : f.submit(); });
 })();
 </script>
